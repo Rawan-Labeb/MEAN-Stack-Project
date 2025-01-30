@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const userMiddelWare = require("./controllers/user.controller")
 require('dotenv').config();
 
 const app = express();
@@ -29,15 +30,8 @@ mongoose.connect(process.env.MONGO_URI)
   app.get('/', (req, res) => {
     res.json({ message: 'Hello from the back end!' });});
 
-
-
-
-
-
-
-
-
-
+    app.use("/users", userMiddelWare);
+    
 
   app.use((request,response)=>{
     response.status(404).json({messege:"not found"})
