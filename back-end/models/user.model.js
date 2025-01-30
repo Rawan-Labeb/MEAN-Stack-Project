@@ -1,13 +1,20 @@
 const mongoose = require("mongoose");
 
+const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
+
+
 const userSchema = new mongoose.Schema({
+  user_id: { type: String, default: () => uuidv4() },
   role: {
     type: String,
     required: true,
+    default: "Customer",
     enum: ["Customer", "Seller", "Admin", "Manager"],
   },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  salt: { type: String, required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   address: {
@@ -19,6 +26,14 @@ const userSchema = new mongoose.Schema({
   contactNo: { type: String },
   image: { type: String },
   isActive: { type: Boolean, default: true },
+});
+
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    this.salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, this.salt);
+  }
+  next();
 });
 
 module.exports = mongoose.model("User", userSchema);
