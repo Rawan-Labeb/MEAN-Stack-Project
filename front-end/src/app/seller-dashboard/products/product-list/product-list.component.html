@@ -1,0 +1,75 @@
+<div class="container-fluid">
+    <div class="card">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col">
+            <h3 class="mb-0">Products Management</h3>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-primary" routerLink="add">
+              <i class="fas fa-plus"></i> Add Product
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="searchTerm" 
+                   (input)="onSearch()"
+                   placeholder="Search products...">
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" 
+                    [(ngModel)]="statusFilter" 
+                    (change)="onStatusFilterChange()">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+  
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th (click)="sort('name')" style="cursor: pointer">
+                  Name <i [class]="getSortIcon('name')"></i>
+                </th>
+                <th (click)="sort('price')" style="cursor: pointer">
+                  Price <i [class]="getSortIcon('price')"></i>
+                </th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of filteredProducts">
+                <td>{{product.name}}</td>
+                <td>${{product.price}}</td>
+                <td>{{product.quantity}}</td>
+                <td>
+                  <span class="badge" [ngClass]="product.isActive ? 'bg-success' : 'bg-danger'">
+                    {{product.isActive ? 'Active' : 'Inactive'}}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-info me-2" [routerLink]="['edit', product._id]">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteProduct(product._id)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
