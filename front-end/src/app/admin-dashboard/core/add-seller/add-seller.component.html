@@ -1,0 +1,90 @@
+<div class="modal fade text-start" id="create-updateUser" tabindex="-1"
+                            aria-labelledby="myModalLabel33" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title updateTitle" id="myModalLabel33">Add New Product</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form id="add-update-product-form" enctype="multipart/form-data">
+                                            <input type="hidden" id="product-id">
+                                            <input type="hidden" id="seller-id">
+
+                                            <!-- Product Info Section -->
+                                            <div class="row mb-2">
+                                                <div class="col-6">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="product-name">Name</label>
+                                                        <input type="text" id="product-name" name="product-name"
+                                                            class="form-control" placeholder="Name" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="mb-1">
+                                                        <label class="form-label"
+                                                            for="product-category">Category</label>
+                                                        <select id="product-category" name="product-category"
+                                                            class="select2 form-select">
+                                                            <option value=""> select category</option>
+                                                            <option value="1"> Necklaces</option>
+                                                            <option value="2">Rings</option>
+                                                            <option value="3">Bracelets</option>
+                                                            <option value="4">Earrings</option>
+                                                        </select>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-2">
+                                                <div class="col-6">
+                                                    <div class="mb-1">
+                                                        <label for="product-price" class="form-label">Price</label>
+                                                        <input type="number" min="1" id="product-price"
+                                                            name="product-price" class="form-control"
+                                                            placeholder="Price" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="mb-1">
+                                                        <label for="product-qty" class="form-label">Quantity</label>
+                                                        <input type="number" min="1" id="product-qty" name="product-qty"
+                                                            class="form-control" placeholder="Quantity" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <div class="mb-1">
+                                                        <label for="product-price"
+                                                            class="form-label">Description</label>
+                                                        <textarea class="form-control" name="product-desc"
+                                                            id="product-desc"></textarea>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <!-- Image Preview Row -->
+                                            <div id="image-preview-row" class="d-flex flex-wrap gap-2 mb-2"></div>
+
+                                            <!-- Add Image Button -->
+                                            <div class="mb-2">
+                                                <button type="button" id="add-image-btn" class="btn btn-outline-primary"
+                                                    onclick="products.addPerviewImgs()">Add Image</button>
+                                            </div>
+
+                                            <!-- Form Submission Buttons -->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-primary me-1 add-update-btn"
+                                                    onclick="products.addUpdate(event);">Add</button>
+                                                <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>

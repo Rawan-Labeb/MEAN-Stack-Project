@@ -4,9 +4,10 @@ const cors = require('cors');
 const user = require("./controllers/user.controller")
 const permission = require("./controllers/permission.controller");
 require('dotenv').config();
-
+const category=require("./controllers/category.controller")
+const image = require('./controllers/media.controller');
+const fileUpload = require("express-fileupload");
 const app = express();
-
 
 app.use(cors({
     origin: 'http://localhost:4200',
@@ -30,11 +31,14 @@ mongoose.connect(process.env.MONGO_URI)
 
   app.get('/', (req, res) => {
     res.json({ message: 'Hello from the back end!' });});
+    app.use(fileUpload());
 
     app.use("/users", user);
 
     app.use("/permission", permission);
-    
+
+    app.use(category)
+    app.use(image)
 
   app.use((request,response)=>{
     response.status(404).json({messege:"not found"})

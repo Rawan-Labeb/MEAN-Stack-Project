@@ -1,0 +1,103 @@
+<div class="container-fluid page">
+    <div class="d-flex page__box p-3 mt-2">Users</div>
+    <div class="page__content shadow p-3 position-relative">
+      <div class="page__content-data position-absolute text-center">
+        <!-- dashboard.component.html -->
+<div class="container-fluid p-4">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <h5 class="card-title">Total Users</h5>
+            <p class="card-text display-4">10</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <h5 class="card-title">Active Users</h5>
+            <p class="card-text display-4">6</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-danger text-white">
+          <div class="card-body">
+            <h5 class="card-title">Inactive Users</h5>
+            <p class="card-text display-4">4</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Search and Filter -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <input type="text" class="form-control" placeholder="Search...">
+      </div>
+      <div class="col-md-3">
+        <select class="form-select">
+          <option>Select Status</option>
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+      <div class="col-md-3 text-end">
+        <div class="form-text">Show 10 entries</div>
+      </div>
+    </div>
+  
+    <!-- Data Table -->
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>NAME</th>
+            <th>ADDRESS</th>
+            <th>PHONE</th>
+            <th>GENDER</th>
+            <th>STATUS</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar bg-primary text-white me-2">
+                  {{ getInitials(user.name) }}
+                </div>
+                {{ user.name }}
+              </div>
+            </td>
+            <td>{{ user.address }}</td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.gender }}</td>
+            <td>
+              <span class="badge" [ngClass]="user.status === 'Active' ? 'bg-success' : 'bg-secondary'">
+                {{ user.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-2">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="text-muted">Showing 10 to 10 of 10 entries</div>
+    </div>
+  </div>
+      </div>
+    </div>
+  </div>
