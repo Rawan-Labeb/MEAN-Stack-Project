@@ -1,0 +1,20 @@
+.analytics-container {
+    background-color: #f8f9fa;
+  }
+  
+  .card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1rem;
+  }
+  
+  .date-range {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  canvas {
+    width: 100% !important;
+    height: 300px !important;
+  }
