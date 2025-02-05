@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoginComponent } from './authentication/login/login.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';

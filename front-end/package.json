@@ -21,7 +21,6 @@
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
     "@swimlane/ngx-charts": "^22.0.0-alpha.0",
-    "bootstrap": "^3.4.1",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@types/chart.js": "^2.9.41",
     "bootstrap": "^5.3.3",

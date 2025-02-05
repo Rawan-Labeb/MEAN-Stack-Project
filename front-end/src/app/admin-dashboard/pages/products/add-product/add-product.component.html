@@ -1,0 +1,23 @@
+<div class="container-fluid page">
+    <div class="d-flex page__box p-3 mt-2">Products</div>
+    <div class="page__content shadow p-3 position-relative">
+      <div class="page__content-data position-absolute text-center">
+        <div>
+          @for (product of products; track $index) {
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <p>Price: {{ product.price }}$</p>
+          
+            <div *ngIf="product.images?.length">
+              <h4>Images:</h4>
+              <img *ngFor="let img of product.images" [src]="img" alt="Product Image" width="100" />
+            </div>
+          
+            <input type="file" (change)="onFileChange($event, product._id)" />
+            <button (click)="uploadImage()">Upload Image</button>
+
+          }
+        </div>
+      </div>
+    </div>
+  </div>

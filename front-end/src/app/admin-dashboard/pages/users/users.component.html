@@ -1,103 +1,123 @@
 <div class="container-fluid page">
-    <div class="d-flex page__box p-3 mt-2">Users</div>
-    <div class="page__content shadow p-3 position-relative">
-      <div class="page__content-data position-absolute text-center">
-        <!-- dashboard.component.html -->
-<div class="container-fluid p-4">
-    <!-- Stats Cards -->
-    <div class="row mb-4">
-      <div class="col-md-3">
-        <div class="card bg-primary text-white">
-          <div class="card-body">
-            <h5 class="card-title">Total Users</h5>
-            <p class="card-text display-4">10</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card bg-success text-white">
-          <div class="card-body">
-            <h5 class="card-title">Active Users</h5>
-            <p class="card-text display-4">6</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card bg-danger text-white">
-          <div class="card-body">
-            <h5 class="card-title">Inactive Users</h5>
-            <p class="card-text display-4">4</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Search and Filter -->
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <input type="text" class="form-control" placeholder="Search...">
-      </div>
-      <div class="col-md-3">
-        <select class="form-select">
-          <option>Select Status</option>
-          <option>Active</option>
-          <option>Inactive</option>
-        </select>
-      </div>
-      <div class="col-md-3 text-end">
-        <div class="form-text">Show 10 entries</div>
-      </div>
-    </div>
-  
-    <!-- Data Table -->
-    <div class="table-responsive">
-      <table class="table table-hover">
-        <thead class="table-light">
-          <tr>
-            <th>NAME</th>
-            <th>ADDRESS</th>
-            <th>PHONE</th>
-            <th>GENDER</th>
-            <th>STATUS</th>
-            <th>ACTIONS</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users">
-            <td>
-              <div class="d-flex align-items-center">
-                <div class="avatar bg-primary text-white me-2">
-                  {{ getInitials(user.name) }}
+  <div class="d-flex page__box p-3 mt-2">Users</div>
+  <div class="page__content shadow p-3 position-relative">
+    <div>
+      <div>
+        <div class="container-fluid p-4">
+          <!-- Stats Cards -->
+          <div class="row mb-4 text-center justify-content-around">
+            <div class="col-md-3">
+              <div class="card bg-primary text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Total Users</h5>
+                  <p class="card-text display-4">10</p>
                 </div>
-                {{ user.name }}
               </div>
-            </td>
-            <td>{{ user.address }}</td>
-            <td>{{ user.phone }}</td>
-            <td>{{ user.gender }}</td>
-            <td>
-              <span class="badge" [ngClass]="user.status === 'Active' ? 'bg-success' : 'bg-secondary'">
-                {{ user.status }}
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-primary me-2">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  
-    <!-- Pagination -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <div class="text-muted">Showing 10 to 10 of 10 entries</div>
-    </div>
-  </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-success text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Active Users</h5>
+                  <p class="card-text display-4">6</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-danger text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Inactive Users</h5>
+                  <p class="card-text display-4">4</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- *********************************************************************** -->
+        <div class="card">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col">
+                <h3 class="mb-0"></h3>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-primary" routerLink="add">
+                  <i class="fas fa-plus"></i> Add User
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <div class="row mb-3 justify-content-between">
+              <div class="col-md-4">
+                <input type="text" 
+                        class="form-control" 
+                        [(ngModel)]="searchTerm" 
+                        (input)="onSearch()"
+                        placeholder="Search Users...">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" 
+                        [(ngModel)]="statusFilter" 
+                        (change)="onStatusFilterChange()">
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+      
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th (click)="sort('name')" style="cursor: pointer" class="justify-content-between">
+                      Name<i [class]="getSortIcon('name')"></i>
+                      <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
+                    </th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>phone</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let user of filteredUsers">
+                    <td>{{user.name}}</td>
+                    <td>{{user.email}}</td>
+                    <td>${{user.address}}</td>
+                    <td>{{user.phone}}</td>
+                    <td>
+                      <span class="badge" [ngClass]="user.status ? 'bg-success' : 'bg-danger'">
+                        {{user.status ? ' Active ' : 'Inactive'}}
+                      </span>
+                    </td>
+                    <td>
+                      <button [matMenuTriggerFor]="menu" class="border-0" style="background: none;">
+                        <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
+                      </button>
+                      <mat-menu #menu="matMenu" class="bg-white ">
+                        <button mat-menu-item [routerLink]="['edit', user._id]">
+                          <mat-icon>edit</mat-icon>
+                          Update
+                        </button>
+                        <button mat-menu-item (click)="deleteUser(user._id)">
+                          <mat-icon>delete</mat-icon>
+                          Delete
+                        </button>
+                        <button mat-menu-item>
+                          <mat-icon>close</mat-icon>
+                          {{user.status ? ' Inactive ' : 'Active'}}
+                        </button>
+                      </mat-menu>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>

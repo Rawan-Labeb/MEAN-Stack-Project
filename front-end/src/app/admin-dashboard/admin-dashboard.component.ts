@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
 import { HeaderComponent } from './core/header/header.component';
 import { SidenavComponent } from './core/sidenav/sidenav.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -14,7 +14,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [RouterOutlet, HeaderComponent, SidenavComponent, MatSidenavModule, MatIconModule, MatListModule, MatToolbarModule, MatMenuModule, MatDividerModule, FooterComponent,MatDialogModule],
+  imports: [RouterOutlet, HeaderComponent, SidenavComponent, MatSidenavModule, MatIconModule, MatListModule, MatToolbarModule, MatMenuModule, MatDividerModule, FooterComponent,MatDialogModule,NgxChartsModule],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
 })
