@@ -12,8 +12,10 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
     RouterOutlet,
     ToastModule,
     CommonModule,
+    AdminDashboardComponent
   ],
   template: `
+  <app-admin-dashboard></app-admin-dashboard>
     <router-outlet></router-outlet>
     <p-toast></p-toast>
   `,

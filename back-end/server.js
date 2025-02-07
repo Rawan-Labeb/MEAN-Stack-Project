@@ -8,7 +8,7 @@ const supplierController = require('./controllers/supplier.controller');
 const validateProduct = require('./middleware/productValidation');
 require('dotenv').config();
 const category=require("./controllers/category.controller")
-const image = require('./controllers/media.controller');
+//const image = require('./controllers/media.controller');
 const fileUpload = require("express-fileupload");
 const app = express();
 const port = process.env.PORT ;
@@ -80,7 +80,7 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/permission", permission);
 
     app.use(category)
-    app.use(image)
+    //app.use(image)
 
   app.use((request,response)=>{
     response.status(404).json({messege:"not found"})
