@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const user = require("./controllers/user.controller")
 const permission = require("./controllers/permission.controller");
+const Complaint = require("./controllers/complaint.controller")
 require('dotenv').config();
 
 const app = express();
@@ -81,6 +82,7 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/users", user);
 
     app.use("/permission", permission);
+    app.use("/complaint", Complaint);
     
 
   app.use((request,response)=>{
