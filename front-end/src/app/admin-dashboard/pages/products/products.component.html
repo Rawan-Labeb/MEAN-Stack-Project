@@ -56,7 +56,7 @@
               </div>
               <div class="col-auto">
                 <button class="btn btn-primary" routerLink="add">
-                  <i class="fas fa-plus"></i> Add Product
+                  Add Product
                 </button>
               </div>
             </div>
@@ -87,13 +87,13 @@
                 <thead>
                   <tr>
                     <th (click)="sort('name')" style="cursor: pointer">
-                      Name<i [class]="getSortIcon('name')"></i>
+                      Name
                       <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
                     </th>
                     <th>Category</th>
                     <th>Seller</th>
                     <th (click)="sort('price')" style="cursor: pointer">
-                      Price <i [class]="getSortIcon('price')"></i>
+                      Price
                       <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
                     </th>
                     <th>Qty</th>

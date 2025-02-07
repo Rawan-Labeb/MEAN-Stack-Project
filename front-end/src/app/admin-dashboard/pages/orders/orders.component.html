@@ -1,83 +1,187 @@
 <div class="container-fluid page">
-    <div class="d-flex page__box p-3 mt-2">Orders</div>
-    <div class="page__content shadow p-3 position-relative">
+  <div class="d-flex page__box p-3 mt-2">Orders</div>
+  <div class="page__content shadow p-3 position-relative">
+    <div>
       <div>
-        <div>
-          <div class="card">
-            <div class="card-header">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0"></h3>
-                </div>
-                <div class="col-auto">
-                  <button class="btn btn-primary" routerLink="add">
-                    <i class="fas fa-plus"></i> Add Product
-                  </button>
+        <div class="container-fluid p-4">
+          <!-- Stats Cards -->
+          <div class="row mb-4 text-center justify-content-around">
+            <div class="col-md-2">
+              <div class="card bg-primary text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Total <br>Orders</h5>
+                  <p class="card-text display-6">10</p>
                 </div>
               </div>
             </div>
-            
-            <div class="card-body">
-              <div class="row mb-3 justify-content-between">
-                <div class="col-md-4">
-                  <input type="text" 
-                         class="form-control" 
-                         [(ngModel)]="searchTerm" 
-                         (input)="onSearch()"
-                         placeholder="Search products...">
-                </div>
-                <div class="col-md-3">
-                  <select class="form-select" 
-                          [(ngModel)]="statusFilter" 
-                          (change)="onStatusFilterChange()">
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
+            <div class="col-md-2">
+              <div class="card bg-warning text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Pending Orders</h5>
+                  <p class="card-text display-6">6</p>
                 </div>
               </div>
-        
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th (click)="sort('name')" style="cursor: pointer">
-                        Name <i [class]="getSortIcon('name')"></i>
-                      </th>
-                      <th (click)="sort('price')" style="cursor: pointer">
-                        Price <i [class]="getSortIcon('price')"></i>
-                      </th>
-                      <th>Quantity</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let product of filteredProducts">
-                      <td>{{product.name}}</td>
-                      <td>${{product.price}}</td>
-                      <td>{{product.quantity}}</td>
-                      <td>
-                        <span class="badge" [ngClass]="product.isActive ? 'bg-success' : 'bg-danger'">
-                          {{product.isActive ? 'Active' : 'Inactive'}}
-                        </span>
-                      </td>
-                      <td>
-                        <button class="btn btn-sm btn-info me-2" [routerLink]="['edit', product._id]">
-                          <i class="fas fa-edit"></i>
-                          update
-                        </button>
-                        <button class="btn btn-sm btn-danger" (click)="deleteProduct(product._id)">
-                          delete
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            </div>
+            <div class="col-md-2"> 
+              <div class="card bg-info text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Shipped Orders</h5>
+                  <p class="card-text display-6">6</p>
+                </div>
               </div>
+            </div>
+            <div class="col-md-2">
+              <div class="card bg-success text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Completed Orders</h5>
+                  <p class="card-text display-6">4</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="card bg-danger text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Cancelled Orders</h5>
+                  <p class="card-text display-6">15</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <div class="card bg-secondary text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Returned Orders</h5>
+                  <p class="card-text display-6">2</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- *********************************************************************** -->
+        <div class="card">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col">
+                <h3 class="mb-0"></h3>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-primary" routerLink="add">
+                  Add order
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <div class="row mb-3 justify-content-between">
+              <div class="col-md-4">
+                <input type="text" 
+                        class="form-control" 
+                        [(ngModel)]="searchTerm" 
+                        (input)="onSearch()"
+                        placeholder="Search order...">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select" 
+                        [(ngModel)]="statusFilter" 
+                        (change)="onStatusFilterChange()">
+                  <option value="all">All Status</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                  <option value="Returned">Returned</option>
+                </select>
+              </div>
+            </div>
+      
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Id</th>
+                    <th>Customer</th>
+                    <th>Price</th>
+                    <th>Items</th>
+                    <th (click)="sort('date')" style="cursor: pointer" class="justify-content-between">
+                      Date
+                      <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
+                    </th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let order of filteredOrders">
+                    <td>{{order.orderId}}</td>
+                    <td>{{ order.customerDetails.firstName }} {{ order.customerDetails.lastName }}</td>
+                    <td>${{order.totalPrice}}</td>
+                    <td>{{order.items.length}}</td>
+                    <td>{{formatDate(order.date)}}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'bg-success': order.paymentMethod === 'Cash', 
+                        'bg-warning': order.paymentMethod === 'Card', 
+                        'bg-info': order.paymentMethod === 'Online',
+                      }">
+                        {{ order.paymentMethod === 'Cash' ? 'Cash' :
+                        order.paymentMethod === 'Card' ? 'Card' :
+                        order.paymentMethod === 'Online' ? 'Online' :'' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                          'bg-success': order.status === 'Completed', 
+                          'bg-warning': order.status === 'Pending', 
+                          'bg-info': order.status === 'Shipped',
+                          'bg-danger': order.status === 'Cancelled',
+                          'bg-secondary': order.status === 'Returned'
+                        }">
+                        {{ order.status === 'Pending' ? 'Pending' :
+                           order.status === 'Completed' ? 'Completed' :
+                           order.status === 'Shipped' ? 'Shipped' :
+                           order.status === 'Cancelled' ? 'Cancelled' :
+                           order.status === 'Returned' ? 'Returned' : '' }}
+                      </span>
+                    </td>
+                    <td>
+                      <button [matMenuTriggerFor]="menu" class="border-0" style="background: none;">
+                        <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
+                      </button>
+                      <mat-menu #menu="matMenu" class="bg-white ">
+                        <button mat-menu-item *ngIf="order.status === 'Pending' || order.status === 'Shipped'"
+                          (click)="updateOrderStatus(order)">
+                          <mat-icon>check</mat-icon>
+                          {{ order.status === 'Pending' ? 'Shipped' : 'Completed' }}
+                        </button>
+                        <button mat-menu-item *ngIf="order.status === 'Pending'" (click)="cancelOrder(order)">
+                          <mat-icon>close</mat-icon>
+                          Cancelled
+                        </button>
+                        <button mat-menu-item *ngIf="order.status === 'Completed'" (click)="returnOrder(order)">
+                          <mat-icon>refresh</mat-icon>
+                          Returned
+                        </button>
+                        <button mat-menu-item [routerLink]="['edit', order.orderId]">
+                          <mat-icon>visibility</mat-icon>
+                          Details
+                        </button>
+                        <button mat-menu-item [routerLink]="['edit', order.orderId]">
+                          <mat-icon>edit</mat-icon>
+                          Update
+                        </button>
+                        <button mat-menu-item (click)="deleteUser(order.orderId)">
+                          <mat-icon>delete</mat-icon>
+                          Delete
+                        </button>
+                      </mat-menu>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>

@@ -10,7 +10,7 @@
               <div class="card bg-primary text-white">
                 <div class="card-body">
                   <h5 class="card-title">Total Users</h5>
-                  <p class="card-text display-4">10</p>
+                  <p class="card-text display-4">{{users.length}}</p>
                 </div>
               </div>
             </div>
@@ -18,7 +18,7 @@
               <div class="card bg-success text-white">
                 <div class="card-body">
                   <h5 class="card-title">Active Users</h5>
-                  <p class="card-text display-4">6</p>
+                  <p class="card-text display-4">{{activeUsersCount}}</p>
                 </div>
               </div>
             </div>
@@ -26,7 +26,7 @@
               <div class="card bg-danger text-white">
                 <div class="card-body">
                   <h5 class="card-title">Inactive Users</h5>
-                  <p class="card-text display-4">4</p>
+                  <p class="card-text display-4">{{inactiveUsersCount}}</p>
                 </div>
               </div>
             </div>
@@ -40,7 +40,7 @@
               </div>
               <div class="col-auto">
                 <button class="btn btn-primary" routerLink="add">
-                  <i class="fas fa-plus"></i> Add User
+                  Add User
                 </button>
               </div>
             </div>
@@ -71,7 +71,7 @@
                 <thead>
                   <tr>
                     <th (click)="sort('name')" style="cursor: pointer" class="justify-content-between">
-                      Name<i [class]="getSortIcon('name')"></i>
+                      Name
                       <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
                     </th>
                     <th>Email</th>

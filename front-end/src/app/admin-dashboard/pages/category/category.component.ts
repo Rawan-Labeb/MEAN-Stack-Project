@@ -7,14 +7,13 @@ import { UserService } from '../../../_services/user.service';
 import Swal from 'sweetalert2';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-
 @Component({
-  selector: 'app-sellers',
+  selector: 'app-category',
   imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule],
-  templateUrl: './sellers.component.html',
-  styleUrl: './sellers.component.css'
+  templateUrl: './category.component.html',
+  styleUrl: './category.component.css'
 })
-export class SellersComponent {
+export class CategoryComponent {
   users: User[] = [
       {_id:1, name: 'Talia Keyes', email: 'tkeyes@example.org', address: '789 Oak Ave, Lakeview', phone: '+1-456-789-0123', gender: 'female', status: true, initials: 'TK' },
       {_id:1, name: 'Sophia James', email: 'sjames@abc.net.au', address: '404 Spruce Dr, Willowfield', phone: '+1-890-123-4567', gender: 'female', status: true, initials: 'SJ' },

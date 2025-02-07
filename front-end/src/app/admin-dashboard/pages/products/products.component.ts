@@ -222,10 +222,5 @@ export class ProductsComponent{
         }
         this.applyFilters();
       }
-    
-      getSortIcon(column: string): string {
-        if (this.sortColumn !== column) return 'fas fa-sort';
-        return this.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
-      }
 }
 

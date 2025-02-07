@@ -8,7 +8,7 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,ToastModule,LoginComponent,CommonModule,AdminDashboardComponent],
+  imports: [ToastModule,CommonModule,AdminDashboardComponent],
   providers: [MessageService],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']

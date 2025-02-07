@@ -15,7 +15,7 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class UsersComponent {
   users: User[] = [
-    {_id:1, name: 'Talia Keyes', email: 'tkeyes@example.org', address: '789 Oak Ave, Lakeview', phone: '+1-456-789-0123', gender: 'female', status: true, initials: 'TK' },
+    {_id:1, name: 'Talia Keyes', email: 'tkeyes@example.org', address: '789 Oak Ave, Lakeview', phone: '+1-456-789-0123', gender: 'female', status: false, initials: 'TK' },
     {_id:1, name: 'Sophia James', email: 'sjames@abc.net.au', address: '404 Spruce Dr, Willowfield', phone: '+1-890-123-4567', gender: 'female', status: true, initials: 'SJ' },
     {_id:1, name: 'Olivia Barnes', email: 'obarnes@xyz.com', address: '202 Birch Ln, Greenfield', phone: '+1-678-901-2345', gender: 'female', status: false, initials: 'OB' },
     {_id:1, name: 'Noah Carter', email: 'ncarter5@example.org', address: '303 Cedar Blvd, Rivertown', phone: '+1-789-012-3456', gender: 'female', status: true, initials: 'NC' },
@@ -37,7 +37,7 @@ export class UsersComponent {
   
     ngOnInit(): void {
       this.filteredUsers = [...this.users]; // استخدم البيانات المحلية
-  this.applyFilters();
+      this.applyFilters();
     }
   
     loadUsers(): void {
@@ -55,6 +55,15 @@ export class UsersComponent {
         }
       });
     }
+
+    get activeUsersCount(): number {
+      return this.users.filter(user => user.status === true).length;
+    }
+  
+    get inactiveUsersCount(): number {
+      return this.users.filter(user => user.status === false).length;
+    }
+  
   
     deleteUser(id: number): void {
       Swal.fire({
@@ -121,10 +130,5 @@ export class UsersComponent {
         this.sortDirection = 'asc';
       }
       this.applyFilters();
-    }
-  
-    getSortIcon(column: string): string {
-      if (this.sortColumn !== column) return 'fas fa-sort';
-      return this.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
     }
 }
