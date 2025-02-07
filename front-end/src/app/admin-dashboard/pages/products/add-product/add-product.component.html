@@ -1,23 +1,41 @@
-<div class="container-fluid page">
-    <div class="d-flex page__box p-3 mt-2">Products</div>
-    <div class="page__content shadow p-3 position-relative">
-      <div class="page__content-data position-absolute text-center">
-        <div>
-          @for (product of products; track $index) {
-            <h3>{{ product.name }}</h3>
-            <p>{{ product.description }}</p>
-            <p>Price: {{ product.price }}$</p>
-          
-            <div *ngIf="product.images?.length">
-              <h4>Images:</h4>
-              <img *ngFor="let img of product.images" [src]="img" alt="Product Image" width="100" />
+<!-- <div class="modal" [class.show]="show" [style.display]="show ? 'block' : 'none'">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Product</h5>
+        <button type="button" class="btn-close" (click)="onClose()"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="onSubmit()" #addForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" [(ngModel)]="productData.name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" class="form-control" [(ngModel)]="productData.price" name="price" min="5" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Quantity</label>
+            <input type="number" class="form-control" [(ngModel)]="productData.quantity" name="quantity" min="1" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" [(ngModel)]="productData.description" name="description" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="productData.isActive" name="isActive" id="isActive">
+              <label class="form-check-label" for="isActive">Active</label>
             </div>
-          
-            <input type="file" (change)="onFileChange($event, product._id)" />
-            <button (click)="uploadImage()">Upload Image</button>
-
-          }
-        </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!addForm.valid">Add Product</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+</div> -->
