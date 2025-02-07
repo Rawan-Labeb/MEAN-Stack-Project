@@ -8,10 +8,17 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [ToastModule,CommonModule,AdminDashboardComponent],
+  imports: [
+    RouterOutlet,
+    ToastModule,
+    CommonModule,
+  ],
+  template: `
+    <router-outlet></router-outlet>
+    <p-toast></p-toast>
+  `,
   providers: [MessageService],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styles: []
 })
 export class AppComponent {
   title = 'E-commerce App';
