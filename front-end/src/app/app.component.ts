@@ -3,20 +3,21 @@ import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { LoginComponent } from './authentication/login/login.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     RouterOutlet,
     ToastModule,
-    LoginComponent,
     CommonModule
-
-],
+  ],
+  template: `
+    <router-outlet></router-outlet>
+    <p-toast></p-toast>
+  `,
   providers: [MessageService],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styles: []
 })
 export class AppComponent {
   title = 'E-commerce App';
