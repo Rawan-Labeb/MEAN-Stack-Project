@@ -14,8 +14,6 @@ const {
 
 const { getUserById } = require("../repos/user.repo");
 
-
-
 const validateComplaintData = async (data) => {
     try {
         const { user, email, subject, description } = data;
