@@ -139,14 +139,14 @@ router.put("/changeUserRole/:id", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
     try {
-        const {email,password} = req.body;
-        const user = await login(email,password);
+        const {email, password} = req.body;
+        const user = await login(email, password);
         if (user.success)
-            return res.status(200).send(user.message);
+            return res.status(200).json({token: user.message});
         else
-            return res.status(400).send(user.message);
+            return res.status(400).json({message: user.message});
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json({message: "Internal Server Error"});
     }
 });
 

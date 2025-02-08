@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './authentication/login/login.component';
+//import { CartComponent } from './Shopping/cart/cart.component';
+import { LoginComponent } from './authentication/login/login.component';  
 
 export const routes: Routes = [
     {path:"", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
@@ -7,14 +8,16 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent
   },
+
+    {path: "user", loadChildren: ()=> import("./authentication/user.routes").then(route => route.userRoutes)},
   {
-    path: 'seller',
-    loadChildren: () => import('./seller-dashboard/seller-dashboard.routes')
-      .then(m => m.SELLER_ROUTES)
+    path: '',
+    redirectTo: 'cart',
+    pathMatch: 'full'
   },
-  { 
-    path: '', 
-    redirectTo: 'seller/products', 
-    pathMatch: 'full' 
-  }
+  { path: '', redirectTo: 'seller', pathMatch: 'full' },
+  {
+    path: 'login',
+    component: LoginComponent
+  },
 ];

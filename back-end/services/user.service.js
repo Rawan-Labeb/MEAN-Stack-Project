@@ -147,6 +147,7 @@ module.exports.deactivateUser = async (userId) => {
             return { success: false, message: validation.message };
         }
 
+
         const updatedUser = await deactivateUser(userId);
         return { success: true, message: updatedUser };
     } catch (error) {
@@ -186,7 +187,7 @@ module.exports.deleteUser = async (userId) => {
 }
 
 // validate userId
-const validateUserId = async (userId) => {
+module.exports.validateUserId = async (userId) => {
     if (!userId) {
         return { valid: false, message: "User Id Should Be Passed" };
     }
