@@ -4,7 +4,8 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from './authentication/login/login.component';
-import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';import { RegisterComponent } from "./authentication/register/register.component";
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -13,8 +14,9 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
     ToastModule,
     CommonModule,
     AdminDashboardComponent
-  ],
+  , RegisterComponent],
   template: `
+  <app-register></app-register>
   <app-admin-dashboard></app-admin-dashboard>
     <router-outlet></router-outlet>
     <p-toast></p-toast>
