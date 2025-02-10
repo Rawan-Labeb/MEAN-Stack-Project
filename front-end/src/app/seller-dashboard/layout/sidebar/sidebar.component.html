@@ -1,22 +1,30 @@
-<div class="sidebar bg-dark text-white">
-    <div class="p-3 border-bottom border-secondary">
-      <h5 class="mb-0">Seller Menu</h5>
-    </div>
-    <ul class="nav flex-column p-3">
+<div class="sidebar">
+  <div class="brand-logo">
+    <h2>Perfume Store</h2>
+  </div>
+  
+  <nav class="sidebar">
+    <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link text-white" routerLink="products" routerLinkActive="active">
-          Products
+        <a routerLink="/seller/dashboard" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-speedometer2"></i> Dashboard
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" routerLink="orders" routerLinkActive="active">
-          Orders
+        <a routerLink="/seller/products" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-box"></i> Products
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-white" routerLink="analytics" routerLinkActive="active">
-          Analytics
+        <a routerLink="/seller/orders" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-cart"></i> Orders
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/seller/analytics" routerLinkActive="active" class="nav-link">
+          <i class="bi bi-graph-up"></i> Analytics
         </a>
       </li>
     </ul>
-  </div>
+  </nav>
+</div>
