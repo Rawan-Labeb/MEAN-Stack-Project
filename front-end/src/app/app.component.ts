@@ -20,14 +20,10 @@ import { UserProfileComponent } from "./user-profile/user-profile.component";
     UserProfileComponent
 ],
   template: `
-  <!-- <app-register></app-register> -->
-  <!-- <app-admin-dashboard></app-admin-dashboard> -->
-    <!-- <router-outlet></router-outlet> -->
-    <!-- <p-toast></p-toast> -->
-
-    <!-- <app-login></app-login> -->
-     <!-- <app-register></app-register> -->
-      <app-user-profile></app-user-profile>
+  <app-register></app-register>
+  <app-admin-dashboard></app-admin-dashboard>
+    <router-outlet></router-outlet>
+    <p-toast></p-toast>
   `,
   providers: [MessageService],
   styles: []
