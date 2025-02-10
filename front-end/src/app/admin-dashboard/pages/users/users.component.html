@@ -106,9 +106,9 @@
                           Delete
                         </button>
                         <button mat-menu-item>
-                          <mat-icon>close</mat-icon>
-                          {{user.status ? ' Inactive ' : 'Active'}}
-                        </button>
+                          <mat-icon>{{ user.status ? 'close' : 'check' }}</mat-icon>
+                          {{ user.status ? 'Inactive' : 'Active' }}
+                        </button>     
                       </mat-menu>
                     </td>
                   </tr>

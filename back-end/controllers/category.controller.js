@@ -30,6 +30,15 @@ router.get('/categories/:id', async (req, res, next) => {
     }
 });
 
+router.get('/categories/get/active', async (req, res, next) => {
+    try {
+        const categories = await services.getCategoriesByActive();
+        res.status(200).json(categories);
+    } catch (error){
+        next(error);
+    }
+});
+
 router.get('/categoryByName/:name', async (req, res, next) => {
     try {
         const category = await services.getCategoryByName(req.params.name);
@@ -50,17 +59,13 @@ router.post('/categories',async (req, res, next) => {
       }
       const categoryData = req.body;
       const result = await services.addCategory(categoryData);
-      res.status(201).json({
-        success: true,
-        message: "Category added successfully",
-        data: result,
-      });
+      res.status(201).json(result);
     } catch (error) {
       next(error);
     }
   })
 
-  router.put('/categories/:id',updateCategoryController = async (req, res, next) => {
+  router.put('/categories/:id',async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -73,15 +78,22 @@ router.post('/categories',async (req, res, next) => {
       const categoryData = req.body;
       const result = await services.updateCategory(categoryId, categoryData);
   
-      res.status(200).json({
-        success: true,
-        message: "Category updated successfully",
-        data: result,
-      });
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }
   })
+
+  router.put('/categories/toggle/:id', async (req, res, next) => {
+    try {
+        const categoryId = req.params.id;
+        const result = await services.updateCategoryActive(categoryId);
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+});
+
 
   router.delete('/categories/:id', async (req, res, next) => {
     try {

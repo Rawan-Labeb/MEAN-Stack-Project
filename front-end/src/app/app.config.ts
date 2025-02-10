@@ -3,11 +3,12 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideToastr } from 'ngx-toastr';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { DatePipe } from '@angular/common';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 export const appConfig: ApplicationConfig = {
   providers: [
     MessageService,
@@ -16,5 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideAnimations(),
     DatePipe,
+    BrowserAnimationsModule,
+    provideToastr()
   ]
 };
