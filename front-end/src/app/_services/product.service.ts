@@ -37,7 +37,7 @@ export class ProductService {
     return this.http.put<Product>(`${this.apiUrl}/${id}`, product).pipe(
       tap(updatedProduct => {
         console.log('Update successful:', updatedProduct);
-        this.productUpdated.next(updatedProduct); // إشعار باقي الأجزاء بالتحديث
+        this.productUpdated.next(updatedProduct);
       })
     );
 }

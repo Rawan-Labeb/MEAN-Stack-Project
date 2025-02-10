@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-  orderId: { type: Number, required: true, unique: true }, // Custom order ID
   customerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -21,8 +20,8 @@ const orderSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true }, 
   status: {
     type: String,
-    enum: ["Pending", "Shipped", "Completed", "Cancelled", "Returned", "Refunded"], 
-    default: "Pending",
+    enum: ["pending", "shipped", "completed", "cancelled", "returned", "refunded"], 
+    default: "pending",
   },
   paymentMethod: {
     type: String,
@@ -41,6 +40,7 @@ const orderSchema = new mongoose.Schema({
     email: { type: String, required: true },
     phone: { type: String, required: true },
   },
+  notes : {type: String}
 });
 
 module.exports = mongoose.model("Order", orderSchema);

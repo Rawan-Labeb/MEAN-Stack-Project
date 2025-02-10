@@ -1,16 +1,14 @@
 const mongoose = require("mongoose");
 
-const { v4: uuidv4 } = require('uuid');
 const bcrypt = require("bcrypt");
 
 
 const userSchema = new mongoose.Schema({
-  user_id: { type: String, default: () => uuidv4() },
   role: {
     type: String,
     required: true,
-    default: "Customer",
-    enum: ["Customer", "Seller", "Admin", "Manager"],
+    default: "customer",
+    enum: ["customer", "seller", "admin", "manager"],
   },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },

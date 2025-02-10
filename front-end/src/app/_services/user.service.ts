@@ -2,12 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../_models/user.model';
+// import { HttpClient } from '@angular/common/http';
+// import { Injectable } from '@angular/core';
+// import { User } from '../_models/user';
+import { Login } from '../_models/login';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = 'http://localhost:5000/users';
   
     constructor(private http: HttpClient) { }
   
@@ -35,4 +39,8 @@ export class UserService {
     deleteUser(id: number): Observable<any> {
       return this.http.delete(`${this.apiUrl}/${id}`);
     }
+
+
+
+
 }
