@@ -115,7 +115,10 @@ require('dotenv').config();
 const category = require("./controllers/category.controller");
 const fileUpload = require("express-fileupload");
 const app = express();
-const port = process.env.PORT ;
+const port = process.env.PORT;
+// const upload = require("./controllers/media.controller");
+const order = require("./controllers/order.controller");
+
 
 // Middleware
 app.use(cors());
@@ -129,7 +132,6 @@ mongoose.connect(process.env.MONGO_URI)
     console.log('Connected to MongoDB Atlas');
 
     // All routes
-    // All routes
     app.get('/', (req, res) => {
       res.json({ message: 'Hello from the back end!' });
     });
@@ -139,11 +141,10 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/permission", permission);
     app.use("/order", order);
     app.use(category);
-     app.use(upload);
+    // app.use(upload);
 
     // Product routes
     app.get('/api/products', productController.getAllProducts);
-    app.post('/api/products', productController.createProduct);
     app.post('/api/products', productController.createProduct);
     app.get('/api/products/search', productController.searchProducts);
     app.get('/api/products/price-range', productController.getProductsByPriceRange);
@@ -161,7 +162,6 @@ mongoose.connect(process.env.MONGO_URI)
     app.delete('/api/suppliers/:id', supplierController.deleteSupplier);
 
     // Error handling middleware (keep only one instance)
-    // Error handling middleware (keep only one instance)
     app.use((req, res, next) => {
       res.status(404).json({ message: "Route not found" });
     });
@@ -178,7 +178,6 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
-    process.exit(1);
   });
 
 
