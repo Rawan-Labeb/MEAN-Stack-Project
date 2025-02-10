@@ -112,8 +112,8 @@
                 <tbody>
                   <tr *ngFor="let product of filteredProducts">
                     <td><img class="image" src="{{product.images[0]}}" alt="">{{product.name}}</td>
-                    <td>{{product.categoryId?.name}}</td>
-                    <td>{{product.sellerId?.firstName}} {{product.sellerId?.lastName}}</td>
+                    <td>{{product.categoryId.name}}</td>
+                    <td>{{product.sellerId.firstName}} {{product.sellerId.lastName}}</td>
                     <td>${{product.noOfSale}}</td>
                     <td>${{product.price}}</td>
                     <td>{{product.quantity}}</td>

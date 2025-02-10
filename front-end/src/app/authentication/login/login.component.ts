@@ -12,8 +12,6 @@ import { AuthServiceService } from 'src/app/_services/auth-service.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
   providers: [CookieService]
-  styleUrl: './login.component.css',
-  providers: [CookieService]
 })
 export class LoginComponent 
 {

@@ -5,13 +5,17 @@ const mongoose = require("mongoose");
 //const {authenticaitonMiddleware} =require("../middlewares/authentication.middleware")
 
 const router=express.Router()
-router.get('/categories',async (req, res, next) => {
-            const categories = await services.getAllCategories();
-            if (categories.success)
-                res.status(200).json(categories)
-            else 
-            next(error)
-        })
+router.get('/categories', async (req, res, next) => {
+  try {
+      const categories = await services.getAllCategories();
+      if (categories)
+          res.status(200).json(categories);
+      else 
+          throw new Error(categories.message);
+  } catch (error) {
+      next(error);
+  }
+});
 
 router.get('/categories/:id', async (req, res, next) => {
     try {
