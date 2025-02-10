@@ -11,7 +11,7 @@ import { Login } from '../_models/login';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = 'http://localhost:5000/users';
   
     constructor(private http: HttpClient) { }
   
@@ -39,4 +39,8 @@ export class UserService {
     deleteUser(id: number): Observable<any> {
       return this.http.delete(`${this.apiUrl}/${id}`);
     }
+
+
+
+
 }

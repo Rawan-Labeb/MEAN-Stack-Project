@@ -10,7 +10,8 @@ const {
     deactivateUser,
     activateUser,
     deleteUser,
-    changeUserRole
+    changeUserRole,
+    getUsersByRole
 } = require("./../repos/user.repo")
 
 const bcrypt = require("bcrypt");
@@ -72,6 +73,10 @@ module.exports.registerUser = async (userData) => {
         userData.salt = userSalt;
 
         userData.password = await bcrypt.hash(userData.password, userData.salt);
+
+        if (userData.role)
+            userData.role = (userData.role).toLowerCase();
+
         const user = await createUser(userData);
         return { success: true, message: user };
     } catch (error) {
@@ -98,6 +103,9 @@ module.exports.updateUser = async (userId, userData) => {
             userData.salt = userSalt;
             userData.password = await bcrypt.hash(userData.password, userSalt);
         }
+
+        if (userData.role)
+            userData.role = (userData.role).toLowerCase();
 
         const updatedUser = await updateUser(userId, userData);
         return { success: true, message: updatedUser };
@@ -131,7 +139,7 @@ const validateUserData = async (data, isNewUser) => {
 
     if (password || isNewUser) {
         // validate password complexity
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
         if (!passwordRegex.test(password)) {
             return { valid: false, message: "Password must be complex" };
         }
@@ -211,6 +219,7 @@ module.exports.changeUserRole = async (userId, newRole) => {
         if (!newRole) {
             return { success: false, message: "New Role Should Be Passed" };
         }
+        newRole =newRole.toLowerCase();
 
         const updatedUser = await changeUserRole(userId, newRole);
         return { success: true, message: updatedUser };
@@ -218,3 +227,30 @@ module.exports.changeUserRole = async (userId, newRole) => {
         return { success: false, message: error.message };
     }
 }
+
+
+
+module.exports.getUsersByRole = async (userRole) => {
+    try
+    {
+        if (!userRole)
+            return { success: false, message: "Role Should Be passed" };
+
+        userRole = newRole.toLowerCase();
+
+        const users = await getUsersByRole(userRole);
+        return {success:true, message: users};
+
+    }catch (error)
+    {
+        return { success: false, message: error.message }
+    }
+}
+
+
+module.exports.userIsActive = async (userId) => {
+    const user = await getUserById(userId);
+    return user.isActive;
+}
+
+

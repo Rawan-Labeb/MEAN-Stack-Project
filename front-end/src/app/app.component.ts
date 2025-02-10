@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from './authentication/login/login.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';import { RegisterComponent } from "./authentication/register/register.component";
+import { UserProfileComponent } from "./user-profile/user-profile.component";
 
 @Component({
   selector: 'app-root',
@@ -13,8 +14,11 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
     RouterOutlet,
     ToastModule,
     CommonModule,
-    AdminDashboardComponent
-  , RegisterComponent],
+    AdminDashboardComponent,
+    RegisterComponent,
+    LoginComponent,
+    UserProfileComponent
+],
   template: `
   <app-register></app-register>
   <app-admin-dashboard></app-admin-dashboard>
