@@ -4,7 +4,7 @@ module.exports.getAllCategories =async () =>
 {
     try{
         const categories = await repo.getCategories();
-        return {success: true, message: categories};
+        return categories;
     }catch (error)
     {
         throw error
@@ -15,17 +15,29 @@ module.exports.getCategoryById =async (categoryId) =>
 {
     try{
         const category = await repo.getCategoryById(categoryId);
-        return {success: true, message: category};
+        return category;
     }catch (error)
     { 
         throw error
     }
 }
+
+module.exports.getCategoriesByActive =async () => 
+{
+    try{
+        const Categories = await repo.getCategoriesByActive();
+        return Categories;
+    }catch (error)
+    { 
+        throw error
+    }
+}
+
 module.exports.getCategoryByName =async (categoryName) => 
 {
     try{
         const category = await repo.getCategoryByName(categoryName);
-        return {success: true, message: category};
+        return category;
     }catch (error)
     { 
         throw error
@@ -35,7 +47,7 @@ module.exports.addCategory=async (data) =>
 {
     try{
         const savedCategory = await repo.addCategory(data);
-        return {success: true, message: savedCategory};
+        return savedCategory;
     }catch (error)
     { 
         throw new Error("Error adding category: " + error.message);
@@ -49,7 +61,20 @@ module.exports.updateCategory = async (categoryId, data) => {
       if (!updatedCategory) {
         throw new Error("Category not found");
       }
-      return { success: true, message: updatedCategory };
+      return updatedCategory ;
+    } catch (error) {
+      throw new Error("Error updating category: " + error.message);
+    }
+  };
+
+module.exports.updateCategoryActive = async (categoryId) => {
+    try {
+      const updateCategoryActive = await repo.updateCategoryActive(categoryId);
+  
+      if (!updateCategoryActive) {
+        throw new Error("Category not found");
+      }
+      return updateCategoryActive;
     } catch (error) {
       throw new Error("Error updating category: " + error.message);
     }

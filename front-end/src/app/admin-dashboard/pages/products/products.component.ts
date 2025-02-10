@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,220 +7,191 @@ import { Product } from '../../../_models/product.model';
 import Swal from 'sweetalert2';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { AddProductComponent } from './add-product/add-product.component';
+import { firstValueFrom, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { UpdateProductComponent } from './update-product/update-product.component';
 
 @Component({
   selector: 'app-products',
-  imports:[CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule, MatMenuModule, AddProductComponent, UpdateProductComponent],
   templateUrl: './products.component.html',
-  styleUrls: ['./products.component.css']  
+  styleUrls: ['./products.component.css']
 })
-export class ProductsComponent{
-  products: Product[] = [
-      {
-        _id: "1",
-        name: "Gold Necklace",
-        description: "Elegant 18K gold necklace with a beautiful pendant.",
-        price: 499.99,
-        prevPrice: 599.99,
-        noOfSale: 120,
-        images: ["gold-necklace-1.jpg", "gold-necklace-2.jpg"],
-        isActive: true,
-        quantity: 15,
-        sellerId: "seller123",
-        supplierId: "supplier456",
-        categoryId: "jewelry",
-      },
-      {
-        _id: "2",
-        name: "Silver Bracelet",
-        description: "Stylish sterling silver bracelet with a modern design.",
-        price: 199.99,
-        noOfSale: 80,
-        images: ["silver-bracelet-1.jpg", "silver-bracelet-2.jpg"],
-        isActive: true,
-        quantity: 30,
-        sellerId: "seller456",
-        categoryId: "jewelry",
-      },
-      {
-        _id: "3",
-        name: "Diamond Ring",
-        description: "Luxury diamond ring with a 1-carat gemstone.",
-        price: 1299.99,
-        prevPrice: 1499.99,
-        noOfSale: 50,
-        images: ["diamond-ring-1.jpg", "diamond-ring-2.jpg"],
-        isActive: true,
-        quantity: 10,
-        sellerId: "seller789",
-        supplierId: "supplier123",
-        categoryId: "jewelry",
-      },
-      {
-        _id: "4",
-        name: "Pearl Earrings",
-        description: "Classic pearl earrings with 14K gold studs.",
-        price: 299.99,
-        noOfSale: 95,
-        images: ["pearl-earrings-1.jpg", "pearl-earrings-2.jpg"],
-        isActive: false,
-        quantity: 25,
-        sellerId: "seller123",
-        categoryId: "jewelry",
-      },
-      {
-        _id: "5",
-        name: "Gold Bangle Set",
-        description: "Traditional gold bangles set of 4 pieces.",
-        price: 699.99,
-        prevPrice: 799.99,
-        noOfSale: 65,
-        images: ["gold-bangle-1.jpg", "gold-bangle-2.jpg"],
-        isActive: false,
-        quantity: 20,
-        sellerId: "seller456",
-        supplierId: "supplier789",
-        categoryId: "jewelry",
-      },
-      {
-        _id: "5",
-        name: "Gold Bangle Set",
-        description: "Traditional gold bangles set of 4 pieces.",
-        price: 699.99,
-        prevPrice: 799.99,
-        noOfSale: 65,
-        images: ["gold-bangle-1.jpg", "gold-bangle-2.jpg"],
-        isActive: false,
-        quantity: 20,
-        sellerId: "seller456",
-        supplierId: "supplier789",
-        categoryId: "jewelry",
-      },
-      {
-        _id: "5",
-        name: "Gold Bangle Set",
-        description: "Traditional gold bangles set of 4 pieces.",
-        price: 699.99,
-        prevPrice: 799.99,
-        noOfSale: 65,
-        images: ["gold-bangle-1.jpg", "gold-bangle-2.jpg"],
-        isActive: false,
-        quantity: 20,
-        sellerId: "seller456",
-        supplierId: "supplier789",
-        categoryId: "jewelry",
-      },
-      {
-        _id: "5",
-        name: "Gold Bangle Set",
-        description: "Traditional gold bangles set of 4 pieces.",
-        price: 699.99,
-        prevPrice: 799.99,
-        noOfSale: 65,
-        images: ["gold-bangle-1.jpg", "gold-bangle-2.jpg"],
-        isActive: false,
-        quantity: 20,
-        sellerId: "seller456",
-        supplierId: "supplier789",
-        categoryId: "jewelry",
-      },
-    ];
-      filteredProducts: Product[] = [];
-      loading = false;
-      searchTerm: string = '';
-      sortColumn: keyof Product = 'name';
-      sortDirection: 'asc' | 'desc' = 'asc';
-      statusFilter: 'all' | 'active' | 'inactive' = 'all';
-    
-      constructor(private productService: ProductService) {}
-    
-      ngOnInit(): void {
-        this.filteredProducts = [...this.products]; // استخدم البيانات المحلية
-    this.applyFilters();
-      }
-    
-      loadProducts(): void {
-        this.loading = true;
-        this.productService.getAllProducts().subscribe({
-          next: (data: Product[]) => {
-            this.products = data;
-            this.filteredProducts = [...data];
-            this.applyFilters();
-            this.loading = false;
+export class ProductsComponent implements OnInit, OnDestroy {
+  products: Product[] = [];
+  filteredProducts: Product[] = [];
+  loading = false;
+  searchTerm: string = '';
+  sortColumn: keyof Product = 'name';
+  sortDirection: 'asc' | 'desc' = 'asc';
+  statusFilter: 'all' | 'active' | 'inactive' = 'all';
+  showAddModal = false;
+  showEditModal = false;
+  editingProduct?: Product;
+  selectedFiles: File[] = [];
+  error: string | null = null;
+  private destroy$ = new Subject<void>();
+
+  productData: Product = this.getInitialProductData();
+
+  constructor(private productService: ProductService, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    this.loadProducts();
+    this.subscribeToProductUpdates();
+  }
+
+  getInitialProductData(): Product {
+    return {
+      _id: '',
+      name: '',
+      price: 0,
+      sellerId: {_id:'679bd316017427c66ece2617',firstName:'',lastName:''},
+      categoryId: {_id:'',name:''},
+      description: '',
+      prevPrice: 0,
+      noOfSale: 0,
+      images: [],
+      isActive: true,
+      quantity: 0,
+      supplierId: '679bf428745c9d962586960e'
+    };
+  }
+
+  subscribeToProductUpdates(): void {
+    this.productService.onProductUpdate()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.loadProducts());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  async loadProducts(): Promise<void> {
+    this.loading = true;
+    this.error = null;
+    try {
+      const data = await firstValueFrom(this.productService.getAllProducts());
+      this.products = [...data];
+      this.filteredProducts = [...data];
+      this.applyFilters();
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Error loading products:', error);
+      this.error = 'Failed to load products';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  deleteProduct(id: string): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.productService.deleteProduct(id).subscribe({
+          next: () => {
+            this.loadProducts();
+            Swal.fire('Deleted!', 'Product has been deleted.', 'success');
           },
-          error: (error) => {
-            console.error('Error loading products:', error);
-            this.loading = false;
-          }
+          error: () => Swal.fire('Error!', 'Failed to delete product.', 'error')
         });
       }
-    
-      deleteProduct(id: string): void {
-        Swal.fire({
-          title: 'Are you sure?',
-          text: "You won't be able to revert this!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            this.productService.deleteProduct(id).subscribe({
-              next: () => {
-                this.loadProducts();
-                Swal.fire('Deleted!', 'Product has been deleted.', 'success');
-              },
-              error: (error) => {
-                console.error('Error deleting product:', error);
-                Swal.fire('Error!', 'Failed to delete product.', 'error');
-              }
-            });
-          }
+    });
+  }
+  activeProduct(id: string): void {
+        this.productService.deleteProduct(id).subscribe({
+          next: () => {
+            this.loadProducts();
+          },
+          error:(error) => console.error('❌ Error:', error)
         });
       }
-    
-      applyFilters(): void {
-        let filtered = [...this.products];
-    
-        if (this.searchTerm) {
-          filtered = filtered.filter(product => 
-            product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) 
-            ||product.description.toLowerCase().includes(this.searchTerm.toLowerCase())
-          );
-        }
-    
-        if (this.statusFilter !== 'all') {
-          filtered = filtered.filter(product => 
-            product.isActive === (this.statusFilter === 'active')
-          );
-        }
-    
-        filtered.sort((a, b) => {
-          const direction = this.sortDirection === 'asc' ? 1 : -1;
-          if (typeof a[this.sortColumn] === 'number') {
-            return ((a[this.sortColumn] as number) - (b[this.sortColumn] as number)) * direction;
-          }
-          return String(a[this.sortColumn]).localeCompare(String(b[this.sortColumn])) * direction;
-        });
-    
-        this.filteredProducts = filtered;
-      }
-    
-      onSearch(): void {
-        this.applyFilters();
-      }
-    
-      onStatusFilterChange(): void {
-        this.applyFilters();
-      }
-    
-      sort(column: keyof Product): void {
-        if (this.sortColumn === column) {
-          this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-          this.sortColumn = column;
-          this.sortDirection = 'asc';
-        }
-        this.applyFilters();
-      }
+  
+  get activeProductsCount(): number {
+    return this.products.filter(product => product.isActive === true).length;
+  }
+
+  get inactiveproductCount(): number {
+    return this.products.filter(product => product.isActive === false).length;
+  }
+
+  get inStockProductsCount(): number {
+    return this.products.filter(product => product.quantity > 0).length;
+  }
+  
+  get outOfStockProductsCount(): number {
+    return this.products.filter(product => product.quantity === 0).length;
+  }
+  
+
+  applyFilters(): void {
+    let filtered = [...this.products];
+    if (this.searchTerm) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchLower)
+      );
+    }
+    if (this.statusFilter !== 'all') {
+      filtered = filtered.filter(product => product.isActive === (this.statusFilter === 'active'));
+    }
+    filtered.sort((a, b) => {
+      const aValue = a[this.sortColumn];
+      const bValue = b[this.sortColumn];
+      if (aValue == null || bValue == null) return 0;
+      const direction = this.sortDirection === 'asc' ? 1 : -1;
+      return typeof aValue === 'string' ? direction * aValue.localeCompare(String(bValue)) : direction * ((aValue as number) - (bValue as number));
+    });
+    this.filteredProducts = [...filtered];
+    this.cdr.detectChanges();
+  }
+
+  onSearch(): void {
+    this.applyFilters();
+  }
+
+  onStatusFilterChange(): void {
+    this.applyFilters();
+  }
+
+  sort(column: keyof Product): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.applyFilters();
+  }
+
+  openAddModal(): void {
+    this.productData = this.getInitialProductData();
+    this.showAddModal = true;
+  }
+
+  openEditModal(product: Product): void {
+    this.editingProduct = product;
+    this.productData = { ...product };
+    this.showEditModal = true;
+  }
+
+  onProductSaved(): void {
+    this.loadProducts();
+    this.showAddModal = false;
+  }
+
+  onProductUpdated(): void {
+    this.showEditModal = false;
+    this.loadProducts();
+  }
 }
+
 

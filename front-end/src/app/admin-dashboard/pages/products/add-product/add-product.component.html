@@ -1,4 +1,4 @@
-<!-- <div class="modal" [class.show]="show" [style.display]="show ? 'block' : 'none'">
+<div class="modal" [class.show]="show" [style.display]="show ? 'block' : 'none'">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -7,29 +7,84 @@
       </div>
       <div class="modal-body">
         <form (ngSubmit)="onSubmit()" #addForm="ngForm">
-          <div class="mb-3">
-            <label class="form-label">Name</label>
-            <input type="text" class="form-control" [(ngModel)]="productData.name" name="name" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Price</label>
-            <input type="number" class="form-control" [(ngModel)]="productData.price" name="price" min="5" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Quantity</label>
-            <input type="number" class="form-control" [(ngModel)]="productData.quantity" name="quantity" min="1" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" [(ngModel)]="productData.description" name="description" rows="3"></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Status</label>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" [(ngModel)]="productData.isActive" name="isActive" id="isActive">
-              <label class="form-check-label" for="isActive">Active</label>
+          
+          <!-- Name Field -->
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" placeholder="Name" [(ngModel)]="productData.name" name="name" required #name="ngModel" 
+                [class.is-invalid]="name.invalid && name.touched">
+              <div *ngIf="name.invalid && name.touched" class="invalid-feedback">
+                Name is required.
+              </div>
+            </div>
+
+            <!-- Category Field -->
+            <div class="col-6">
+              <label class="form-label">Category</label>
+              <select class="form-select" [(ngModel)]="productData.categoryId._id" name="category" required #categoryIdRef="ngModel"
+              [class.is-invalid]="categoryIdRef.invalid && categoryIdRef.touched">
+                <option value="">Select Category</option>
+                <option *ngFor="let category of categories" [value]="category._id">
+                  {{ category.name }}
+                </option>
+              </select>
+              <div *ngIf="categoryIdRef.invalid && categoryIdRef.touched" class="invalid-feedback">
+                Category is required.
+              </div>
             </div>
           </div>
+
+
+          <div class="row mb-3">
+            <!-- Price -->
+            <div class="col-6">
+              <label class="form-label">Price</label>
+              <input type="number" class="form-control" placeholder="Price" [(ngModel)]="productData.price" name="price" required min="5" #price="ngModel"
+                [class.is-invalid]="price.invalid && price.touched">
+              <div *ngIf="price.invalid && price.touched" class="invalid-feedback">
+                Price must be at least 5.
+              </div>
+            </div>
+
+            <!-- Quantity -->
+            <div class="col-6">
+              <label class="form-label">Quantity</label>
+              <input type="number" class="form-control" placeholder="Quantity" [(ngModel)]="productData.quantity" name="quantity" required min="0" #quantity="ngModel"
+                [class.is-invalid]="quantity.invalid && quantity.touched">
+              <div *ngIf="quantity.invalid && quantity.touched" class="invalid-feedback">
+                Quantity cannot be negative.
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" [(ngModel)]="productData.description" name="description" rows="3" required #description="ngModel"
+              [class.is-invalid]="description.invalid && description.touched"></textarea>
+            <div *ngIf="description.invalid && description.touched" class="invalid-feedback">
+              Description is required.
+            </div>
+          </div>
+          <app-upload (imagesUploaded)="onImagesUploaded($event)"></app-upload>
+
+          <!-- Image Upload -->
+          <!-- <div class="mb-3">  
+            <label class="btn btn-primary">
+              Upload Image
+              <input type="file" class="d-none" (change)="onFileSelected($event)">
+            </label>
+          </div>
+
+          <div class="preview-images mt-2 d-flex flex-wrap">
+            <div *ngFor="let image of previewImages; let i = index" class="image-container">
+              <img [src]="image" class="image-preview">
+              <button type="button" class="btn btn-danger btn-sm remove-btn" (click)="removeImage(i)">X</button>
+            </div>
+          </div> -->
+
+          <!-- Modal Footer -->
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
             <button type="submit" class="btn btn-primary" [disabled]="!addForm.valid">Add Product</button>
@@ -38,4 +93,4 @@
       </div>
     </div>
   </div>
-</div> -->
+</div>

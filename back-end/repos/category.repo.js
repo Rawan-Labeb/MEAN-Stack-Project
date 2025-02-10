@@ -22,6 +22,20 @@ module.exports.getCategoryById = async(categoryId) => {
         throw error
     }
 }
+
+module.exports.getCategoriesByActive = async() => {
+    try{
+        const Categories = await category.find({ isActive:true});
+        if (!Categories) {
+            throw new Error("not found any active category");
+        }
+        return Categories;
+    }catch(error)
+    {
+        throw error
+    }
+}
+
 module.exports.getCategoryByName = async(categoryName) => {
     try{
         const Category = await category.findOne({ name:categoryName});
@@ -53,6 +67,26 @@ module.exports.updateCategory = async (categoryId, data) => {
       throw new Error("Error updating category: " + error.message);
     }
   };
+
+  module.exports.updateCategoryActive = async (categoryId) => {
+    try {
+        const categoryData = await category.findById(categoryId);
+        if (!categoryData) {
+            throw new Error("Category not found");
+        }
+
+        const updatedCategory = await category.findByIdAndUpdate(
+            categoryId,
+            { isActive: !categoryData.isActive },
+            { new: true }
+        );
+
+        return updatedCategory;
+    } catch (error) {
+        throw new Error("Error updating category: " + error.message);
+    }
+};
+
 
   module.exports.deleteCategoryById = async (id) => {
     try {
