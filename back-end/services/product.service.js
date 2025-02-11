@@ -68,6 +68,15 @@ const productService = {
         }
     },
 
+    getProductsBySellerId: async (sellerId) => {
+        try {
+            const products = await productRepo.getProductsBySellerId(sellerId);
+            return { success: true, data: products };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    },
+
     updateProduct: async (id, productData) => {
         try {
             const product = await productRepo.updateProduct(id, productData);
@@ -87,6 +96,37 @@ const productService = {
                 return { success: false, message: 'Product not found' };
             }
             return { success: true, message: 'Product deleted successfully' };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    },
+
+    getAllProductsAdmin: async () => {
+        try {
+            const products = await productRepo.getAllProductsAdmin();
+            return { success: true, data: products };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    },
+
+    hardDeleteProduct: async (id) => {
+        try {
+            await productRepo.hardDeleteProduct(id);
+            return { success: true, message: 'Product permanently deleted' };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    },
+
+    toggleProductStatus: async (id) => {
+        try {
+            const product = await productRepo.toggleProductStatus(id);
+            return { 
+                success: true, 
+                data: product,
+                message: `Product ${product.isActive ? 'activated' : 'deactivated'} successfully`
+            };
         } catch (error) {
             return { success: false, message: error.message };
         }

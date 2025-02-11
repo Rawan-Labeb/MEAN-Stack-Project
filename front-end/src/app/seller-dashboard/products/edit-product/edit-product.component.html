@@ -2,11 +2,11 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Product</h5>
-        <button type="button" class="btn-close" (click)="closeModal.emit()"></button>
+        <h5 class="modal-title">{{ product ? 'Edit' : 'Add' }} Product</h5>
+        <button type="button" class="btn-close" (click)="onClose()"></button>
       </div>
-      <div class="modal-body">
-        <form (ngSubmit)="onSubmit()" #editForm="ngForm">
+      <form #productForm="ngForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Name</label>
             <input type="text" class="form-control" [(ngModel)]="productData.name" name="name" required>
@@ -19,10 +19,11 @@
             <label class="form-label">Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="productData.quantity" name="quantity" min="1" required>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Category</label>
-            <select class="form-select" [(ngModel)]="productData.categoryId" name="categoryId" required>
-              <option value="">Select Category</option>
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="categoryId" class="form-control" 
+                    [(ngModel)]="productData.categoryId" required>
+              <option value="">Select a category</option>
               <option *ngFor="let category of categories" [value]="category._id">
                 {{ category.name }}
               </option>
@@ -39,21 +40,24 @@
               <label class="form-check-label" for="isActive">Active</label>
             </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Images</label>
-            <input type="file" class="form-control" (change)="onFileChange($event)" multiple accept="image/*">
+          <div class="form-group">
+            <label for="images">Product Images</label>
+            <input type="file" id="images" class="form-control" 
+                   (change)="onFileChange($event)" multiple accept="image/*">
             <div class="selected-files mt-2" *ngIf="selectedFiles.length">
               <div *ngFor="let file of selectedFiles" class="selected-file">
                 {{ file.name }}
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!editForm.valid">Save Changes</button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading || !productForm.form.valid">
+            {{ loading ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

@@ -12,12 +12,8 @@ import { CommonModule } from '@angular/common';
     ToastModule,
     CommonModule
   ],
-  template: `
-    <router-outlet></router-outlet>
-    <p-toast></p-toast>
-  `,
   providers: [MessageService],
-  styles: []
+  template: '<router-outlet></router-outlet>'
 })
 export class AppComponent {
   title = 'E-commerce App';

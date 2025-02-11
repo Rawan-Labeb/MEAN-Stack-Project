@@ -31,12 +31,19 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/api/permission", permission);
 
     // Product routes
-    app.get('/api/products', productController.getAllProducts);
-    app.post('/api/products', validateProduct, productController.createProduct);
+    // Specific routes first
+    app.get('/api/products/admin/all', productController.getAllProductsAdmin);
     app.get('/api/products/search', productController.searchProducts);
     app.get('/api/products/price-range', productController.getProductsByPriceRange);
     app.get('/api/products/best-sellers', productController.getBestSellers);
     app.get('/api/products/available', productController.getAvailableProducts);
+    app.get('/api/products/seller/:sellerId', productController.getSellerProducts);
+    app.delete('/api/products/hard-delete/:id', productController.hardDeleteProduct);
+    app.patch('/api/products/toggle-status/:id', productController.toggleProductStatus);
+
+    // Generic CRUD routes last
+    app.get('/api/products', productController.getAllProducts);
+    app.post('/api/products', validateProduct, productController.createProduct);
     app.get('/api/products/:id', productController.getProductById);
     app.put('/api/products/:id', validateProduct, productController.updateProduct);
     app.delete('/api/products/:id', productController.deleteProduct);

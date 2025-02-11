@@ -12,17 +12,15 @@ import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-list',
+  templateUrl: './product-list.component.html',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
+    EditProductComponent,
     DeleteProductComponent,
-    AddProductComponent,
-    EditProductComponent
-  ],
-  templateUrl: './product-list.component.html',
-  styleUrls: ['./product-list.component.css']
+    AddProductComponent
+  ]
 })
 export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
@@ -35,6 +33,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   showAddModal = false;
   showEditModal = false;
   editingProduct?: Product;
+  selectedProduct?: Product; // Add this property
   selectedFiles: File[] = [];
   error: string | null = null;
   private destroy$ = new Subject<void>();
@@ -49,6 +48,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
     categoryId: '679bf428745c9d962586960c',
     sellerId: '679bd316017427c66ece2617'
   };
+
+  // Add sellerId property
+  sellerId = '679bd316017427c66ece2617'; // This should come from auth service
 
   constructor(
     private productService: ProductService,
@@ -77,13 +79,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     
-    firstValueFrom(this.productService.getProducts())
+    firstValueFrom(this.productService.getSellerProducts(this.sellerId))
       .then(data => {
-        console.log('Products loaded:', data); // Debug log
-        this.products = [...data]; // Create new array reference
+        console.log('Seller Products loaded:', data);
+        this.products = [...data];
         this.filteredProducts = [...data];
         this.applyFilters();
-        this.cdr.detectChanges(); // Force change detection
+        this.cdr.detectChanges();
       })
       .catch(error => {
         console.error('Error loading products:', error);
@@ -118,7 +120,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(): void {
-    let filtered = [...this.products]; // Create new array reference
+    let filtered = [...this.products];
 
     if (this.searchTerm) {
       const searchLower = this.searchTerm.toLowerCase();
@@ -169,18 +171,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   openEditModal(product: Product): void {
-    this.editingProduct = product;
-    this.productData = {
-      name: product.name,
-      price: product.price,
-      quantity: product.quantity,
-      description: product.description || '',
-      isActive: product.isActive,
-      supplierId: product.supplierId,
-      categoryId: product.categoryId || '679bf428745c9d962586960c',
-      sellerId: product.sellerId || '679bd316017427c66ece2617'
-    };
+    this.selectedProduct = product;
     this.showEditModal = true;
+  }
+
+  closeEditModal(): void {
+    this.selectedProduct = undefined;
+    this.showEditModal = false;
   }
 
   onProductSaved(): void {
@@ -189,7 +186,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   onProductUpdated(): void {
-    this.showEditModal = false;
-    this.loadProducts(); // Refresh data
+    if (this.selectedProduct) {
+      const index = this.products.findIndex(p => p._id === this.selectedProduct!._id);
+      if (index !== -1) {
+        this.products[index] = { ...this.selectedProduct };
+      }
+    }
+    this.applyFilters();
+    this.closeEditModal();
   }
 }

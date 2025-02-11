@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, Subject, throwError } from 'rxjs';
 import { Product, ProductFormData } from '../models/product.model';
-import { tap, catchError, take } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -21,12 +21,24 @@ export class ProductService {
     return this.http.post<Product>(this.apiUrl, data);
   }
 
-  updateProduct(id: string, data: any): Observable<Product> {
-    // Send direct JSON data instead of FormData
+  updateProduct(id: string, data: ProductFormData): Observable<Product> {
+    console.log('Updating product:', id, data);
+    
     return this.http.put<Product>(`${this.apiUrl}/${id}`, data).pipe(
       tap(updatedProduct => {
         console.log('Update successful:', updatedProduct);
         this.productUpdated.next(updatedProduct);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Update error:', error);
+        if (error.status === 400) {
+          const errors = error.error?.errors || [];
+          const errorMessage = errors.map((e: any) => 
+            `${e.field}: ${e.message}`
+          ).join(', ');
+          return throwError(() => new Error(errorMessage || error.error?.message));
+        }
+        return throwError(() => new Error('Failed to update product'));
       })
     );
   }
@@ -40,5 +52,9 @@ export class ProductService {
 
   onProductUpdate(): Observable<Product> {
     return this.productUpdated.asObservable();
+  }
+
+  getSellerProducts(sellerId: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/seller/${sellerId}`);
   }
 }

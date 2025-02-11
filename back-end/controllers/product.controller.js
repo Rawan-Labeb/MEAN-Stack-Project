@@ -73,7 +73,7 @@ const productController = {
         try {
             const products = await Product.find({ 
                 isActive: true,
-                quantity: { $gt: 0 }
+                quantity: { $gt: 0 }  // Only products with quantity > 0
             }).populate('categoryId');
             res.status(200).json(products);
         } catch (error) {
@@ -103,6 +103,62 @@ const productController = {
                 isActive: true
             }).populate('categoryId');
             res.status(200).json(products);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    getSellerProducts: async (req, res) => {
+        try {
+            const sellerId = req.params.sellerId;
+            const result = await productService.getProductsBySellerId(sellerId);
+            if (result.success) {
+                res.status(200).json(result.data);
+            } else {
+                res.status(404).json({ message: result.message });
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    getAllProductsAdmin: async (req, res) => {
+        try {
+            const result = await productService.getAllProductsAdmin();
+            if (result.success) {
+                res.status(200).json(result.data);
+            } else {
+                res.status(400).json({ message: result.message });
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    hardDeleteProduct: async (req, res) => {
+        try {
+            const result = await productService.hardDeleteProduct(req.params.id);
+            if (result.success) {
+                res.status(200).json({ message: result.message });
+            } else {
+                res.status(400).json({ message: result.message });
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    toggleProductStatus: async (req, res) => {
+        try {
+            const result = await productService.toggleProductStatus(req.params.id);
+            if (result.success) {
+                res.status(200).json({ 
+                    message: result.message,
+                    data: result.data 
+                });
+            } else {
+                res.status(400).json({ message: result.message });
+            }
         } catch (error) {
             res.status(500).json({ message: error.message });
         }

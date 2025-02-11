@@ -60,9 +60,9 @@
   </app-add-product>
 
   <app-edit-product
+    [product]="selectedProduct"
     [show]="showEditModal"
-    [product]="editingProduct"
-    (closeModal)="showEditModal = false"
-    (productUpdated)="onProductUpdated()">
+    (productUpdated)="onProductUpdated()"
+    (closeModal)="closeEditModal()">
   </app-edit-product>
 </div>

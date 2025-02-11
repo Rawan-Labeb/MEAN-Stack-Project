@@ -1,10 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Product, ProductFormData } from '../../models/product.model';
-import { Category } from '../../models/product.model';
-import { CategoryService } from '../../services/category.service';
 import { ProductService } from '../../services/product.service';
+import { CategoryService } from '../../services/category.service';
+import { Product, ProductFormData, Category } from '../../models/product.model';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -14,68 +13,70 @@ import { firstValueFrom } from 'rxjs';
   imports: [CommonModule, FormsModule]
 })
 export class EditProductComponent implements OnInit, OnChanges {
-  @Input() show = false;
   @Input() product?: Product;
-  @Output() closeModal = new EventEmitter<void>();
+  @Input() show = false;
   @Output() productUpdated = new EventEmitter<void>();
+  @Output() closeModal = new EventEmitter<void>();
 
-  categories: Category[] = [];
-  selectedFiles: File[] = [];
-  existingImages: string[] = [];
-  loading = false;
   productData: ProductFormData = {
     name: '',
     price: 0,
     quantity: 0,
     description: '',
-    isActive: true,
+    categoryId: '',
     supplierId: '679bf428745c9d962586960e',
-    categoryId: '679bf428745c9d962586960c',
-    sellerId: '679bd316017427c66ece2617'
+    sellerId: '679bf428745c9d962586960a',
+    isActive: true
   };
 
+  loading = false;
+  categories: Category[] = [];
+  selectedFiles: File[] = [];
+
   constructor(
-    private categoryService: CategoryService,
-    private productService: ProductService
+    private productService: ProductService,
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit(): void {
     this.loadCategories();
+    this.resetForm();
+  }
+
+  private async loadCategories(): Promise<void> {
+    try {
+      this.categories = await firstValueFrom(this.categoryService.getCategories());
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
   }
 
   ngOnChanges(): void {
     if (this.product) {
-      // Set form data without images
       this.productData = {
         name: this.product.name,
         price: this.product.price,
         quantity: this.product.quantity,
-        categoryId: this.product.categoryId,
-        description: this.product.description,
+        description: this.product.description || '',
+        categoryId: this.getCategoryId(this.product.categoryId),
+        supplierId: this.getSupplierId(this.product.supplierId),
+        sellerId: this.getSellerId(this.product.sellerId),
         isActive: this.product.isActive,
-        supplierId: this.product.supplierId,
-        sellerId: this.product.sellerId
+        images: this.product.images
       };
-      
-      // Handle images separately
-      this.existingImages = this.product.images || [];
     }
   }
 
-  loadCategories(): void {
-    this.categoryService.getCategories().subscribe({
-      next: (data) => {
-        this.categories = data;
-      },
-      error: (error) => console.error('Error loading categories:', error)
-    });
+  private getCategoryId(category: Category | null): string {
+    return category && '_id' in category ? category._id : '';
   }
 
-  onFileChange(event: Event): void {
-    const element = event.target as HTMLInputElement;
-    if (element.files) {
-      this.selectedFiles = Array.from(element.files);
-    }
+  private getSupplierId(supplier: any | null): string {
+    return supplier && '_id' in supplier ? supplier._id : '679bf428745c9d962586960e';
+  }
+
+  private getSellerId(seller: any | null): string {
+    return seller && '_id' in seller ? seller._id : '679bf428745c9d962586960a';
   }
 
   async onSubmit(): Promise<void> {
@@ -83,20 +84,17 @@ export class EditProductComponent implements OnInit, OnChanges {
     
     try {
       this.loading = true;
-      
-      // Validate data before update
-      if (this.productData.price < 0 || this.productData.quantity < 0) {
-        throw new Error('Price and quantity must be positive numbers');
-      }
 
-      // Create update object
-      const updateData = {
-        name: this.productData.name.trim(),
-        price: this.productData.price,
-        quantity: this.productData.quantity,
-        description: this.productData.description?.trim(),
-        isActive: this.productData.isActive,
-        supplierId: this.productData.supplierId
+      const updateData: ProductFormData = {
+        name: this.productData.name?.trim() || '',
+        description: this.productData.description?.trim() || '',
+        price: Number(this.productData.price),
+        quantity: Number(this.productData.quantity),
+        sellerId: '679bf428745c9d962586960a',
+        supplierId: '679bf428745c9d962586960e',
+        categoryId: this.productData.categoryId,
+        isActive: Boolean(this.productData.isActive),
+        images: this.productData.images
       };
 
       const updatedProduct = await firstValueFrom(
@@ -106,12 +104,24 @@ export class EditProductComponent implements OnInit, OnChanges {
       console.log('Product updated successfully:', updatedProduct);
       this.productUpdated.emit();
       this.closeModal.emit();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating product:', error);
-      // Here you could add a notification service to show error messages
+      alert(error.message || 'Failed to update product');
     } finally {
       this.loading = false;
     }
+  }
+
+  onFileChange(event: Event): void {
+    const element = event.target as HTMLInputElement;
+    if (element.files?.length) {
+      this.selectedFiles = Array.from(element.files);
+    }
+  }
+
+  onClose(): void {
+    this.selectedFiles = [];
+    this.closeModal.emit();
   }
 
   resetForm(): void {
@@ -120,17 +130,13 @@ export class EditProductComponent implements OnInit, OnChanges {
         name: this.product.name,
         price: this.product.price,
         quantity: this.product.quantity,
-        categoryId: this.product.categoryId,
         description: this.product.description || '',
-        isActive: this.product.isActive,
-        supplierId: this.product.supplierId,
-        sellerId: this.product.sellerId
+        categoryId: this.getCategoryId(this.product.categoryId),
+        supplierId: this.getSupplierId(this.product.supplierId),
+        sellerId: this.getSellerId(this.product.sellerId),
+        isActive: this.product.isActive
       };
+      this.selectedFiles = [];
     }
-  }
-
-  onClose(): void {
-    this.selectedFiles = [];
-    this.closeModal.emit();
   }
 }

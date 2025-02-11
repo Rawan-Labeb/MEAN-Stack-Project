@@ -2,7 +2,10 @@ const Product = require('../models/product.model');
 
 const productRepo = {
     getAllProducts: async () => {
-        return await Product.find({ isActive: true })
+        return await Product.find({ 
+            isActive: true,
+            quantity: { $gt: 0 }  
+        })
             .populate('categoryId')
             .populate('sellerId')
             .populate('supplierId');
@@ -78,6 +81,36 @@ const productRepo = {
         }).populate('categoryId')
           .populate('sellerId')
           .populate('supplierId');
+    },
+
+    getProductsBySellerId: async (sellerId) => {
+        return await Product.find({ 
+            sellerId: sellerId,
+            isActive: true 
+        })
+        .populate('categoryId')
+        .populate('sellerId')
+        .populate('supplierId');
+    },
+
+    // Get all products including inactive ones (for admin)
+    getAllProductsAdmin: async () => {
+        return await Product.find({})
+            .populate('categoryId')
+            .populate('sellerId')
+            .populate('supplierId');
+    },
+
+    // Hard delete product
+    hardDeleteProduct: async (id) => {
+        return await Product.findByIdAndDelete(id);
+    },
+
+    // Soft delete (toggle active status)
+    toggleProductStatus: async (id) => {
+        const product = await Product.findById(id);
+        product.isActive = !product.isActive;
+        return await product.save();
     }
 };
 
