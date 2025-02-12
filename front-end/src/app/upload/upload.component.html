@@ -1,0 +1,19 @@
+<div class="mb-3">  
+  <label class="btn btn-primary">
+    Upload Images
+    <input type="file" class="d-none" multiple (change)="onFilesSelected($event)">
+  </label>
+</div>
+
+<!-- <div class="preview-images mt-2 d-flex flex-wrap">
+  <div *ngFor="let image of previewImages; let i = index" class="image-container">
+    <img [src]="image" class="image-preview">
+    <button type="button" class="btn btn-danger btn-sm remove-btn" (click)="removeImage(i)">X</button>
+  </div>
+</div> -->
+<div *ngIf="imageUrls.length > 0">
+  <span *ngFor="let imageUrl of imageUrls">
+    <img [src]="imageUrl" width="70" height="70" />
+  </span>
+</div>
+

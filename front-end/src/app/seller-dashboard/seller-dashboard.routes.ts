@@ -21,6 +21,10 @@ export const SELLER_DASHBOARD_ROUTES: Routes = [
         loadComponent: () => import('./analytics/sales-chart/sales-chart.component')
           .then(m => m.SalesChartComponent)
       },
+      {
+        path: 'analytics',
+        component: SalesChartComponent
+      },
       { path: '', redirectTo: 'products', pathMatch: 'full' }
     ]
   }

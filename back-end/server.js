@@ -3,18 +3,24 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const user = require("./controllers/user.controller");
 const permission = require("./controllers/permission.controller");
+const Complaint = require("./controllers/complaint.controller")
+require('dotenv').config();
 const productController = require('./controllers/product.controller');
 const supplierController = require('./controllers/supplier.controller');
 const validateProduct = require('./middleware/productValidation');
-require('dotenv').config();
-
+const category = require("./controllers/category.controller");
+const fileUpload = require("express-fileupload");
 const app = express();
-const port = process.env.PORT ;
+const port = process.env.PORT;
+const upload = require("./controllers/media.controller");
+const order = require("./controllers/order.controller");
+
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+app.use(fileUpload());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -25,6 +31,13 @@ mongoose.connect(process.env.MONGO_URI)
     app.get('/', (req, res) => {
       res.json({ message: 'Hello from the back end!' });
     });
+    // All routes
+    // API routes with /api prefix
+    app.use("/users", user);
+    app.use("/permission", permission);
+    app.use("/order", order);
+    app.use(category);
+    app.use(upload);
 
     // User routes
     app.use("/api/users", user);
@@ -44,6 +57,11 @@ mongoose.connect(process.env.MONGO_URI)
     // Generic CRUD routes last
     app.get('/api/products', productController.getAllProducts);
     app.post('/api/products', validateProduct, productController.createProduct);
+    
+    app.get('/api/products/search', productController.searchProducts);
+    app.get('/api/products/price-range', productController.getProductsByPriceRange);
+    app.get('/api/products/best-sellers', productController.getBestSellers);
+    app.get('/api/products/available', productController.getAvailableProducts);
     app.get('/api/products/:id', productController.getProductById);
     app.put('/api/products/:id', validateProduct, productController.updateProduct);
     app.delete('/api/products/:id', productController.deleteProduct);
@@ -55,7 +73,7 @@ mongoose.connect(process.env.MONGO_URI)
     app.put('/api/suppliers/:id', supplierController.updateSupplier);
     app.delete('/api/suppliers/:id', supplierController.deleteSupplier);
 
-    // Error handling middleware
+    // Error handling middleware (keep only one instance)
     app.use((req, res, next) => {
       res.status(404).json({ message: "Route not found" });
     });

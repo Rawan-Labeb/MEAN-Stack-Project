@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const productService = require('../services/product.service');
+const productService = require('../services/product.service');
 const Product = require('../models/product.model');
+const Category = require('../models/category.model'); // Ensure Category model is imported
 const Category = require('../models/category.model'); // Ensure Category model is imported
 
 const productController = {
@@ -132,6 +134,7 @@ const productController = {
             }
         } catch (error) {
             res.status(500).json({ message: error.message });
+            res.status(500).json({ message: error.message });
         }
     },
 
@@ -144,6 +147,7 @@ const productController = {
                 res.status(400).json({ message: result.message });
             }
         } catch (error) {
+            res.status(500).json({ message: error.message });
             res.status(500).json({ message: error.message });
         }
     },

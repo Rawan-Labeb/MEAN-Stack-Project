@@ -7,7 +7,8 @@ const {getAllUsers,
     activateUser,
     deleteUser,
     changeUserRole,
-    getUserByEmail
+    getUserByEmail,
+    getUsersByRole
 } = require ("./../services/user.service")
 
 const {register, login} = require("./../services/auth.service")
@@ -61,11 +62,11 @@ router.post("/register", async (req, res, next) => {
         const user = await register(req.body);
         // console.log(user)
         if (user.success)
-            return res.status(201).send(user.message);
+            return res.status(201).json({token: user.message});
         else
-            return res.status(400).send(user.message);
+            return res.status(400).json({token: user.message});
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json({message: "Internal Server Error"});
     }
 });
 
@@ -139,16 +140,32 @@ router.put("/changeUserRole/:id", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
     try {
-        const {email,password} = req.body;
-        const user = await login(email,password);
+        const {email, password} = req.body;
+        const user = await login(email, password);
         if (user.success)
-            return res.status(200).send(user.message);
+            return res.status(200).json({token: user.message});
         else
-            return res.status(400).send(user.message);
+            return res.status(400).json({message: user.message});
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json({message: "Internal Server Error"});
     }
 });
+
+
+router.get("/getUsersBasedOnRole/:role", async (req,res) => {
+    try{
+        const result = await getUsersByRole(req.params.role);
+
+        if (!result.success)
+            return res.status(400).json({message: result.message});
+
+        return res.status(200).json({message: result.message});
+
+    } catch (error) {
+        return res.status(500).json({message: "Internal Server Error"});
+    }    
+})
+
 
 module.exports =router;
 
