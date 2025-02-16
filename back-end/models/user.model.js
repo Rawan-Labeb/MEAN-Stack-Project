@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     zipCode: { type: String },
   },
   contactNo: { type: String },
-  image: { type: String },
+  image: [{ type: String }],
   isActive: { type: Boolean, default: true },
 });
 

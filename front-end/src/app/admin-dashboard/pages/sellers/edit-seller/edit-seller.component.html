@@ -2,7 +2,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Update User</h5>
+          <h5 class="modal-title">Update Seller</h5>
           <button type="button" class="btn-close" (click)="onClose()"></button>
         </div>
         <div class="modal-body">
@@ -83,40 +83,6 @@
               </div>
             </div>
 
-            <div class="row mb-2">
-              <label class="form-label">Address</label>
-
-              <div class="col-4">
-                  <label class="form-label">City</label>
-                  <input type="text" class="form-control" placeholder="City" 
-                      [(ngModel)]="userData.address!.city" name="City" required #City="ngModel"
-                      [class.is-invalid]="City.invalid && City.touched">
-                  <div *ngIf="City.invalid && City.touched" class="invalid-feedback">
-                      City is required.
-                  </div>
-              </div>
-
-              <div class="col-4">
-                  <label class="form-label">State</label>
-                  <input type="text" class="form-control" placeholder="State" 
-                      [(ngModel)]="userData.address!.state" name="State" required #State="ngModel"
-                      [class.is-invalid]="State.invalid && State.touched">
-                  <div *ngIf="State.invalid && State.touched" class="invalid-feedback">
-                      State is required.
-                  </div>
-              </div>
-
-              <div class="col-4">
-                  <label class="form-label">Street</label>
-                  <input type="text" class="form-control" placeholder="Street" 
-                      [(ngModel)]="userData.address!.street" name="Street" required #Street="ngModel"
-                      [class.is-invalid]="Street.invalid && Street.touched">
-                  <div *ngIf="Street.invalid && Street.touched" class="invalid-feedback">
-                      Street is required.
-                  </div>
-              </div>
-          </div>
-    
           <app-upload (imagesUploaded)="onImagesUploaded($event)"></app-upload>
           <div *ngIf="userData.image" class="d-flex flex-wrap gap-2">
             <div *ngFor="let image of userData.image; let i = index" class="position-relative">
@@ -128,7 +94,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!editForm.valid">Update User</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!editForm.valid">Update Seller</button>
           </div>
   
           </form>
@@ -136,4 +102,3 @@
       </div>
     </div>
   </div>
-  

@@ -236,7 +236,7 @@ module.exports.getUsersByRole = async (userRole) => {
         if (!userRole)
             return { success: false, message: "Role Should Be passed" };
 
-        userRole = newRole.toLowerCase();
+        //userRole = userRole.toLowerCase();
 
         const users = await getUsersByRole(userRole);
         return {success:true, message: users};

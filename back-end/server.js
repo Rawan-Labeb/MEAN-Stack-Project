@@ -14,7 +14,7 @@ const app = express();
 const port = process.env.PORT;
 const upload = require("./controllers/media.controller");
 const order = require("./controllers/order.controller");
-
+const branch=require("./controllers/branch.controller")
 
 // Middleware
 app.use(cors());
@@ -32,8 +32,10 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/users", user);
     app.use("/permission", permission);
     app.use("/order", order);
+    app.use("/complain",Complaint);
     app.use(category);
     app.use(upload);
+    app.use(branch);
 
     // Product routes
     app.get('/api/products', productController.getAllProducts);
