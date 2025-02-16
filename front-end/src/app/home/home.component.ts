@@ -158,6 +158,6 @@ export class HomeComponent {
     }
   ];
 
-  // Expose the global Array object as a property
+  
   Array = Array;
 }

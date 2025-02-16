@@ -9,15 +9,15 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet,
+    // RouterOutlet,
     ToastModule,
     CommonModule,
-    AdminDashboardComponent
+    // AdminDashboardComponent
   ],
   template: `
-  <app-admin-dashboard></app-admin-dashboard>
+  <!-- <app-admin-dashboard></app-admin-dashboard>
     <router-outlet></router-outlet>
-    <p-toast></p-toast>
+    <p-toast></p-toast> -->
   `,
   providers: [MessageService],
   styles: []

@@ -27,8 +27,8 @@ export class CatalogComponent implements OnInit {
   ];
 
   selectedCategory: string = '';
-  sortBy: string = 'price-asc'; // Default: Sort by price ascending
-  itemsPerPage: number = 4; // Number of items per page
+  sortBy: string = 'price-asc'; 
+  itemsPerPage: number = 4; 
   currentPage: number = 1;
 
   // Computed properties
@@ -39,7 +39,7 @@ export class CatalogComponent implements OnInit {
   }
 
   get sortedPerfumes(): Perfume[] {
-    const perfumes = [...this.filteredPerfumes]; // Create a copy to avoid mutating the original array
+    const perfumes = [...this.filteredPerfumes]; 
 
     if (this.sortBy === 'price-asc') {
       return perfumes.sort((a, b) => a.price - b.price);
@@ -68,7 +68,7 @@ export class CatalogComponent implements OnInit {
   get paginationArray(): number[] {
     return Array(this.totalPages)
       .fill(0)
-      .map((_, i) => i + 1); // Generate [1, 2, 3, ..., totalPages]
+      .map((_, i) => i + 1);
   }
 
   constructor() {}
@@ -83,11 +83,11 @@ export class CatalogComponent implements OnInit {
 
   updateSort(sortBy: string): void {
     this.sortBy = sortBy;
-    this.currentPage = 1; // Reset pagination when sorting changes
+    this.currentPage = 1; 
   }
 
   updateCategory(category: string): void {
     this.selectedCategory = category;
-    this.currentPage = 1; // Reset pagination when filtering changes
+    this.currentPage = 1; 
   }
 }

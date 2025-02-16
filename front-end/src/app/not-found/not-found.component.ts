@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Import CommonModule for standalone components
+import { CommonModule } from '@angular/common'; 
 
 @Component({
   selector: 'app-not-found',
-  standalone: true, // Use standalone components (optional)
-  imports: [CommonModule], // Import CommonModule for routerLink
+  standalone: true, 
+  imports: [CommonModule], 
   templateUrl: './not-found.component.html',
   styleUrls: ['./not-found.component.css']
 })
 export class NotFoundComponent implements OnInit {
-  loading: boolean = true; // Loading state
+  loading: boolean = true; 
 
   ngOnInit(): void {
     // Simulate a delay for the animation
     setTimeout(() => {
-      this.loading = false; // Hide the loading screen after 3 seconds
-    }, 3000); // Adjust the duration as needed
+      this.loading = false; 
+    }, 3000); 
 }
 }

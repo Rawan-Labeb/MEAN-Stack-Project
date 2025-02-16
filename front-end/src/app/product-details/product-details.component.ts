@@ -9,16 +9,16 @@ interface Perfume {
   price: number;
   image: string;
   description: string;
-  category: string; // Example categories: 'floral', 'citrus', 'oriental'
-  rating: number; // Average rating (out of 5)
-  reviews: Review[]; // Customer reviews
+  category: string; 
+  rating: number; 
+  reviews: Review[]; 
 }
 
 interface Review {
   id: number;
   customerName: string;
-  rating: number; // Rating given by the customer
-  comment: string; // Customer comment
+  rating: number; 
+  comment: string; 
 }
 
 @Component({
@@ -66,10 +66,8 @@ export class ProductDetailsComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    // Get the product ID from the route parameter
     const productId = Number(this.route.snapshot.paramMap.get('id'));
 
-    // Find the perfume by ID
 
     // this.perfume = this.perfumes.find((p) => p.id === productId) || null;
     this.perfume = this.perfumes[1];
@@ -83,7 +81,6 @@ export class ProductDetailsComponent implements OnInit {
   addToCart(): void {
     if (this.perfume) {
       alert(`"${this.perfume.name}" has been added to your cart!`);
-      // Implement actual cart logic here
     }
   }
 }
