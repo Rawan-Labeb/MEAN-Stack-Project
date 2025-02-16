@@ -6,17 +6,21 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UploadService {
-
-  private apiUrl = 'http://localhost:3000/upload';
+  private uploadUrl = 'http://localhost:5000/upload';
 
   constructor(private http: HttpClient) {}
 
-  uploadImage(file: File, type: string, id: string): Observable<any> {
+  uploadImage(file: File): Observable<{ imageUrl: string }> {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', type);
-    formData.append('id', id);
+    formData.append('image', file);
+    return this.http.post<{ imageUrl: string }>(this.uploadUrl, formData);
+  }
 
-    return this.http.post(`${this.apiUrl}`, formData);
+  uploadMultipleImages(files: FileList): Observable<{ imageUrls: string[] }> {
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('imageUrls', files[i]);
+    }
+    return this.http.post<{ imageUrls: string[] }>(this.uploadUrl, formData);
   }
 }

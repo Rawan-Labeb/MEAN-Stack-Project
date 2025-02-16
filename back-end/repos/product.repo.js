@@ -1,5 +1,4 @@
 const Product = require('../models/product.model');
-
 const productRepo = {
     getAllProducts: async () => {
         return await Product.find({ isActive: true })
@@ -24,7 +23,8 @@ const productRepo = {
                 quantity: productData.quantity,
                 categoryId: productData.categoryId,
                 sellerId: productData.sellerId,
-                supplierId: productData.supplierId
+                supplierId: productData.supplierId,
+                images: productData.images,
             });
             return await product.save();
         } catch (error) {

@@ -56,12 +56,14 @@ export class RegisterComponent {
       email: this.registerForm.value.email,
       password: this.registerForm.value.password,
       token: "",
+
       // Note: Confirm Password is not included in the user object
     };
 
     this.userSer.register(user).subscribe(response => {
       console.log('User registered successfully:', response);
       this.cookieService.set("token", response.token);
+
 
       // Handle successful registration
     }, error => {
