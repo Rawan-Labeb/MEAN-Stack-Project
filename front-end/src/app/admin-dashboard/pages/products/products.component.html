@@ -141,6 +141,12 @@
                           <mat-icon>edit</mat-icon>
                           Update
                         </button>
+                        <app-update-product 
+                          *ngIf="showEditModal" 
+                          [productData]="productData" 
+                          (updated)="onProductUpdated()" 
+                          (close)="showEditModal = false">
+                        </app-update-product> 
                         <button mat-menu-item (click)="deleteProduct(product._id)">
                           <mat-icon>delete</mat-icon>
                           Delete
