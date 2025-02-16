@@ -39,9 +39,15 @@
                 <h3 class="mb-0"></h3>
               </div>
               <div class="col-auto">
-                <button class="btn btn-primary" routerLink="add">
+                <button class="btn btn-primary" (click)="openAddModal()">
                   Add User
                 </button>
+                <app-add-user 
+                  [show]="showAddModal" 
+                  [userData]="userData" 
+                  (close)="showAddModal = false" 
+                  (saved)="onUserSaved()">
+                </app-add-user>
               </div>
             </div>
           </div>
@@ -65,12 +71,19 @@
                 </select>
               </div>
             </div>
+
+            <app-edit-user
+              [show]="showEditModal" 
+              [userData]="userData" 
+              (updated)="onUserUpdated()" 
+              (close)="showEditModal = false">
+            </app-edit-user>
       
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>
                   <tr>
-                    <th (click)="sort('name')" style="cursor: pointer" class="justify-content-between">
+                    <th (click)="sort('firstName')" style="cursor: pointer" class="justify-content-between">
                       Name
                       <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
                     </th>
@@ -83,13 +96,13 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let user of filteredUsers">
-                    <td>{{user.name}}</td>
+                    <td><img class="image" src="{{user.image}}" alt="">{{user.firstName}} {{user.lastName}}</td>
                     <td>{{user.email}}</td>
-                    <td>${{user.address}}</td>
-                    <td>{{user.phone}}</td>
+                    <td>{{user.address?.street}} {{user.address?.city}} {{user.address?.state}}</td>
+                    <td>{{user.contactNo}}</td>
                     <td>
-                      <span class="badge" [ngClass]="user.status ? 'bg-success' : 'bg-danger'">
-                        {{user.status ? ' Active ' : 'Inactive'}}
+                      <span class="badge" [ngClass]="user.isActive ? 'bg-success' : 'bg-danger'">
+                        {{user.isActive ? ' Active ' : 'Inactive'}}
                       </span>
                     </td>
                     <td>
@@ -97,7 +110,7 @@
                         <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
                       </button>
                       <mat-menu #menu="matMenu" class="bg-white ">
-                        <button mat-menu-item [routerLink]="['edit', user._id]">
+                        <button mat-menu-item (click)="openEditModal(user)">
                           <mat-icon>edit</mat-icon>
                           Update
                         </button>
@@ -105,9 +118,9 @@
                           <mat-icon>delete</mat-icon>
                           Delete
                         </button>
-                        <button mat-menu-item>
-                          <mat-icon>{{ user.status ? 'close' : 'check' }}</mat-icon>
-                          {{ user.status ? 'Inactive' : 'Active' }}
+                        <button mat-menu-item (click)="toggleUserStatus(user)">
+                          <mat-icon>{{ user.isActive ? 'close' : 'check' }}</mat-icon>
+                          {{ user.isActive ? 'Inactive' : 'Active' }}
                         </button>     
                       </mat-menu>
                     </td>

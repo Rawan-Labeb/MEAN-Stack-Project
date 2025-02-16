@@ -181,6 +181,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.editingProduct = product;
     this.productData = { ...product };
     this.showEditModal = true;
+    console.log("✅ Opening Edit Modal with Data:", this.productData);
   }
 
   onProductSaved(): void {

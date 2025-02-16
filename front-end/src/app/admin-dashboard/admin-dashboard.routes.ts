@@ -6,8 +6,8 @@ import { SellersComponent } from './pages/sellers/sellers.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { ContactComponent } from './pages/contact/contact.component';
-import { CategoryComponent } from './pages/category/category.component';
-import { ReviewComponent } from './pages/review/review.component';
+//import { CategoryComponent } from './pages/category/category.component';
+//import { ReviewComponent } from './pages/review/review.component';
 
 
 
@@ -18,8 +18,8 @@ export const adminDashboardRoutes: Routes = [
     { path: 'sellers', component: SellersComponent },
     { path: 'products', component: ProductsComponent },
     { path: 'orders', component:OrdersComponent },
-    { path: 'categories', component: CategoryComponent },
-    { path: 'reviews', component: ReviewComponent },
+   // { path: 'categories', component: CategoryComponent },
+   // { path: 'reviews', component: ReviewComponent },
     { path: 'contact', component: ContactComponent },
 ];
 

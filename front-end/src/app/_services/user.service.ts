@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient,HttpHeaders } from '@angular/common/http';
+import { Observable ,Subject} from 'rxjs';
 import { User } from '../_models/user.model';
-// import { HttpClient } from '@angular/common/http';
-// import { Injectable } from '@angular/core';
-// import { User } from '../_models/user';
+import { tap} from 'rxjs/operators';
 import { Login } from '../_models/login';
 
 @Injectable({
@@ -12,35 +10,69 @@ import { Login } from '../_models/login';
 })
 export class UserService {
   private apiUrl = 'http://localhost:5000/users';
-  
+  private userUpdated = new Subject<User>();
     constructor(private http: HttpClient) { }
   
-    // Get all Users
     getAllUsers(): Observable<User[]> {
-      return this.http.get<User[]>(this.apiUrl);
+      return this.http.get<User[]>(`${this.apiUrl}/getAllUsers`);
     }
-  
-    // Get a single User by ID
+    getUsersBasedOnRole(role: string): Observable<User[]> {
+      return this.http.get<User[]>(`${this.apiUrl}/getUsersBasedOnRole/${role}`);
+    }
+
     getUserById(id: string): Observable<User> {
-      return this.http.get<User>(`${this.apiUrl}/${id}`);
+      return this.http.get<User>(`${this.apiUrl}/getUserById/${id}`);
     }
+
+    getUserByEmail(email: string): Observable<User> {
+      return this.http.get<User>(`${this.apiUrl}/getUserByEmail/${email}`);
+    }
+
+    createUser(user: User): Observable<User> {
+      const userData = JSON.parse(JSON.stringify(user));
+      delete userData._id;
+        console.log('Adding user:', userData);
+        const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+        return this.http.post<User>(`${this.apiUrl}/register`, userData,{headers}).pipe(
+            tap(createdUser => {
+                console.log('user added successfully:', createdUser);
+            })
+        );
+      }
   
-    // Create a new User
-    createUser(product: User): Observable<User> {
-      return this.http.post<User>(this.apiUrl, product);
+    updateUser(id: string, user: User): Observable<User> {
+      console.log('Updating user at:', `${this.apiUrl}/updateUser/${id}`);
+        return this.http.put<User>(`${this.apiUrl}/updateUser/${id}`, user).pipe(
+          tap(updateUser => {
+            console.log('Update successful:', updateUser);
+            this.userUpdated.next(updateUser);
+          })
+        );
     }
-  
-    // Update an existing User
-    updateUser(id: string, product: User): Observable<User> {
-      return this.http.put<User>(`${this.apiUrl}/${id}`, product);
+    activeUser(id: string, user: User): Observable<User> {
+        return this.http.put<User>(`${this.apiUrl}/activateUser/${id}`, user).pipe(
+          tap(updateUser => {
+            console.log('Update successful:', updateUser);
+            this.userUpdated.next(updateUser);
+          })
+        );
     }
-  
-    // Delete a User
-    deleteUser(id: number): Observable<any> {
-      return this.http.delete(`${this.apiUrl}/${id}`);
+    inActiveUser(id: string, user: User): Observable<User> {
+        return this.http.put<User>(`${this.apiUrl}/deactivateUser/${id}`, user).pipe(
+          tap(updateUser => {
+            console.log('Update successful:', updateUser);
+            this.userUpdated.next(updateUser);
+          })
+        );
     }
-
-
-
-
+    
+    deleteUser(id: string): Observable<void> {
+        console.log('Deleting product at:', `${this.apiUrl}/deleteUser/${id}`);
+        return this.http.delete<void>(`${this.apiUrl}/deleteUser/${id}`).pipe(
+          tap(() => console.log('Delete successful'))
+        );
+      }
+      onUserUpdate(): Observable<User> {
+          return this.userUpdated.asObservable();
+      }
 }

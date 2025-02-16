@@ -8,14 +8,13 @@ import { ToastrService } from 'ngx-toastr';
 import { UploadComponent } from 'src/app/upload/upload.component';
 
 @Component({
-  selector: 'app-edit-user',
+  selector: 'app-edit-seller',
   imports: [FormsModule, CommonModule, UploadComponent],
-  templateUrl: './edit-user.component.html',
-  styleUrl: './edit-user.component.css'
+  templateUrl: './edit-seller.component.html',
+  styleUrl: './edit-seller.component.css'
 })
-export class EditUserComponent{
-    
-    @Input() show = false;
+export class EditSellerComponent {
+  @Input() show = false;
     @Input() userData!: User; 
   
     @Output() close = new EventEmitter<void>();
@@ -50,12 +49,12 @@ export class EditUserComponent{
 
         await firstValueFrom(this.userService.updateUser(this.userData._id, updatedUser));
   
-        this.toastr.success('User updated successfully!', 'Success');
+        this.toastr.success('Seller updated successfully!', 'Success');
         this.updated.emit();
         this.close.emit();
       } catch (error) {
-        console.error('Error updating User:', error);
-        this.toastr.error('Failed to update User. Please try again.', 'Error');
+        console.error('Error updating Seller:', error);
+        this.toastr.error('Failed to update Seller. Please try again.', 'Error');
       } finally {
         this.loading = false;
       }
