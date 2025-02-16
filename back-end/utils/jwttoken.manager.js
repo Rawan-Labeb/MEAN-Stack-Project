@@ -23,4 +23,6 @@ module.exports.decodedToken = (token)=>{
 }
 
 
-
+module.exports.signTokenForResetPassword = ({claims})=> {
+    return jwt.sign(claims, process.env.SECRET_KEY, {expiresIn: "30m"})
+}

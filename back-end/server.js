@@ -119,6 +119,8 @@ const port = process.env.PORT;
 // const upload = require("./controllers/media.controller");
 const order = require("./controllers/order.controller");
 
+const mainInventory = require("./controllers/main.inventory.controller")
+const subInventory = require("./controllers/sub.inventory.controller");
 
 // Middleware
 app.use(cors());
@@ -140,6 +142,8 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/users", user);
     app.use("/permission", permission);
     app.use("/order", order);
+    app.use("/mainInventory", mainInventory);
+    app.use("/subInventory", subInventory);
     app.use(category);
     // app.use(upload);
 
@@ -191,6 +195,10 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/permission", permission);
     app.use("/complaint", Complaint);
     app.use("/order", order);
+    app.use("/mainInventory", mainInventory);
+    app.use("/subInventory", subInventory);
+
+
     app.use(category)
     //app.use(image)
 

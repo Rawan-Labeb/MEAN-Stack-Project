@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CookieService } from 'ngx-cookie-service';
 import { register } from 'src/app/_models/register';
 import { AuthServiceService } from 'src/app/_services/auth-service.service';
 
@@ -15,7 +16,9 @@ export class RegisterComponent {
   registerForm: FormGroup;
   constructor(
     private fb: FormBuilder,
-    private userSer:AuthServiceService
+    private userSer:AuthServiceService,
+        public cookieService:CookieService
+
   ) {
     this.registerForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -51,12 +54,15 @@ export class RegisterComponent {
       firstName: this.registerForm.value.firstName,
       lastName: this.registerForm.value.lastName,
       email: this.registerForm.value.email,
-      password: this.registerForm.value.password
+      password: this.registerForm.value.password,
+      token: "",
       // Note: Confirm Password is not included in the user object
     };
 
     this.userSer.register(user).subscribe(response => {
       console.log('User registered successfully:', response);
+      this.cookieService.set("token", response.token);
+
       // Handle successful registration
     }, error => {
       console.error('Registration failed:', error);

@@ -9,12 +9,13 @@ import { userProfile } from '../_models/userProfile.model';
 // import { default as jwt_decode } from 'jwt-decode';
 // import {default as jwt_decode} from "jwt-decode"
 import {jwtDecode }from 'jwt-decode';
+import { Order } from '../_models/order.module';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthServiceService {
-  private apiUrl = 'http://localhost:5000/api/users';
+  private apiUrl = 'http://localhost:5000/users';
   
   constructor(
     private http: HttpClient,
@@ -42,8 +43,11 @@ export class AuthServiceService {
     return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail/${email}`);
   }
   
-
-
+  updateUserData(userData:userProfile, id:string)
+  {
+    return this.http.put<userProfile>(`${this.apiUrl}/updateUser/${id}`,userData)
+  }
+  
 
   // decode token
   decodeToken(token: string): any {
@@ -53,6 +57,17 @@ export class AuthServiceService {
       console.error('Invalid token', error);
       return null;
     }
+  }
+
+  // request password to change 
+  requestChangePassword (email:string): Observable<any>
+  {
+    return this.http.post(`${this.apiUrl}/requestPasswordReset/${email}`, {});
+  }
+  // reset password 
+  resetPassword (email: string, token:string, password:string)
+  {
+    return this.http.post(`${this.apiUrl}/resetPassword`, {email, token, password})
   }
 
 }

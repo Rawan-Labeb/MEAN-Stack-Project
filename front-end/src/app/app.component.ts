@@ -6,6 +6,8 @@ import { CommonModule } from '@angular/common';
 import { LoginComponent } from './authentication/login/login.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';import { RegisterComponent } from "./authentication/register/register.component";
 import { UserProfileComponent } from "./user-profile/user-profile.component";
+import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
+import { ResetPasswordComponent } from './authentication/change-password/change-password.component';
 
 @Component({
   selector: 'app-root',
@@ -17,14 +19,21 @@ import { UserProfileComponent } from "./user-profile/user-profile.component";
     AdminDashboardComponent,
     RegisterComponent,
     LoginComponent,
-    UserProfileComponent
+    UserProfileComponent,
+    RequestChangePasswordComponent,
+    ResetPasswordComponent
 ],
   template: `
-  <app-register></app-register>
+    <app-reset-password></app-reset-password>
+    <!--
+      <app-request-change-password></app-request-change-password>
+    <app-login></app-login>
+    <app-register></app-register>
   <app-admin-dashboard></app-admin-dashboard>
     <router-outlet></router-outlet>
-    <p-toast></p-toast>
-  `,
+    <app-user-profile></app-user-profile>
+    <p-toast></p-toast> -->
+    `,
   providers: [MessageService],
   styles: []
 })

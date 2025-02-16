@@ -6,9 +6,9 @@ const Userr= require("../models/user.model")
 
 const createClaims = (user) => {
     return {
-        sub: user.user_id,
+        sub: user._id,
         email: user.email,
-        role: user.role
+        role: user.role,
     };
 };
 
