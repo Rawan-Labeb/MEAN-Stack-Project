@@ -8,8 +8,13 @@ const {getAllUsers,
     deleteUser,
     changeUserRole,
     getUserByEmail,
-    getUsersByRole
+    getUsersByRole,
+    requestPasswordReset,
+    changePassword
 } = require ("./../services/user.service")
+
+
+const {main} = require("./../services/forgetPassword.service")
 
 const {register, login} = require("./../services/auth.service")
 
@@ -32,8 +37,9 @@ router.get("/getAllUsers", async (req, res, next) => {
 
 router.get("/getUserById/:id", async (req, res, next) => {
     try {
-        console.log(req.params.id)
+        // console.log(req.params.id)
         const user = await getUserById(req.params.id);
+        // console.log(user)
         if (user.success)
             return res.send(user.message);
         else    
@@ -159,12 +165,47 @@ router.get("/getUsersBasedOnRole/:role", async (req,res) => {
         if (!result.success)
             return res.status(400).json({message: result.message});
 
-        return res.status(200).json(result.message);
+        return res.status(200).json({message: result.message.message});
 
     } catch (error) {
         return res.status(500).json({message: "Internal Server Error"});
     }    
 })
+
+router.post("/requestPasswordReset/:email", async (req, res) => {
+    try
+    {
+        const chk = await requestPasswordReset(req.params.email);
+        if (!chk.success)
+            return res.status(400).json({message: chk.message});
+
+        return res.status(200).json({message: chk.message});
+
+    } catch (error) {
+        return res.status(500).json({message: "Internal Server Error"});
+    } 
+})
+
+
+
+router.post('/resetPassword', async (req, res) => {
+    const { email, token, newPassword } = req.body;
+    try {
+
+        const result = await changePassword(email,token, newPassword);
+        if (result.success) {
+            res.status(200).json({ message: result.message });
+        } else {
+            res.status(400).json({ message: result.message });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
 
 
 module.exports =router;
