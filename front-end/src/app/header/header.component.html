@@ -1,0 +1,146 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm position-sticky top-0 zz" >
+    <div class="container-fluid">
+      <!-- Logo -->
+      <a class="navbar-brand d-flex align-items-center" href="/home">
+        <img 
+          src="https://via.placeholder.com/100x40?text=Logo" 
+          alt="Logo" 
+          class="d-inline-block align-text-top me-2" 
+          style="max-height: 40px;"
+        />
+        <span class="fw-bold fs-4">Perfume Emporium</span>
+      </a>
+  
+      <!-- Toggle Button for Mobile -->
+      <button 
+        class="navbar-toggler border-0" 
+        type="button" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#navbarContent" 
+        aria-controls="navbarContent" 
+        aria-expanded="false" 
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <!-- Navbar Content -->
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home" routerLinkActive="active" 
+            [class.selected]="selected === 'home'"             
+            (click)="updateSelect('home')"
+            >Home</a>
+          </li> 
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/catalog" routerLinkActive="active" 
+            [class.selected]="selected === 'products'" 
+            (click)="updateSelect('Products')"
+            >Products</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/about" routerLinkActive="active" 
+            [class.selected]="selected === 'about-us'" 
+            (click)="updateSelect('about-us')"
+            >About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/contact" routerLinkActive="active" 
+            [class.selected]="selected === 'contact-us'" 
+            (click)="updateSelect('contact-us')"
+            >Contact Us</a>
+          </li>         
+            
+        </ul>
+  
+        <!-- User Dropdown -->
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a 
+              class="nav-link dropdown-toggle text-dark" 
+              href="#" 
+              id="userDropdown" 
+              role="button" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              <i class="bi bi-person-circle fs-4 me-2"></i> Account
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow-sm" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="/user-profile"><i class="bi bi-person me-2"></i> User Profile</a></li>
+              <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+              <li><a class="dropdown-item" href="/history"><i class="bi bi-clock-history me-2"></i> History</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+              <li><a class="dropdown-item" href="/register"><i class="bi bi-pencil-square me-2"></i> Register</a></li>
+            </ul>
+          </li>
+  
+          <!-- Cart Icon -->
+          <li class="nav-item ms-3">
+            <button 
+              class="btn btn-outline-primary rounded-pill px-3 py-2 d-flex align-items-center" 
+              type="button" 
+              data-bs-toggle="offcanvas" 
+              data-bs-target="#cartOffcanvas" 
+              aria-controls="cartOffcanvas"
+            >
+              <i class="bi bi-cart fs-4 me-2"></i> Cart <span class="badge bg-primary rounded-pill ms-2">{{ getCartItemCount() }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Offcanvas for Cart -->
+  <div 
+    class="offcanvas offcanvas-end rounded-0" 
+    tabindex="-1" 
+    id="cartOffcanvas" 
+    aria-labelledby="cartOffcanvasLabel"
+    
+  >
+    <div class="offcanvas-header border-bottom" style="border-radius: 30px; width:90% ;margin: auto;">
+      <h5 class="offcanvas-title" id="cartOffcanvasLabel">Shopping Cart</h5>
+      <button 
+        type="button" 
+        class="btn-close text-reset" 
+        data-bs-dismiss="offcanvas" 
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="offcanvas-body p-4">
+      <!-- Empty Cart Message -->
+      <p *ngIf="cartItems.length === 0" class="text-muted text-center">Your cart is empty.</p>
+  
+      <!-- Cart Items List -->
+      <ul class="list-group list-group-flush" *ngIf="cartItems.length > 0">
+        <li 
+          class="list-group-item d-flex justify-content-between align-items-center py-2" 
+          *ngFor="let item of cartItems"
+        >
+          <span>{{ item.name }}</span>
+          <span>${{ item.price.toFixed(2) }}</span>
+        </li>
+      </ul>
+  
+      <!-- Buttons at the Bottom -->
+      <div class="mt-4 d-flex gap-2" *ngIf="cartItems.length > 0">
+        <button 
+          class="btn btn-primary w-100" 
+          routerLink="/checkout"
+        >
+          Checkout
+        </button>
+        <button 
+          class="btn btn-outline-primary w-100" 
+          routerLink="/cart"
+        >
+          View Cart
+        </button>
+      </div>
+    </div>
+  </div>
