@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+const nodemailer = require("nodemailer");
 
 const generateEmailHtml = (username, resetLink) => `
   <!DOCTYPE html>
@@ -52,39 +52,39 @@ const generateEmailHtml = (username, resetLink) => `
   </html>
 `;
 
-export async function main(email, userName, resetLink) {
-    const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-            user: "ecommercesystemiti@gmail.com",
-            pass: "broo nnyd mrzf hjpw" // Use your App Password here
-        }
+module.exports.main = async (email, userName, resetLink) => {
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: "ecommercesystemiti@gmail.com",
+        pass: "broo nnyd mrzf hjpw" // Use your App Password here
+    }
+});
+
+try {
+    const info = await transporter.sendMail({
+        from: "ecommercesystemiti@gmail.com",
+        to: email,
+        subject: "Change Password",
+        html: generateEmailHtml(userName, resetLink)
     });
 
-    try {
-        const info = await transporter.sendMail({
-            from: "ecommercesystemiti@gmail.com",
-            to: email,
-            subject: "Change Password",
-            html: generateEmailHtml(userName, resetLink)
-        });
+    console.log("Message sent successfully. Message ID: " + info.messageId);
+    console.log("Preview URL: " + nodemailer.getTestMessageUrl(info)); // Only for nodemailer test account
 
-        console.log("Message sent successfully. Message ID: " + info.messageId);
-        console.log("Preview URL: " + nodemailer.getTestMessageUrl(info)); // Only for nodemailer test account
-
-        return {
-            success: true,
-            message: "Email sent successfully",
-            info
-        };
-    } catch (error) {
-        console.error("Error sending email:", error);
-        return {
-            success: false,
-            message: "Failed to send email",
-            error
-        };
-    }
+    return {
+        success: true,
+        message: "Email sent successfully",
+        info
+    };
+} catch (error) {
+    console.error("Error sending email:", error);
+    return {
+        success: false,
+        message: "Failed to send email",
+        error
+    };
+}
 }
