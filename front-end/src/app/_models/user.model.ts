@@ -7,6 +7,7 @@ export interface User {
   firstName: string;
   lastName: string;
   address?: Address;
+  branch?:string
   contactNo?: string;
   image?: string[];
   isActive?: boolean;

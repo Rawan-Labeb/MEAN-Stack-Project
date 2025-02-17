@@ -8,6 +8,7 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { UserProfileComponent } from "./user-profile/user-profile.component";
 import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
 import { ResetPasswordComponent } from './authentication/change-password/change-password.component';
+import { SellerDashboardComponent } from "./seller-dashboard/seller-dashboard.component";
 
 @Component({
   selector: 'app-root',
@@ -21,10 +22,13 @@ import { ResetPasswordComponent } from './authentication/change-password/change-
     LoginComponent,
     UserProfileComponent,
     RequestChangePasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    SellerDashboardComponent
 ],
   template: `
-    <app-reset-password></app-reset-password>
+    <app-admin-dashboard></app-admin-dashboard>
+    <!-- <app-seller-dashboard></app-seller-dashboard> -->
+    <!-- <app-reset-password></app-reset-password> -->
     <!--
       <app-request-change-password></app-request-change-password>
     <app-login></app-login>

@@ -12,7 +12,6 @@ const category = require("./controllers/category.controller");
 const fileUpload = require("express-fileupload");
 const app = express();
 const port = process.env.PORT;
-const order = require("./controllers/order.controller");
 const mainInventory = require("./controllers/main.inventory.controller")
 const subInventory = require("./controllers/sub.inventory.controller");
 const upload = require("./controllers/media.controller");
