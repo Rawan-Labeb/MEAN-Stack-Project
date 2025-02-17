@@ -11,6 +11,8 @@ import { CartComponent } from "./cart/cart.component";
 import { CheckoutComponent } from './checkout/checkout.component';
 import { CachierComponent } from './cachier/cachier.component';
 
+import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
+import { ResetPasswordComponent } from './authentication/change-password/change-password.component';
 
 @Component({
   selector: 'app-root',
@@ -23,13 +25,22 @@ import { CachierComponent } from './cachier/cachier.component';
     RegisterComponent,
     LoginComponent,
     UserProfileComponent,
-    CartComponent,
-    CheckoutComponent,
-    CachierComponent
+    RequestChangePasswordComponent,
+    ResetPasswordComponent
 ],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  providers: [MessageService]
+  template: `
+    <app-reset-password></app-reset-password>
+    <!--
+      <app-request-change-password></app-request-change-password>
+    <app-login></app-login>
+    <app-register></app-register>
+  <app-admin-dashboard></app-admin-dashboard>
+    <router-outlet></router-outlet>
+    <app-user-profile></app-user-profile>
+    <p-toast></p-toast> -->
+    `,
+  providers: [MessageService],
+  styles: []
 })
 export class AppComponent {
   title = 'E-commerce App';

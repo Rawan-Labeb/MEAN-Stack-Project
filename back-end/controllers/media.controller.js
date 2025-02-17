@@ -1,56 +1,22 @@
-// const Product = require("../models/product.model");
-// const User = require("../models/user.model");
-// const Category = require("../models/category.model");
-// const imagekit = require("../utils/media.utils");
-// const express=require('express')
-// const router=express.Router()
-// router.post('/upload', async (req, res) => {
-//   try {
-//     if (!req.file || !req.body.type || !req.body.id) {
-//       return res.status(400).json({ message: "Missing required fields" });
-//     }
+const { uploadImage } = require("../utils/media.utils");
+const express = require("express");
+const router = express.Router();
 
-//     // رفع الصورة إلى ImageKit أو أي خدمة تخزين
-//     const uploadedImage = await imagekit.upload({
-//       file: req.file.buffer,
-//       fileName: req.file.originalname,
-//     });
+router.post("/upload", async (req, res,next) => {
+  try {
+    if (!req.files || !req.files.imageUrls) {
+      return res.status(400).json({ error: "No files were uploaded" });
+    }
 
-//     const { type, id } = req.body;
-//     let model;
+    const uploadedFiles = Array.isArray(req.files.imageUrls) ? req.files.imageUrls : [req.files.imageUrls];
 
-//     // تحديد نوع الجدول الذي سيتم حفظ الصورة فيه
-//     switch (type) {
-//       case "product":
-//         model = Product;
-//         break;
-//       case "user":
-//         model = User;
-//         break;
-//       case "category":
-//         model = Category;
-//         break;
-//       default:
-//         return res.status(400).json({ message: "Invalid type" });
-//     }
+    const uploadedImages = await Promise.all(uploadedFiles.map(file => uploadImage(file)));
 
-//     // تحديث قاعدة البيانات بالرابط الجديد
-//     const item = await model.findById(id);
-//     if (!item) return res.status(404).json({ message: `${type} not found` });
+    res.status(200).json({ success: true, imageUrls: uploadedImages });
 
-//     // إذا كان المنتج أو الكاتيجوري يمكن أن يحتوي على صور متعددة، نخزنها كمصفوفة
-//     if (type === "product" || type === "category") {
-//       item.images = [...(item.images || []), uploadedImage.url];
-//     } else {
-//       item.imageUrl = uploadedImage.url; // للمستخدم، نخزن صورة واحدة فقط
-//     }
+  } catch (error) {
+    next(error);
+  }
+});
 
-//     await item.save();
-
-//     res.status(200).json({ message: "Image uploaded successfully", imageUrl: uploadedImage.url });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error uploading image", error: error.message });
-//   }
-// });
-
-  module.exports=router
+module.exports = router;

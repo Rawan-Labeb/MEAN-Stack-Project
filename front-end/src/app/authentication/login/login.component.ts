@@ -10,8 +10,8 @@ import { AuthServiceService } from 'src/app/_services/auth-service.service';
   selector: 'app-login',
   imports: [FormsModule, JsonPipe, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
-  providers: [CookieService]
+  styleUrl: './login.component.css',
+  providers: [CookieService],
 })
 export class LoginComponent {
   loginFromTwo: FormGroup;
@@ -49,8 +49,8 @@ export class LoginComponent {
           this.cookieService.set("token", data.token);
         },
         error: (error) => {
-          console.log(error.error.message);
-          console.log(error);
+          console.log(error.error.message)
+          console.log(error)
         }
       });
     } else {

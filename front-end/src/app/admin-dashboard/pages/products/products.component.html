@@ -10,7 +10,7 @@
               <div class="card bg-primary text-white">
                 <div class="card-body">
                   <h5 class="card-title">Total Products</h5>
-                  <p class="card-text display-6">10</p>
+                  <p class="card-text display-6">{{products.length}}</p>
                 </div>
               </div>
             </div>
@@ -18,7 +18,7 @@
               <div class="card bg-success text-white">
                 <div class="card-body">
                   <h5 class="card-title">Active Products</h5>
-                  <p class="card-text display-6">6</p>
+                  <p class="card-text display-6">{{activeProductsCount}}</p>
                 </div>
               </div>
             </div>
@@ -26,15 +26,15 @@
               <div class="card bg-danger text-white">
                 <div class="card-body">
                   <h5 class="card-title">Inactive Products</h5>
-                  <p class="card-text display-6">4</p>
+                  <p class="card-text display-6">{{inactiveproductCount}}</p>
                 </div>
               </div>
             </div>
             <div class="col-md-2">
               <div class="card bg-info text-white">
                 <div class="card-body">
-                  <h5 class="card-title">Stock Products</h5>
-                  <p class="card-text display-6">15</p>
+                  <h5 class="card-title">InStock Products</h5>
+                  <p class="card-text display-6">{{inStockProductsCount}}</p>
                 </div>
               </div>
             </div>
@@ -42,7 +42,7 @@
               <div class="card bg-warning text-white">
                 <div class="card-body">
                   <h5 class="card-title">Out Of Stock</h5>
-                  <p class="card-text display-6">2</p>
+                  <p class="card-text display-6">{{outOfStockProductsCount}}</p>
                 </div>
               </div>
             </div>
@@ -55,9 +55,15 @@
                 <h3 class="mb-0"></h3>
               </div>
               <div class="col-auto">
-                <button class="btn btn-primary" routerLink="add">
+                <button class="btn btn-primary" (click)="openAddModal()">
                   Add Product
                 </button>
+                <app-add-product 
+                  [show]="showAddModal" 
+                  [productData]="productData" 
+                  (close)="showAddModal = false" 
+                  (saved)="onProductSaved()">
+                </app-add-product>
               </div>
             </div>
           </div>
@@ -81,7 +87,12 @@
                 </select>
               </div>
             </div>
-      
+            <app-update-product
+              [show]="showEditModal" 
+              [productData]="productData" 
+              (updated)="onProductUpdated()" 
+              (close)="showEditModal = false">
+            </app-update-product> 
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>
@@ -92,6 +103,7 @@
                     </th>
                     <th>Category</th>
                     <th>Seller</th>
+                    <th>salesCount</th>
                     <th (click)="sort('price')" style="cursor: pointer">
                       Price
                       <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
@@ -104,14 +116,15 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let product of filteredProducts">
-                    <td>{{product.name}}</td>
-                    <td>{{product.categoryId}}</td>
-                    <td>{{product.categoryId}}</td>
+                    <td><img class="image" src="{{product.images[0]}}" alt="">{{product.name}}</td>
+                    <td>{{product.categoryId?.name}}</td>
+                    <td>{{product.sellerId?.firstName}} {{product.sellerId?.lastName}}</td>
+                    <td>${{product.noOfSale}}</td>
                     <td>${{product.price}}</td>
                     <td>{{product.quantity}}</td>
                     <td>
-                      <span class="badge" [ngClass]="product.isActive ? 'bg-info' : 'bg-secondary'">
-                        {{product.isActive ? ' Stock ' : 'Out Of Stock'}}
+                      <span class="badge" [ngClass]="product.quantity > 0 ? 'bg-info' : 'bg-secondary'">
+                        {{ product.quantity > 0 ? 'In Stock' : 'Out Of Stock' }}
                       </span>
                     </td>
                     <td>
@@ -124,18 +137,24 @@
                         <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
                       </button>
                       <mat-menu #menu="matMenu" class="bg-white ">
-                        <button mat-menu-item [routerLink]="['edit', product._id]">
+                        <button mat-menu-item (click)="openEditModal(product)">
                           <mat-icon>edit</mat-icon>
                           Update
                         </button>
+                        <app-update-product 
+                          *ngIf="showEditModal" 
+                          [productData]="productData" 
+                          (updated)="onProductUpdated()" 
+                          (close)="showEditModal = false">
+                        </app-update-product> 
                         <button mat-menu-item (click)="deleteProduct(product._id)">
                           <mat-icon>delete</mat-icon>
                           Delete
                         </button>
-                        <button mat-menu-item>
-                          <mat-icon>close</mat-icon>
-                          {{product.isActive ? ' Inactive ' : 'Active'}}
-                        </button>
+                        <button mat-menu-item (click)="activeProduct(product._id)">
+                          <mat-icon>{{ product.isActive ? 'close' : 'check' }}</mat-icon>
+                          {{ product.isActive ? 'Inactive' : 'Active' }}
+                        </button>                        
                         <button mat-menu-item>
                           <mat-icon>wysiwyg</mat-icon>
                           Reviews

@@ -101,13 +101,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
-
-const userController = require("./controllers/user.controller");
-const permissionController = require("./controllers/permission.controller");
-const complaintController = require("./controllers/complaint.controller");
-const orderController = require('./controllers/order.contorller');
-const cartRoutes = require("./routes/cart.routes");
-const checkoutRoutes = require("./routes/checkout.routes");
 const productController = require('./controllers/product.controller');
 const supplierController = require('./controllers/supplier.controller');
 const categoryController = require("./controllers/category.controller");
@@ -116,7 +109,15 @@ const fileUpload = require("express-fileupload");
 
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
+// const upload = require("./controllers/media.controller");
+const order = require("./controllers/order.controller");
+
+const mainInventory = require("./controllers/main.inventory.controller")
+const subInventory = require("./controllers/sub.inventory.controller");
+const upload = require("./controllers/media.controller");
+const order = require("./controllers/order.controller");
+const branch=require("./controllers/branch.controller")
 
 // Middleware
 app.use(cors());
@@ -135,11 +136,16 @@ mongoose.connect(process.env.MONGO_URI)
     });
 
     // API routes with /api prefix
-    app.use("/api/users", userController);
-    app.use("/api/permission", permissionController);
-    app.use("/api/complaint", complaintController);
-    app.use("/api/order", orderController);
-    app.use("/api/category", categoryController);
+    app.use("/users", user);
+    app.use("/permission", permission);
+    app.use("/order", order);
+    app.use("/mainInventory", mainInventory);
+    app.use("/subInventory", subInventory);
+    // app.use(upload);
+    app.use("/complain",Complaint);
+    app.use(category);
+    app.use(upload);
+    app.use(branch);
 
     // Product routes
     app.get('/api/products', productController.getAllProducts);
@@ -192,3 +198,27 @@ console.log("✅ cart.routes.js has been loaded successfully!");
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
+
+
+  app.get('/', (req, res) => {
+    res.json({ message: 'Hello from the back end!' });});
+    app.use(fileUpload());
+
+    app.use("/users", user);
+
+    app.use("/permission", permission);
+    app.use("/complaint", Complaint);
+    app.use("/order", order);
+    app.use("/mainInventory", mainInventory);
+    app.use("/subInventory", subInventory);
+
+
+    app.use(category)
+    //app.use(image)
+
+  app.use((request,response)=>{
+    response.status(404).json({messege:"not found"})
+   })
+   app.use((err,req,res,next)=>{
+    res.status(500).json({message:err+""})
+   })

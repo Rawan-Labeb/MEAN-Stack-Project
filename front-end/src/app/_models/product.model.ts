@@ -8,8 +8,8 @@ export interface Product {
     images: string[];
     isActive: boolean;
     quantity: number;
-    sellerId: string;
+    sellerId:{ _id: string, firstName: string; lastName: string };
     supplierId?: string;
-    categoryId: string;
+    categoryId: { _id: string,name:string};
   }
   
