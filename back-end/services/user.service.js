@@ -14,7 +14,8 @@ const {
     getUsersByRole
 } = require("./../repos/user.repo")
 
-const bcrypt = require("bcrypt");
+//const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 
 
 // get all users

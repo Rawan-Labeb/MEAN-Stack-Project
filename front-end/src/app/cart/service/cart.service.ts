@@ -60,6 +60,10 @@ export class CartService {
   getProductDetails(userId: string, productId: string): Observable<Product> {
   return this.http.get<Product>(`${this.apiUrl}/cart/${userId}/product-details/${productId}`);
 }
+checkout(userId: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/checkout`, { userId });
+}
+
 }
 
 

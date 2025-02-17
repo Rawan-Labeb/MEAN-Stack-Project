@@ -462,21 +462,23 @@
 //   }
 // }
 //////
+
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart/service/cart.service';
-import { OrderService } from './service/order.service';
+import { CheckoutService } from '../checkout/service/checkout.service';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { Order, OrderItem, CustomerDetails, Address } from '../_models/order.module';
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule] // Add FormsModule to imports array
+  imports: [CommonModule, FormsModule, RouterModule]
 })
 export class CheckoutComponent implements OnInit {
   firstName: string = '';
@@ -526,13 +528,13 @@ export class CheckoutComponent implements OnInit {
 
   constructor(
     private cartService: CartService,
-    private orderService: OrderService,
+    private checkoutService: CheckoutService,
     private router: Router,
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    const userId = '679bd13b5503613c0a14eb9a';
+    const userId = '67a79ab7d6859ed22a0d02f4';
     this.cartService.getCart(userId).subscribe((res: any) => {
       console.log(res.items);
       this.data = res;
@@ -541,7 +543,6 @@ export class CheckoutComponent implements OnInit {
         res.items.forEach((item: any) => {
           this.data.Total += item.price * item.quantity;
         });
-        this.validateCartItems();
       } else {
         console.error('Product data is not available or not an array');
       }
@@ -589,7 +590,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   removeItem(productId: string): void {
-    this.cartService.removeFromCart('679bd13b5503613c0a14eb9a', productId).subscribe(() => {
+    this.cartService.removeFromCart('67a79ab7d6859ed22a0d02f4', productId).subscribe(() => {
       this.data.items = this.data.items.filter((item: any) => item.product._id !== productId);
     });
   }
@@ -609,28 +610,35 @@ export class CheckoutComponent implements OnInit {
     throw new Error('Invalid payment method');
   }
 
+  isValidEmail(email: string): boolean {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
   placeOrder(): void {
     if (!this.validateCartItems()) {
       return;
     }
 
-    const userId = '679bd13b5503613c0a14eb9a';
+    const userId = '67a79ab7d6859ed22a0d02f4';
 
-    const customerDetails = {
-      address: this.address,
-      city: this.city,
-      zipCode: this.zipCode,
-      phone: this.phoneNumber,
-      email: this.email,
+    const customerDetails: CustomerDetails = {
       firstName: this.firstName,
       lastName: this.lastName,
-      street: this.street
+      address: {
+        street: this.street,
+        city: this.city,
+        zipCode: this.zipCode
+      },
+      email: this.email,
+      phone: this.phoneNumber
     };
 
-    // Log the customer details
+    // Log customer details for debugging
     console.log('Customer Details:', customerDetails);
-  
-    if (!(customerDetails.address && customerDetails.city && customerDetails.zipCode && customerDetails.phone && customerDetails.email && customerDetails.firstName && customerDetails.lastName && customerDetails.street)) {
+
+    if (!(customerDetails.address.street && customerDetails.address.city && customerDetails.address.zipCode && customerDetails.phone && customerDetails.email && customerDetails.firstName && customerDetails.lastName)) {
+      console.error('Please complete your billing details');
       Swal.fire({
         title: 'Incomplete Details',
         text: 'Please complete your billing details',
@@ -639,39 +647,53 @@ export class CheckoutComponent implements OnInit {
       });
       return;
     }
-  
-    const orderItems = this.data.items.map((item: any) => ({
+
+    if (!this.isValidEmail(customerDetails.email)) {
+      console.error('Invalid email address');
+      Swal.fire({
+        title: 'Incomplete Details',
+        text: 'Please A Valid Email Address',
+        icon: 'warning',
+        confirmButtonColor: '#d33',
+      });
+      return;
+    }
+    
+    const orderItems: OrderItem[] = this.data.items.map((item: any) => ({
       productId: item.product._id,
       quantity: item.quantity,
       price: item.product.price
     }));
-  
-    const totalPrice = orderItems.reduce((total:number, item:any) => total + item.price * item.quantity, 0);
-  
-    const orderData = {
-      userId,
+    
+    const totalPrice = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    
+    const orderData: Order = {
+      // _id: '', // Use empty string as _id for new orders
+      orderId: Date.now(), // Use current timestamp as orderId
+      customerId: userId,
       items: orderItems,
       totalPrice,
-      status: 'Pending',
+      status: 'pending',
       paymentMethod: this.convertToPaymentMethod(this.paymentMethod),
+      date: new Date(),
       customerDetails: {
         firstName: customerDetails.firstName,
         lastName: customerDetails.lastName,
         address: {
-          street: customerDetails.street,
-          city: customerDetails.city,
-          zipCode: customerDetails.zipCode
+          street: customerDetails.address.street, // Corrected this line
+          city: customerDetails.address.city,
+          zipCode: customerDetails.address.zipCode
         },
         email: customerDetails.email,
         phone: customerDetails.phone
       },
-      notes: this.comments // Add the notes property
+      notes: this.comments
     };
-
-    // Log the order data
+    
+    // Log order data for debugging
     console.log('Order Data:', orderData);
-  
-    this.orderService.createOrder(orderData).subscribe({
+    
+    this.checkoutService.createOrder(orderData).subscribe({
       next: (res: any) => {
         console.log('Order created successfully', res);
         this.cartService.clearCart(userId).subscribe({
@@ -695,6 +717,9 @@ export class CheckoutComponent implements OnInit {
         console.error('Error creating order', err);
       }
     });
+
+    // Log order data for debugging
+    console.log('Order Data:', orderData);
   }
 
   trackByProductId(index: number, item: any): number {

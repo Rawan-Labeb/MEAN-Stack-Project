@@ -1,3 +1,8 @@
+interface cartguestproduct {
+  productId: string;
+  qty: number;
+}
+
 import { Component, OnInit } from '@angular/core';
 import { CartService } from './service/cart.service';
 import { CommonModule } from '@angular/common';
@@ -6,11 +11,6 @@ import { RouterModule, Router } from '@angular/router';
 import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ProductService } from '../seller-dashboard/services/product.service';
-
-interface cartguestproduct {
-  productId: string;
-  qty: number;
-}
 
 @Component({
   selector: 'app-cart',
@@ -23,7 +23,7 @@ export class CartComponent implements OnInit {
 
   data: any = {};
   cartItems: any[] = [];
-  userId: string = '679bd13b5503613c0a14eb9a';  // 67a79ab7d6859ed22a0d02f4
+  userId: string = '67a79ab7d6859ed22a0d02f4';  // 67a79ab7d6859ed22a0d02f4        679bd13b5503613c0a14eb9a
   cartItemCount: number = 0;
 
   constructor(private cartService: CartService, private productService: ProductService, private router: Router) {}
@@ -181,7 +181,7 @@ export class CartComponent implements OnInit {
       this.updateCartRegisteredCustomerProductNum();
     });
   }
-  checkout(): void {
+  async checkout(): Promise<void> {
     if (this.cartItems.length === 0) {
       Swal.fire({
         title: 'Cart is Empty!',
@@ -192,17 +192,28 @@ export class CartComponent implements OnInit {
       return;
     }
   
-    this.validateCart().then((isValid) => {
-      if (isValid) {
-        window.location.href = '/checkout';
-      } else {
-        this.loadCart(); // Reload the cart if validation fails
-      }
-    });
+    const isValid = await this.validateCart();
+    if (isValid) {
+      console.log('Cart is valid. Proceed to checkout.');
+      this.router.navigate(['/checkout']).then(success => {
+        if (success) {
+          console.log('Navigation to checkout successful.');
+        } else {
+          console.error('Navigation to checkout failed.');
+        }
+      }).catch(error => {
+        console.error('Navigation error:', error);
+      });
+    } else {
+      alert('Cart is invalid. Please fix the issues.');
+      this.loadCart(); // Reload the cart if validation fails
+    }
   }
   validateCart(): Promise<boolean> {
     return new Promise((resolve) => {
       let isValid = true;
+      const removalPromises: Promise<void>[] = [];
+  
       this.cartItems.forEach((item, index) => {
         if (!item.product.isActive) {
           Swal.fire({
@@ -211,10 +222,12 @@ export class CartComponent implements OnInit {
             icon: 'info',
             confirmButtonColor: '#3085d6'
           });
-          this.cartService.removeFromCart(this.userId, item.product._id).subscribe(() => {
-            this.cartItems.splice(index, 1);
-            this.updateCartRegisteredCustomerProductNum();
-          });
+          removalPromises.push(
+            this.cartService.removeFromCart(this.userId, item.product._id).toPromise().then(() => {
+              this.cartItems.splice(index, 1);
+              this.updateCartRegisteredCustomerProductNum();
+            })
+          );
           isValid = false;
         } else if (item.quantity > item.product.quantity) {
           Swal.fire({
@@ -232,14 +245,19 @@ export class CartComponent implements OnInit {
             icon: 'warning',
             confirmButtonColor: '#d33',
           });
-          this.cartService.removeFromCart(this.userId, item.product._id).subscribe(() => {
-            this.cartItems.splice(index, 1);
-            this.updateCartRegisteredCustomerProductNum();
-          });
+          removalPromises.push(
+            this.cartService.removeFromCart(this.userId, item.product._id).toPromise().then(() => {
+              this.cartItems.splice(index, 1);
+              this.updateCartRegisteredCustomerProductNum();
+            })
+          );
           isValid = false;
         }
       });
-      resolve(isValid);
+  
+      Promise.all(removalPromises).then(() => {
+        resolve(isValid);
+      });
     });
   }
 

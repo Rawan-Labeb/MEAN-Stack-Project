@@ -1,31 +1,75 @@
 const express = require('express');
-const router = express.Router();
 const {
+  createCart,
   getCartByUserId,
-  addProductsToShoppingCart,
   updateCart,
-  deleteProductFromCart,
   deleteCart,
-  createCart
+  addProductsToShoppingCart,
+  removeProductFromCart,
+  getProductFromCart,
+  decItemFromCart,
+  incItemInCart,
+  getProductDetailsFromCart,
+  createOrder // Add this line
 } = require('../controllers/cart.controller');
 
+const router = express.Router();
 
-//craete new cart ( user id , items[ product id , quintity , price ] ) in body
+// Create new cart (user id, items[product id, quantity, price]) in body
 router.post('/', createCart);
-// Get user's cart
+
+// Retrieve cart by user id (user id) in params
 router.get('/:userId', getCartByUserId);
 
-// Add product to cart
-router.post('/add', addProductsToShoppingCart);
-
-// Update product quantity in cart
+// Change old cart with new cart (user id) in params
 router.put('/:userId', updateCart);
 
-// Remove product from cart
-router.delete('/:userId/product/:productId', deleteProductFromCart);
+// Delete cart by user id (user id) in params
+router.delete('/clear/:userId', deleteCart);
 
+// Retrieve product from cart by user id and product id (user id, product id) in params
+router.get('/:userId/product/:productId', getProductFromCart);
 
-// Clear cart
-router.delete('/:userId', deleteCart);
+// Delete product from cart by user id and product id (user id, product id) in params
+router.delete('/remove/:userId/product/:productId', removeProductFromCart);
+
+// Decrease quantity of product in cart by user id and product id (user id, product id) in params
+router.put('/dec/:userId/product/:productId', decItemFromCart);
+
+// Increase quantity of product in cart by user id and product id (user id, product id) in params
+router.put('/inc/:userId/product/:productId', incItemInCart);
+
+// Update cart with new items (user id, product id, quantity) in body
+router.post('/add', addProductsToShoppingCart);
+
+// Retrieve product details from cart by user id and product id (user id, product id) in params
+router.get('/:userId/product-details/:productId', getProductDetailsFromCart);
+
+// Create order
+// router.post('/:userId/order', (req, res, next) => {
+//   console.log(`📌 Received request on: /api/cart/${req.params.userId}/order`);
+//   next();
+// }, createOrder);
+
+router.post('/create-order', createOrder);
+
 
 module.exports = router;
+
+// ////
+// const express = require('express');
+// const CartController = require('../controllers/cart.controller');
+
+// const router = express.Router();
+
+// router.get('/:userId', CartController.getCart);
+// router.delete('/:userId', CartController.clearCart);
+// router.post('/:userId/increase/:productId', CartController.incItemInCart);
+// router.post('/:userId/decrease/:productId', CartController.decItemFromCart);
+
+// module.exports = router;
+// router.get('/', auth, getCurrentUserShoppingCart);
+// router.post('/', auth, addProductsToShoppingCart);
+// router.put('/:productId', auth, updateProductInShoppingCart);
+// router.delete('/:productId', auth, deleteProductInShoppingCart);
+// router.delete('/', auth, clearCart);

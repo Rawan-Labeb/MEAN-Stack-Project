@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order } from '../model/order.model';
-
+import { Order } from '../../_models/order.module';
 @Injectable({
   providedIn: 'root'
 })
-export class OrderService {
-  private apiUrl = 'http://localhost:5000/api/orders';
+export class CheckoutService {
+  private apiUrl = 'http://localhost:5000/api/checkout';
 
   constructor(private http: HttpClient) {}
+  
 
   createOrder(order: Partial<Order>): Observable<any> {
     return this.http.post(`${this.apiUrl}`, order);
