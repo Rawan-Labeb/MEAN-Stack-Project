@@ -9,29 +9,33 @@ interface Perfume {
   price: number;
   image: string;
   description: string;
-  category: string; 
-  rating: number; 
-  reviews: Review[]; 
+  category: string;
+  rating: number;
+  reviews: Review[];
 }
 
 interface Review {
   id: number;
   customerName: string;
-  rating: number; 
-  comment: string; 
+  rating: number;
+  comment: string;
 }
 
 @Component({
   selector: 'app-product-details',
   templateUrl: './product-details.component.html',
-  imports:[CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   styleUrls: ['./product-details.component.css']
 })
 export class ProductDetailsComponent implements OnInit {
   perfume: Perfume | null = null; // Current perfume details
   loading: boolean = true; // Loading state
-  Array=Array
-  Math=Math
+  Array = Array;
+  Math = Math;
+
+  // User input fields
+  userRating: number = 0; // Selected rating
+  userComment: string = ''; // Comment text
 
   // Static perfume data (replace with API call in a real app)
   private perfumes: Perfume[] = [
@@ -67,15 +71,44 @@ export class ProductDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     const productId = Number(this.route.snapshot.paramMap.get('id'));
-
-
-    // this.perfume = this.perfumes.find((p) => p.id === productId) || null;
-    this.perfume = this.perfumes[1];
+    this.perfume = this.perfumes.find((p) => p.id === productId) || null;
 
     // Simulate loading delay (optional)
     setTimeout(() => {
       this.loading = false;
     }, 500);
+  }
+
+  // Set user rating when a star is clicked
+  setRating(rating: number): void {
+    this.userRating = rating;
+  }
+
+  // Submit the review
+  submitReview(): void {
+    if (!this.perfume) return;
+
+    // Generate a new review object
+    const newReview: Review = {
+      id: this.perfume.reviews.length + 1, // Simple ID generation
+      customerName: 'Anonymous', // Replace with actual user name if logged in
+      rating: this.userRating,
+      comment: this.userComment
+    };
+
+    // Add the review to the perfume's reviews array
+    this.perfume.reviews.push(newReview);
+
+    // Update the average rating
+    const totalRatings = this.perfume.reviews.reduce((sum, review) => sum + review.rating, 0);
+    this.perfume.rating = totalRatings / this.perfume.reviews.length;
+
+    // Reset form fields
+    this.userRating = 0;
+    this.userComment = '';
+
+    // Alert success message
+    alert('Thank you for your review!');
   }
 
   addToCart(): void {
