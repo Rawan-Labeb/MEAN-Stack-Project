@@ -15,6 +15,7 @@ module.exports.getUsers = async () => {
 module.exports.getUserById = async (userId) => {
     try {
         const user = await User.findById(userId);
+        
         return user;
     } catch (error) {
         throw new Error(`Error fetching user by ID: ${error.message}`);
@@ -128,6 +129,19 @@ module.exports.getUsersByRole = async (selectedRole) => {
     }
 }
 
+// change passaword  
+module.exports.changePassword = async (userEmail, hashedPassword, newSalt) => {
+    try {
+        const changes = await User.updateOne({ email: userEmail }, {
+            password: hashedPassword,
+            salt: newSalt
+        });
 
+        return changes;
+
+    } catch (error) {
+        throw new Error(`Error While Change the password: ${error.message}`);
+    }
+}
 
 

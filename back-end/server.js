@@ -12,6 +12,9 @@ const category = require("./controllers/category.controller");
 const fileUpload = require("express-fileupload");
 const app = express();
 const port = process.env.PORT;
+const order = require("./controllers/order.controller");
+const mainInventory = require("./controllers/main.inventory.controller")
+const subInventory = require("./controllers/sub.inventory.controller");
 const upload = require("./controllers/media.controller");
 const order = require("./controllers/order.controller");
 const branch=require("./controllers/branch.controller")
@@ -28,10 +31,11 @@ mongoose.connect(process.env.MONGO_URI)
     console.log('Connected to MongoDB Atlas');
 
     // All routes
-    // API routes with /api prefix
     app.use("/users", user);
     app.use("/permission", permission);
     app.use("/order", order);
+    app.use("/mainInventory", mainInventory);
+    app.use("/subInventory", subInventory);
     app.use("/complain",Complaint);
     app.use(category);
     app.use(upload);
@@ -73,3 +77,4 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => {
     console.error('MongoDB connection error:', err);
   });
+

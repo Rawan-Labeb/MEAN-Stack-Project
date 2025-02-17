@@ -1,11 +1,14 @@
 export interface userProfile {
+    _id:string|null;
     firstName: string;
     lastName: string;
     email: string;
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
+    address: {
+        street: string | null;
+        city: string | null;
+        state: string | null;
+        zipCode: string | null;
+      } | null;
     contactNo: string;
     image: string;
 }
