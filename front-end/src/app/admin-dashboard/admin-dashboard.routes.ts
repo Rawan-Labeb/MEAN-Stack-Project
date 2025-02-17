@@ -12,7 +12,7 @@ import { ReviewComponent } from './pages/review/review.component';
 
 
 export const adminDashboardRoutes: Routes = [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    // { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: DashboardComponent },
     { path: 'users', component: UsersComponent },
     { path: 'sellers', component: SellersComponent },
@@ -20,7 +20,7 @@ export const adminDashboardRoutes: Routes = [
     { path: 'orders', component:OrdersComponent },
     { path: 'categories', component: CategoryComponent },
     { path: 'reviews', component: ReviewComponent },
-    { path: 'contact', component: ContactComponent },
+    { path: 'contact-us', component: ContactComponent }, // 
 ];
 
 @NgModule({
