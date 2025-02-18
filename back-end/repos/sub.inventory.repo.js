@@ -52,7 +52,6 @@ module.exports.createSubInventory = async (data) => {
     }
   };
 
-
   module.exports.getSubInventoryById = async (id) => {
     try {
       const subInventory = await SubInventory.findById(id).populate('mainInventory product branch').exec();
