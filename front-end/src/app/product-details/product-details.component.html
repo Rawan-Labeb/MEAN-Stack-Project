@@ -12,7 +12,6 @@
     <div class="col-md-6 text-center">
       <img [src]="perfume.image" alt="{{ perfume.name }}" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
     </div>
-
     <!-- Product Information -->
     <div class="col-md-6">
       <h2 class="mb-3">{{ perfume.name }}</h2>
@@ -40,8 +39,49 @@
         </div>
       </div>
 
+      <!-- Quantity Section -->
+      <div class="mt-4">
+        <h5 class="mb-3">Quantity</h5>
+        <div class="input-group">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary rounded-start" 
+            (click)="decreaseQuantity()" 
+            [disabled]="quantity <= 1"
+            [class.opacity-50]="quantity <= 1"
+            title="Decrease Quantity"
+          >
+            <i class="bi bi-dash"></i>
+          </button>
+          <input 
+            type="number" 
+            class="form-control text-center" 
+            [(ngModel)]="quantity" 
+            min="1" 
+            readonly 
+            style="max-width: 60px;"
+          >
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary rounded-end" 
+            (click)="increaseQuantity()" 
+            title="Increase Quantity"
+          >
+            <i class="bi bi-plus"></i>
+          </button>
+        </div>
+      </div>
+
+      <br>
       <!-- Add to Cart Button -->
-      <button class="btn btn-primary btn-lg w-100 mb-4" (click)="addToCart()">Add to Cart</button>
+      <button 
+        class="btn btn-primary btn-lg w-100 mb-4" 
+        (click)="addToCart()" 
+        [disabled]="!perfume.inStock"
+        [class.opacity-50]="!perfume.inStock"
+      >
+        {{ perfume.inStock ? 'Add to Cart' : 'Out of Stock' }}
+      </button>
 
       <!-- Back to Catalog Button -->
       <a routerLink="/catalog" class="btn btn-outline-secondary w-100">Back to Catalog</a>
@@ -66,7 +106,6 @@
       <p>{{ review.comment }}</p>
       <hr>
     </div>
-
     <!-- No Reviews Message -->
     <div *ngIf="perfume.reviews.length === 0" class="text-muted text-center mt-4">
       No reviews yet. Be the first to leave a review!
@@ -74,42 +113,38 @@
   </section>
 
   <!-- Add Review Section -->
-<section class="mt-5" *ngIf="!loading && perfume">
-  <h3 class="mb-4">Leave a Review</h3>
-  <form (ngSubmit)="submitReview()" #reviewForm="ngForm">
-    <!-- Rating Selection -->
-    <div class="mb-3">
-      <label class="form-label">Your Rating:</label>
-      <div class="d-flex align-items-center rating">
-        <span *ngFor="let star of Array(5).fill(0); let i = index" (click)="setRating(i + 1)">
-          <i class="bi bi-star-fill text-warning" [class.text-muted]="userRating < i + 1"></i>
-        </span>
+  <section class="mt-5">
+    <h3 class="mb-4">Leave a Review</h3>
+    <form (ngSubmit)="submitReview()" #reviewForm="ngForm">
+      <!-- Rating Selection -->
+      <div class="mb-3">
+        <label class="form-label">Your Rating:</label>
+        <div class="d-flex align-items-center rating">
+          <span *ngFor="let star of Array(5).fill(0); let i = index" (click)="setRating(i + 1)">
+            <i class="bi bi-star-fill text-warning" [class.text-muted]="userRating < i + 1"></i>
+          </span>
+        </div>
+        <small class="text-danger" *ngIf="!userRating && reviewForm.submitted">Please select a rating.</small>
       </div>
-      
-      <small class="text-danger" *ngIf="!userRating && reviewForm.submitted">Please select a rating.</small>
-    </div>
-
-    <!-- Comment Input -->
-    <div class="mb-3">
-      <label for="comment" class="form-label">Your Comment:</label>
-      <textarea 
-        id="comment" 
-        name="comment" 
-        class="form-control" 
-        rows="4" 
-        [(ngModel)]="userComment" 
-        required
-      ></textarea>
-      <small class="text-danger" *ngIf="!userComment && reviewForm.submitted">Please enter a comment.</small>
-    </div>
-
-    <!-- Submit Button -->
-    <button type="submit" class="btn btn-primary w-100" [disabled]="!userRating || !userComment">
-      Submit Review
-    </button>
-  </form>
-</section>
-
+      <!-- Comment Input -->
+      <div class="mb-3">
+        <label for="comment" class="form-label">Your Comment:</label>
+        <textarea 
+          id="comment" 
+          name="comment" 
+          class="form-control" 
+          rows="4" 
+          [(ngModel)]="userComment" 
+          required
+        ></textarea>
+        <small class="text-danger" *ngIf="!userComment && reviewForm.submitted">Please enter a comment.</small>
+      </div>
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary w-100" [disabled]="!userRating || !userComment">
+        Submit Review
+      </button>
+    </form>
+  </section>
 </div>
 
 <!-- Error Message -->

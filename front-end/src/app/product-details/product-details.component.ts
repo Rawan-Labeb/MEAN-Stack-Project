@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-interface Perfume {
+ interface Perfume {
   id: number;
   name: string;
   price: number;
@@ -12,6 +12,7 @@ interface Perfume {
   category: string;
   rating: number;
   reviews: Review[];
+  inStock: boolean; 
 }
 
 interface Review {
@@ -36,6 +37,7 @@ export class ProductDetailsComponent implements OnInit {
   // User input fields
   userRating: number = 0; // Selected rating
   userComment: string = ''; // Comment text
+  quantity: number = 1; // Default quantity
 
   // Static perfume data (replace with API call in a real app)
   private perfumes: Perfume[] = [
@@ -50,7 +52,9 @@ export class ProductDetailsComponent implements OnInit {
       reviews: [
         { id: 1, customerName: 'John Doe', rating: 5, comment: 'Absolutely love this fragrance! It lasts all day.' },
         { id: 2, customerName: 'Jane Smith', rating: 4, comment: 'Great scent, but a bit too strong for summer.' }
-      ]
+      ],
+      inStock: true 
+
     },
     {
       id: 2,
@@ -63,7 +67,9 @@ export class ProductDetailsComponent implements OnInit {
       reviews: [
         { id: 1, customerName: 'Alice Johnson', rating: 4, comment: 'Perfect for summer days!' },
         { id: 2, customerName: 'Bob Brown', rating: 3, comment: 'Nice, but not my favorite.' }
-      ]
+      ],
+      inStock: false 
+
     }
   ];
 
@@ -72,7 +78,6 @@ export class ProductDetailsComponent implements OnInit {
   ngOnInit(): void {
     const productId = Number(this.route.snapshot.paramMap.get('id'));
     this.perfume = this.perfumes.find((p) => p.id === productId) || null;
-
     // Simulate loading delay (optional)
     setTimeout(() => {
       this.loading = false;
@@ -87,7 +92,6 @@ export class ProductDetailsComponent implements OnInit {
   // Submit the review
   submitReview(): void {
     if (!this.perfume) return;
-
     // Generate a new review object
     const newReview: Review = {
       id: this.perfume.reviews.length + 1, // Simple ID generation
@@ -95,25 +99,37 @@ export class ProductDetailsComponent implements OnInit {
       rating: this.userRating,
       comment: this.userComment
     };
-
     // Add the review to the perfume's reviews array
     this.perfume.reviews.push(newReview);
-
     // Update the average rating
     const totalRatings = this.perfume.reviews.reduce((sum, review) => sum + review.rating, 0);
     this.perfume.rating = totalRatings / this.perfume.reviews.length;
-
     // Reset form fields
     this.userRating = 0;
     this.userComment = '';
-
     // Alert success message
     alert('Thank you for your review!');
   }
 
-  addToCart(): void {
-    if (this.perfume) {
-      alert(`"${this.perfume.name}" has been added to your cart!`);
+  // Increase the quantity
+  increaseQuantity(): void {
+    this.quantity++;
+  }
+
+  // Decrease the quantity
+  decreaseQuantity(): void {
+    if (this.quantity > 1) {
+      this.quantity--;
     }
   }
+
+  
+  // Add the product to the cart
+addToCart(): void {
+  if (!this.perfume) return;
+
+  // Show a more detailed alert message
+  const totalCost = this.quantity * this.perfume.price;
+  alert(`"${this.perfume.name}" (Quantity: ${this.quantity}, Total: $${totalCost.toFixed(2)}) has been added to your cart!`);
+}
 }
