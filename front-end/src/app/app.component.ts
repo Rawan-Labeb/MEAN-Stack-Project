@@ -24,10 +24,10 @@ import { ResetPasswordComponent } from './authentication/change-password/change-
     ResetPasswordComponent
 ],
   template: `
-    <app-reset-password></app-reset-password>
+      <app-login></app-login>
     <!--
+      <app-reset-password></app-reset-password>
       <app-request-change-password></app-request-change-password>
-    <app-login></app-login>
     <app-register></app-register>
   <app-admin-dashboard></app-admin-dashboard>
     <router-outlet></router-outlet>

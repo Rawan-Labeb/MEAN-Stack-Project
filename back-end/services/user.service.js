@@ -44,6 +44,9 @@ module.exports.getUserById = async (userId) => {
 
         const user = await getUserByIdFromRepo(userId);
 
+        if (!user)
+            return {success: false, message: "No user With that Id"}
+
         // console.log(validation)
         return { success: true, message: user };
     } catch (error) {

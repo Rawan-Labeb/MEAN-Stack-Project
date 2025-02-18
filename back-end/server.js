@@ -105,7 +105,7 @@ const user = require("./controllers/user.controller");
 const permission = require("./controllers/permission.controller");
 const Complaint = require("./controllers/complaint.controller")
 require('dotenv').config();
-const productController = require('./controllers/product.controller');
+// const productController = require('./controllers/product.controller');
 const supplierController = require('./controllers/supplier.controller');
 const validateProduct = require('./middleware/productValidation');
 require('dotenv').config();
@@ -114,13 +114,15 @@ const fileUpload = require("express-fileupload");
 const app = express();
 const port = process.env.PORT;
 // const upload = require("./controllers/media.controller");
-const order = require("./controllers/order.controller");
+// const order = require("./controllers/order.controller");
 
 const mainInventory = require("./controllers/main.inventory.controller")
 const subInventory = require("./controllers/sub.inventory.controller");
 const upload = require("./controllers/media.controller");
 const order = require("./controllers/order.controller");
-const branch=require("./controllers/branch.controller")
+const branch=require("./controllers/branch.controller");
+const product = require("./controllers/product.controller")
+
 
 // Middleware
 app.use(cors());
@@ -149,17 +151,18 @@ mongoose.connect(process.env.MONGO_URI)
     app.use(category);
     app.use(upload);
     app.use(branch);
+    app.use("/product", product);
 
     // Product routes
-    app.get('/api/products', productController.getAllProducts);
-    app.post('/api/products', productController.createProduct);
-    app.get('/api/products/search', productController.searchProducts);
-    app.get('/api/products/price-range', productController.getProductsByPriceRange);
-    app.get('/api/products/best-sellers', productController.getBestSellers);
-    app.get('/api/products/available', productController.getAvailableProducts);
-    app.get('/api/products/:id', productController.getProductById);
-    app.put('/api/products/:id', validateProduct, productController.updateProduct);
-    app.delete('/api/products/:id', productController.deleteProduct);
+    // app.get('/api/products', productController.getAllProducts);
+    // app.post('/api/products', productController.createProduct);
+    // app.get('/api/products/search', productController.searchProducts);
+    // app.get('/api/products/price-range', productController.getProductsByPriceRange);
+    // app.get('/api/products/best-sellers', productController.getBestSellers);
+    // app.get('/api/products/available', productController.getAvailableProducts);
+    // app.get('/api/products/:id', productController.getProductById);
+    // app.put('/api/products/:id', validateProduct, productController.updateProduct);
+    // app.delete('/api/products/:id', productController.deleteProduct);
 
     // Supplier routes
     app.get('/api/suppliers', supplierController.getAllSuppliers);
@@ -200,8 +203,9 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/order", order);
     app.use("/mainInventory", mainInventory);
     app.use("/subInventory", subInventory);
+    app.use("/product", product);
 
-
+    app.use(branch)
     app.use(category)
     //app.use(image)
 
