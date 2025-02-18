@@ -7,7 +7,7 @@ import { Order } from "../_models/order.module";
   providedIn: "root",
 })
 export class OrderService {
-  private apiUrl = "http://localhost:3000/orders"; // Update with your actual backend API URL
+  private apiUrl = "http://localhost:5000/order"; // Update with your actual backend API URL
 
   constructor(private http: HttpClient) {}
 
@@ -35,5 +35,12 @@ export class OrderService {
   deleteOrder(orderId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${orderId}`);
   }
+
+  getUserOrders(id:string)
+  {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerId/${id}`)
+  }
+
+
 }
 

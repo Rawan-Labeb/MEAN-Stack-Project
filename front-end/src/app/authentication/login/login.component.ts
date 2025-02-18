@@ -11,7 +11,7 @@ import { AuthServiceService } from 'src/app/_services/auth-service.service';
   imports: [FormsModule, JsonPipe, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
-  providers: [CookieService]
+  providers: [CookieService],
 })
 export class LoginComponent 
 {
@@ -58,7 +58,6 @@ export class LoginComponent
         error: (error) => {
           console.log(error.error.message)
           console.log(error)
-                
         }
       })
 

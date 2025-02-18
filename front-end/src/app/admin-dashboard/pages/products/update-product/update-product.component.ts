@@ -19,7 +19,7 @@ export class UpdateProductComponent implements OnInit{
   categories: Category[] = [];
 
   @Input() show = false;
-  @Input() productData!: Product; // Ensure productData is passed as an input
+  @Input() productData!: Product;
 
   @Output() close = new EventEmitter<void>();
   @Output() updated = new EventEmitter<void>();
@@ -40,7 +40,6 @@ export class UpdateProductComponent implements OnInit{
     this.categoryService.getCategoriesActive().subscribe({
       next: (response) => {
         this.categories = response;
-        console.log('✅ Categories loaded:', this.categories);
       },
       error: (error) => console.error('❌ Error fetching categories:', error)
     });
@@ -54,18 +53,16 @@ export class UpdateProductComponent implements OnInit{
     try {
       this.loading = true;
 
-      // Ensure we update the correct product
       const updatedProduct: Product = {
         ...this.productData,
         name: this.productData.name.trim(),
         description: this.productData.description?.trim() || '',
       };
 
-      // Call update method instead of create
       await firstValueFrom(this.productService.updateProduct(this.productData._id, updatedProduct));
 
       this.toastr.success('Product updated successfully!', 'Success');
-      this.updated.emit(); // Emit event for success
+      this.updated.emit();
       this.close.emit();
     } catch (error) {
       console.error('Error updating product:', error);
@@ -77,5 +74,9 @@ export class UpdateProductComponent implements OnInit{
 
   onClose(): void {
     this.close.emit();
+  }
+
+  removeImage(index: number) {
+    this.productData.images.splice(index, 1);
   }
 }

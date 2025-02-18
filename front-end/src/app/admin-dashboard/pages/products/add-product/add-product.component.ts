@@ -49,7 +49,6 @@ export class AddProductComponent implements OnInit {
     this.categoryService.getCategoriesActive().subscribe({
       next: (response) => {
         this.categories = response;
-        console.log('✅ Categories loaded:', this.categories);
       },
       error: (error) => console.error('❌ Error fetching categories:', error)
     });
@@ -65,7 +64,6 @@ export class AddProductComponent implements OnInit {
     try {
       this.loading = true;
 
-      // Create product object
       const productData:Product = {
         _id:this.productData._id,
         name: this.productData.name.trim(),
@@ -95,6 +93,10 @@ export class AddProductComponent implements OnInit {
 
   onClose(): void {
     this.close.emit();
+  }
+
+  removeImage(index: number) {
+    this.productData.images.splice(index, 1);
   }
 
 }
