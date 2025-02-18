@@ -14,7 +14,7 @@ import { CashierComponent } from './pages/cashier/cashier.component';
 
 
 export const adminDashboardRoutes: Routes = [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    // { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: DashboardComponent },
     { path: 'users', component: UsersComponent },
     { path: 'sellers', component: SellersComponent },
