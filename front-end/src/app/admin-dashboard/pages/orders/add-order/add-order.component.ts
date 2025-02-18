@@ -8,16 +8,16 @@ import { ToastrService } from 'ngx-toastr';
 import { UploadComponent } from 'src/app/upload/upload.component';
 
 @Component({
-  selector: 'app-add-seller',
+  selector: 'app-add-order',
   imports: [FormsModule,CommonModule,UploadComponent],
-  templateUrl: './add-seller.component.html',
-  styleUrl: './add-seller.component.css'
+  templateUrl: './add-order.component.html',
+  styleUrl: './add-order.component.css'
 })
-export class AddSellerComponent {
+export class AddOrderComponent {
   @Input() show = false;
     @Input() userData: User ={
         _id: '',
-        role: 'seller',
+        role: 'customer',
         email:'',
         password:'',
         salt:'',
@@ -26,7 +26,7 @@ export class AddSellerComponent {
         address:{city:'',state:'',street:'',zipCode:''},
         contactNo: '',
         image:[],
-        isActive: true 
+        isActive: false 
     };
     @Output() close = new EventEmitter<void>();
     @Output() saved = new EventEmitter<void>();
@@ -67,18 +67,24 @@ export class AddSellerComponent {
         salt: this.userData.salt,
         firstName:this.userData.firstName.trim(),
         lastName:this.userData.lastName.trim(),
+        address: {
+          street: (this.userData.address || {}).street?.trim() || '',
+          city: (this.userData.address || {}).city?.trim() || '',
+          state: (this.userData.address || {}).state?.trim() || '',
+          zipCode: (this.userData.address || {}).zipCode?.trim() || ''
+        },
         contactNo: this.userData.contactNo,
         image:  this.userData.image,
         isActive: this.userData.isActive
         };
   
         await firstValueFrom(this.userService.createUser(this.userData));
-        this.toastr.success('Seller added successfully!', 'Success');
+        this.toastr.success('user added successfully!', 'Success');
         this.saved.emit();
         this.close.emit();
       } catch (error) {
-        console.error('Error adding Seller:', error);
-        this.toastr.error('Failed to add Seller. Please try again.', 'Error');
+        console.error('Error adding user:', error);
+        this.toastr.error('Failed to add user. Please try again.', 'Error');
       } finally {
         this.loading = false;
       }
