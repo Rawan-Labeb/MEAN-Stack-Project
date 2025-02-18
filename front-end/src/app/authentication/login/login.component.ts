@@ -62,20 +62,14 @@ export class LoginComponent
       })
 
 
-
     } else {
       console.log("Form is invalid");
     }
   }
   
 
-
-
   validate (inpupt:string)
   {
     return this.loginFromTwo.get(`${inpupt}`)
   }
-
-
-
 }
