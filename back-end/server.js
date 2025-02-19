@@ -122,7 +122,7 @@ const upload = require("./controllers/media.controller");
 const order = require("./controllers/order.controller");
 const branch=require("./controllers/branch.controller");
 const product = require("./controllers/product.controller")
-
+const offlineOrders = require("./controllers/offline.order.controller")
 
 // Middleware
 app.use(cors());
@@ -152,6 +152,7 @@ mongoose.connect(process.env.MONGO_URI)
     app.use(upload);
     app.use(branch);
     app.use("/product", product);
+    app.use("/offlineOrder", offlineOrders);
 
     // Product routes
     // app.get('/api/products', productController.getAllProducts);
@@ -204,6 +205,8 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/mainInventory", mainInventory);
     app.use("/subInventory", subInventory);
     app.use("/product", product);
+    app.use("/offlineOrder", offlineOrders);
+
 
     app.use(branch)
     app.use(category)

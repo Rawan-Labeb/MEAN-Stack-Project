@@ -269,6 +269,7 @@ module.exports.getUsersByRole = async (userRole) => {
         userRole = userRole.toLowerCase();
 
         const users = await getUsersByRole(userRole);
+        
         return {success:true, message: users};
 
     }catch (error)

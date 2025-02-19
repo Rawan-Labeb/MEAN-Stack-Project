@@ -161,11 +161,11 @@ router.post("/login", async (req, res, next) => {
 router.get("/getUsersBasedOnRole/:role", async (req,res) => {
     try{
         const result = await getUsersByRole(req.params.role);
-
+        console.log(result)
         if (!result.success)
             return res.status(400).json({message: result.message});
 
-        return res.status(200).json({message: result.message.message});
+        return res.status(200).json({message: result.message});
 
     } catch (error) {
         return res.status(500).json({message: "Internal Server Error"});

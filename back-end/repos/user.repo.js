@@ -123,6 +123,7 @@ module.exports.changeUserRole = async (userId, newRole) => {
 module.exports.getUsersByRole = async (selectedRole) => {
     try {
         const users = await User.find({ role: selectedRole });
+        console.log(users)
         return users;
     } catch (error) {
         throw new Error(`Error fetching users by role: ${error.message}`);
