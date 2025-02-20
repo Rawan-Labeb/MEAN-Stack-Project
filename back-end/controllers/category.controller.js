@@ -17,7 +17,7 @@ router.get('/categories', async (req, res, next) => {
   }
 });
 
-router.get('/categories/:id',authenticaitonMiddleware,authenticaitonMiddleware("supperadmmin"), async (req, res, next) => {
+router.get('/categories/:id', async (req, res, next) => {
     try {
         const categoryId = req.params.id;
     

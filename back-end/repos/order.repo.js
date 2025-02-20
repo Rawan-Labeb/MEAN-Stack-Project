@@ -1,4 +1,7 @@
 const Order =require("./../models/order.model");
+const mongoose = require('mongoose');
+const Product = require("./../models/product.model");
+const SubInventory  = require("./../models/sub.inventory");
 
 // getAllUsers
 module.exports.getOrders = async () => {
@@ -72,7 +75,7 @@ module.exports.getOrdersByCustomerAndStatus = async (customerId, status) => {
     }
 };
 
-// change order status
+// change order status  =============================================
 module.exports.changeOrderStatus = async (orderId, changedStatus) => {
     try {
         changedStatus = changedStatus.toLowerCase();
@@ -94,7 +97,7 @@ module.exports.changeOrderStatus = async (orderId, changedStatus) => {
     }
 };
 
-// delete order by id
+// delete order by id ==========================================
 module.exports.deleteOrder = async (orderId) => {
     try {
         const deletedOrder = await Order.findOneAndDelete({_id: orderId });
@@ -109,7 +112,7 @@ module.exports.deleteOrder = async (orderId) => {
     }
 };
 
-// update order
+// update order ============================================
 module.exports.updateOrder = async (orderId, updatedData) => {
     try {
       const updatedOrder = await Order.findByIdAndUpdate(
@@ -129,16 +132,70 @@ module.exports.updateOrder = async (orderId, updatedData) => {
 };
 
 // create order
-module.exports.createOrder = async (orderData) => {
-    try {
-      const newOrder = await Order.create(orderData);
-      return newOrder;
-    } catch (error) {
-      throw new Error("Could not create order.");
-    }
-};
+// module.exports.createOrder = async (orderData) => {
+//     try {
+//       const newOrder = await Order.create(orderData);
+//       return newOrder;
+//     } catch (error) {
+//       throw new Error("Could not create order.");
+//     }
+// };
   
 
 
 
 
+module.exports.createOrder = async (orderDetails) => 
+{
+    const session = await mongoose.startSession();
+    session.startTransaction();
+  
+    try {
+      let totalPrice = 0;
+  
+      // Loop through each item in the order
+      for (const item of orderDetails.items) {
+        const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
+        
+        if (!subInventory) {
+          throw new Error(`Sub-inventory ${item.subInventoryId} not found`);
+        }
+  
+        const product = await Product.findById(subInventory.product).session(session);
+        if (!product) {
+          throw new Error(`Product ${subInventory.product} not found`);
+        }
+  
+        // Assign the product's price to the item
+        item.price = product.price;
+  
+        // Check if there is enough quantity available
+        if (subInventory.quantity < item.quantity) {
+          throw new Error(`Not enough quantity in sub-inventory ${item.subInventoryId}`);
+        }
+  
+        // Calculate the total price for the item
+        totalPrice += item.price * item.quantity;
+  
+        // Decrease the quantity and increase the number of sales
+        subInventory.quantity -= item.quantity;
+        subInventory.numberOfSales += item.quantity;
+        await subInventory.save({ session });
+      }
+  
+      // Assign the computed total price to the order details
+      orderDetails.totalPrice = totalPrice;
+  
+      // Create the online order using the create method
+      const createdOrder = await Order.create([orderDetails], { session });
+  
+      await session.commitTransaction();
+      session.endSession();
+      return createdOrder[0]; // since create method returns an array
+  
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new Error("Could not create online order: " + error.message);
+    }
+}
