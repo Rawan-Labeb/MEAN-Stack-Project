@@ -10,7 +10,7 @@ import { UserProfileComponent } from "./user-profile/user-profile.component";
 import { CartComponent } from "./cart/cart.component";
 import { CheckoutComponent } from './checkout/checkout.component';
 import { CachierComponent } from './cachier/cachier.component';
-
+import { StatisticsComponent } from '../app/cachier/statistics/statistics.component';
 import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
 import { ResetPasswordComponent } from './authentication/change-password/change-password.component';
 
@@ -26,10 +26,15 @@ import { ResetPasswordComponent } from './authentication/change-password/change-
     LoginComponent,
     UserProfileComponent,
     RequestChangePasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    CartComponent,
+    CheckoutComponent,
+    CachierComponent,
+    StatisticsComponent
 ],
   template: `
-    <app-reset-password></app-reset-password>
+  <!-- <app-cart></app-cart> -->
+    <!-- <app-reset-password></app-reset-password> -->
     <!--
       <app-request-change-password></app-request-change-password>
     <app-login></app-login>
@@ -38,6 +43,10 @@ import { ResetPasswordComponent } from './authentication/change-password/change-
     <router-outlet></router-outlet>
     <app-user-profile></app-user-profile>
     <p-toast></p-toast> -->
+    <!-- <app-cachier></app-cachier> -->
+    <app-statistics></app-statistics>
+    <!-- <router-outlet></router-outlet> -->
+
     `,
   providers: [MessageService],
   styles: []

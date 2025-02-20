@@ -618,3 +618,15 @@ body {
   background-color: #f1f1f1 !important; /* تغيير لون الخلفية عند تمرير الماوس */
   cursor: pointer; /* تغيير شكل المؤشر عند تمرير الماوس */
 }
+.swal-wide .swal2-popup {
+  width: 120%; /* تكبير عرض النافذة */
+}
+
+.swal-wide .swal2-html-container {
+  font-size: 10px; /* تكبير حجم النص داخل SweetAlert */
+}
+
+.swal-wide .table td {
+  font-size: 18px; /* تكبير حجم النص داخل خلايا الجدول */
+  padding: 15px; /* تكبير حجم الحشو داخل خلايا الجدول */
+}

@@ -498,12 +498,12 @@
               <!-- </p> -->
               <p><strong>Status: </strong> 
                 <span [ngClass]="{
-                  'badge bg-success': order.status === 'Shipped',
-                  'badge bg-warning': order.status === 'Pending',
-                  'badge bg-primary': order.status === 'Completed',
-                  'badge bg-danger': order.status === 'Cancelled',
-                  'badge bg-secondary': order.status === 'Returned',
-                  'badge bg-info': order.status === 'Refunded'
+                  'badge bg-success': order.status === 'shipped',
+                  'badge bg-warning': order.status === 'pending',
+                  'badge bg-primary': order.status === 'completed',
+                  'badge bg-danger': order.status === 'cancelled',
+                  'badge bg-secondary': order.status === 'returned',
+                  'badge bg-info': order.status === 'refunded'
                 }">{{order.status}}</span>
               </p>
               <p><strong>Total:</strong> <span class="text-primary fw-bold">${{order.totalPrice}}</span></p>

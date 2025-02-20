@@ -634,7 +634,6 @@ export class CheckoutComponent implements OnInit {
       phone: this.phoneNumber
     };
 
-    // Log customer details for debugging
     console.log('Customer Details:', customerDetails);
 
     if (!(customerDetails.address.street && customerDetails.address.city && customerDetails.address.zipCode && customerDetails.phone && customerDetails.email && customerDetails.firstName && customerDetails.lastName)) {
@@ -668,8 +667,8 @@ export class CheckoutComponent implements OnInit {
     const totalPrice = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
     
     const orderData: Order = {
-      // _id: '', // Use empty string as _id for new orders
-      orderId: Date.now(), // Use current timestamp as orderId
+      _id: '', 
+      orderId: Date.now(), 
       customerId: userId,
       items: orderItems,
       totalPrice,
@@ -690,7 +689,6 @@ export class CheckoutComponent implements OnInit {
       notes: this.comments
     };
     
-    // Log order data for debugging
     console.log('Order Data:', orderData);
     
     this.checkoutService.createOrder(orderData).subscribe({
@@ -718,7 +716,6 @@ export class CheckoutComponent implements OnInit {
       }
     });
 
-    // Log order data for debugging
     console.log('Order Data:', orderData);
   }
 

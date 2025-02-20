@@ -36,12 +36,12 @@ class CheckoutService {
             }
 
             const order = new Order({
-                orderId: Math.floor(Math.random() * 1000000), // You can use another method to generate orderId
+                orderId: Math.floor(Math.random() * 1000000),
                 customerId: orderData.customerId,
                 items: orderItems,
                 totalPrice: totalPrice,
                 status: orderData.status || 'pending',
-                paymentMethod: orderData.paymentMethod || 'Cash', // You can update the payment method as needed
+                paymentMethod: orderData.paymentMethod || 'Cash', 
                 customerDetails: {
                     firstName: orderData.customerDetails.firstName,
                     lastName: orderData.customerDetails.lastName,
@@ -59,7 +59,7 @@ class CheckoutService {
 
             return await order.save();
         } catch (error) {
-            console.error('Error creating order:', error); // Log the error for debugging
+            console.error('Error creating order:', error); 
             throw new Error('Error creating order');
         }
     }

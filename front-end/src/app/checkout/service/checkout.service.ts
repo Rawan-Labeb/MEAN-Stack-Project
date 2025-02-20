@@ -15,15 +15,15 @@ export class CheckoutService {
     return this.http.post(`${this.apiUrl}`, order);
   }
 
-  getOrderById(orderId: number): Observable<Order> {
-    return this.http.get<Order>(`${this.apiUrl}/${orderId}`);
-  }
+  // getOrderById(orderId: number): Observable<Order> {
+  //   return this.http.get<Order>(`${this.apiUrl}/${orderId}`);
+  // }
 
-  updateOrder(orderId: number, order: Order): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${orderId}`, order);
-  }
+  // updateOrder(orderId: number, order: Order): Observable<Order> {
+  //   return this.http.put<Order>(`${this.apiUrl}/${orderId}`, order);
+  // }
 
-  deleteOrder(orderId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${orderId}`);
-  }
+  // deleteOrder(orderId: number): Observable<void> {
+  //   return this.http.delete<void>(`${this.apiUrl}/${orderId}`);
+  // }
 }
