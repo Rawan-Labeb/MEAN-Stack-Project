@@ -21,18 +21,20 @@ export class AddProductComponent implements OnInit {
   categories: Category[] = [];
   @Input() show = false;
   @Input() productData: Product ={
-    _id:'',
-    name:'',
-    price:0, 
-    sellerId:{_id:'679bd316017427c66ece2617',firstName:'',lastName:''},
-    categoryId:{_id:'',name:''},
-    description:'', 
-    prevPrice:0, 
-    noOfSale:0, 
-    images:[], 
-    isActive:true, 
-    quantity:0, 
-    supplierId:'679bf428745c9d962586960e'
+    _id: '',
+    name: '',
+    description: '',
+    price: 0,
+    prevPrice: 0,
+    noOfSale: 0,
+    images: [],
+    isActive: true,
+    quantity: 0,
+    distributedItems: 0,
+    sellerId: {_id:'679bd13b5503613c0a14eb9b',firstName:'',lastName:''},
+    categoryId:  {_id:'',name:''},
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
   @Output() close = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
@@ -46,10 +48,9 @@ export class AddProductComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.categoryService.getCategoriesActive().subscribe({
+    this.categoryService.getCategorierByActive().subscribe({
       next: (response) => {
         this.categories = response;
-        console.log('✅ Categories loaded:', this.categories);
       },
       error: (error) => console.error('❌ Error fetching categories:', error)
     });
@@ -65,20 +66,21 @@ export class AddProductComponent implements OnInit {
     try {
       this.loading = true;
 
-      // Create product object
       const productData:Product = {
-        _id:this.productData._id,
-        name: this.productData.name.trim(),
-        price: this.productData.price,
-        sellerId: this.productData.sellerId||'679bd316017427c66ece2617',
-        categoryId: this.productData.categoryId,
+        _id: '',
+        name: this.productData.name?.trim() || '',
         description: this.productData.description?.trim() || '',
-        prevPrice: this.productData.prevPrice,
-        noOfSale: this.productData.noOfSale,
-        images:this.productData.images,
-        isActive: this.productData.isActive,
-        quantity: this.productData.quantity,
-        supplierId: this.productData.supplierId
+        price: this.productData.price ?? 0,
+        prevPrice: this.productData.prevPrice ?? 0,
+        noOfSale: this.productData.noOfSale ?? 0,
+        images: this.productData.images ?? [],
+        isActive: this.productData.isActive ?? true,
+        quantity: this.productData.quantity ?? 0,
+        distributedItems: this.productData.distributedItems ?? 0,
+        sellerId: this.productData.sellerId|| '679bd13b5503613c0a14eb9b',
+        categoryId: this.productData.categoryId || '',
+        createdAt: this.productData.createdAt ?? new Date(),
+        updatedAt: this.productData.updatedAt ?? new Date()
       };
 
       await firstValueFrom(this.productService.createProduct(this.productData));
@@ -95,6 +97,10 @@ export class AddProductComponent implements OnInit {
 
   onClose(): void {
     this.close.emit();
+  }
+
+  removeImage(index: number) {
+    this.productData.images.splice(index, 1);
   }
 
 }

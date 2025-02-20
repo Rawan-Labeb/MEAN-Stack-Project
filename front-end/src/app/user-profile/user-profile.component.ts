@@ -6,6 +6,10 @@ import { User } from '../_models/user.model';
 import { LocationServicesService } from '../_services/location-services.service';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule, JsonPipe } from '@angular/common';
+import { register } from '../_models/register';
+import { userProfile } from '../_models/userProfile.model';
+import { Order } from '../_models/order.module';
+import { OrderService } from '../_services/order.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -18,7 +22,7 @@ export class UserProfileComponent implements OnInit
 
   token:any;
   userData:any;
-
+  id:any;
   // address 
   governorates: any[] = [];
   cities: any[] = [];
@@ -26,68 +30,159 @@ export class UserProfileComponent implements OnInit
   // user profile 
   userProfileForm:FormGroup;
 
+  // user Order 
+  userOrder:Order[] = [];
+
   constructor(
     private authSer: AuthServiceService,
     private cookieServices:CookieService,
-    private locationSer:LocationServicesService
+    private locationSer:LocationServicesService,
+    private orderSer:OrderService
   ) {
-    // form initalization 
+
     this.userProfileForm = new FormGroup({
-      firstName: new FormControl('', Validators.required),
+      firstName: new FormControl("", Validators.required),
       lastName: new FormControl('', Validators.required),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      street: new FormControl('', Validators.required),
-      city: new FormControl('', Validators.required),
-      state: new FormControl('', Validators.required),
-      zipCode: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{5}(?:-[0-9]{4})?$')]),
-      contactNo: new FormControl('', [Validators.required, Validators.pattern('^[0-9]+$')]),
+      email: new FormControl({ value: "", disabled: true }, [Validators.required, Validators.email]),
+      street: new FormControl(''),
+      city: new FormControl(''),
+      cityName: new FormControl(''),
+      state: new FormControl(''),
+      stateName: new FormControl(''),
+      zipCode: new FormControl('', [Validators.pattern('^[0-9]{5}(?:-[0-9]{4})?$')]),
+      contactNo: new FormControl('', [Validators.pattern('^[0-9]+$')]),
       image: new FormControl('')
+    });
     
-    })
-
-
   }
 
   ngOnInit(): void {
-    // get user data
+    // Get user data
     this.token = this.decodeUserToken(this.getToken());
     if (this.token && this.token.email) {
       this.authSer.getUserDataByEmail(this.token.email).subscribe({
         next: (data) => {
-          this.userData = data;
-          console.log(this.userData); // Log userData after it is set
+          if (data._id) {
+            // Assign the sanitized data
+            this.id = data._id;
+            this.userData = data;
+            console.log(data);
+            console.log(this.userData); // Log userData after it is set
+            this.fillFormWithUserData();
+            
+            // Now it's safe to call loadUserOrders
+            this.loadUserOrders();
+          }
         },
         error: (err) => console.error('Error fetching user data', err)
       });
     } else {
       console.error('Email not found in token');
     }
-
-    // get location
+  
+    // Get governorates
     this.locationSer.getGovernorates().subscribe({
       next: (data) => {
-        for(var i =0; i<data[2].data.length; i++)
-        {
-          this.governorates.push(data[2].data[i])
+        this.governorates = data[2].data;
+        console.log(this.governorates);
+  
+        // Fetch cities for the initial state and call fillFormWithUserData
+        if (this.userData && this.userData.address && this.userData.address.state) {
+          const selectedGovernorate = this.governorates.find(gov => gov.governorate_name_en === this.userData.address.state);
+          if (selectedGovernorate) {
+            this.locationSer.getCities(selectedGovernorate.id).subscribe(cityData => {
+              this.cities = cityData;
+              this.fillFormWithUserData();
+            });
+          } else {
+            this.fillFormWithUserData();
+          }
         }
-
-        // this.governorates = data[2].data
-        console.log(this.governorates)
       }
-    })
-
+    });
+  
     this.userProfileForm.get('state')?.valueChanges.subscribe(governorateId => {
+      const selectedGovernorate = this.governorates.find(gov => gov.id === governorateId);
+      this.userProfileForm.patchValue({
+        stateName: selectedGovernorate ? selectedGovernorate.governorate_name_en : ''
+      });
+  
       this.locationSer.getCities(governorateId).subscribe(data => {
         this.cities = data;
-        console.log(data)
-        console.log(governorateId)
+        console.log(data);
       });
     });
-    
-    this.locationSer.getCities(1).subscribe({
-      next: (data) => console.log(data)
-    })
+  
+    this.userProfileForm.get('city')?.valueChanges.subscribe(cityId => {
+      const selectedCity = this.cities.find(city => city.id === cityId);
+      this.userProfileForm.patchValue({
+        cityName: selectedCity ? selectedCity.city_name_en : ''
+      });
+    });
+  }
+  
+  // Load orders
+  loadUserOrders() {
+    this.orderSer.getOrdersByCustomerId(this.id).subscribe({
+      next: (orders) => {
+        this.userOrder = orders;
+        console.log(orders);
+        console.log(this.userOrder);
+      },
+      error: (err) => {
+        console.error('Error fetching orders', err);
+      }
+    });
+  }
+  
 
+
+  
+  fillFormWithUserData(): void {
+    if (this.userData) {
+      // Find the selected governorate based on the name stored in userData
+      const selectedGovernorate = this.governorates.find(gov => gov.governorate_name_en === this.userData?.address?.state);
+      
+      if (selectedGovernorate) {
+        // Fetch cities for the selected governorate
+        this.locationSer.getCities(selectedGovernorate.id).subscribe(cityData => {
+          this.cities = cityData;
+  
+          // Find the selected city based on the name stored in userData
+          const selectedCity = this.cities.find(city => city.city_name_en === this.userData?.address?.city);
+  
+          // Patch the form with user data
+          this.userProfileForm.patchValue({
+            firstName: this.userData.firstName,
+            lastName: this.userData.lastName,
+            email: this.userData.email,
+            street: this.userData?.address?.street,
+            city: selectedCity ? selectedCity.id : '',
+            state: selectedGovernorate ? selectedGovernorate.id : '',
+            zipCode: this.userData?.address?.zipCode,
+            contactNo: this.userData.contactNo,
+            image: this.userData.image,
+            cityName: this.userData?.address?.city,
+            stateName: this.userData?.address?.state
+          });
+        });
+      } else {
+        // Patch the form without city data if governorate is not found
+        this.userProfileForm.patchValue({
+          firstName: this.userData.firstName,
+          lastName: this.userData.lastName,
+          email: this.userData.email,
+          street: this.userData?.address?.street,
+          city: '',
+          state: '',
+          zipCode: this.userData?.address?.zipCode,
+          contactNo: this.userData.contactNo,
+          image: this.userData.image,
+          cityName: this.userData?.address?.city,
+          stateName: this.userData?.address?.state
+        });
+      }
+    }
   }
   
   getToken(): string {
@@ -104,11 +199,38 @@ export class UserProfileComponent implements OnInit
       return null;
     }
   }
-  
-  onSubmit()
-  {
 
+onSubmit() {
+  console.log(this.userData);
+  
+  // Update userData with form values and avoid accessing undefined properties
+  const updatedUserData = {
+    _id: this.id,
+    firstName: this.userProfileForm.get('firstName')?.value,
+    lastName: this.userProfileForm.get('lastName')?.value,
+    email: this.userProfileForm.get('email')?.value,
+    address: {
+      street: this.userProfileForm.get('street')?.value,
+      city: this.userProfileForm.get('cityName')?.value,
+      state: this.userProfileForm.get('stateName')?.value,
+      zipCode: this.userProfileForm.get('zipCode')?.value,
+    },
+    contactNo: this.userProfileForm.get('contactNo')?.value,
+    image: this.userProfileForm.get('image')?.value
+  };
+
+  console.log(updatedUserData);
+
+  if (this.userProfileForm.valid) {
+    console.log(updatedUserData); // Log updated user data
+    this.authSer.updateUserData(updatedUserData, this.id).subscribe({
+      next: (data) => console.log('User data updated successfully', data),
+      error: (err) => console.error('Error updating user data', err)
+    });
+  } else {
+    console.error('Form is invalid');
   }
+}
 
 
 }

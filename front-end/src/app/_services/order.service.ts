@@ -7,33 +7,49 @@ import { Order } from "../_models/order.module";
   providedIn: "root",
 })
 export class OrderService {
-  private apiUrl = "http://localhost:3000/orders"; // Update with your actual backend API URL
+  private apiUrl = 'http://localhost:5000/order';
 
   constructor(private http: HttpClient) {}
 
-  /** Get all orders */
-  getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.apiUrl);
+  createOrder(order: Order): Observable<any> {
+    return this.http.post(`${this.apiUrl}/createOrder`, order);
   }
 
-  /** Get a single order by ID */
-  getOrderById(orderId: number): Observable<Order> {
-    return this.http.get<Order>(`${this.apiUrl}/${orderId}`);
+  getAllOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getAllOrders`);
   }
 
-  /** Add a new order */
-  addOrder(order: Order): Observable<Order> {
-    return this.http.post<Order>(this.apiUrl, order);
+  getOrderById(id: string): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/getOrderById/${id}`);
   }
 
-  /** Update an existing order */
-  updateOrder(orderId: number, order: Order): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${orderId}`, order);
+  getOrdersByCustomerAndStatus(id: string, status: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerAndStatus/${id}/${status}`);
   }
 
-  /** Delete an order */
-  deleteOrder(orderId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${orderId}`);
+  getOrdersByCustomerId(id: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerId/${id}`);
   }
+
+  getOrdersByStatus(status: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByStatus/${status}`);
+  }
+
+  getOrdersByProductId(id: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByProductId/${id}`);
+  }
+
+  changeOrderStatus(id: string, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/changeOrderStatus/${id}/${status}`, {});
+  }
+
+  deleteOrder(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/deleteOrder/${id}`);
+  }
+
+  updateOrder(id: string, order: Partial<Order>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/updateOrder/${id}`, order);
+  }
+
 }
 

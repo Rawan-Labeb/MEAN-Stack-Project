@@ -11,8 +11,8 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [FormsModule, CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
-  providers: [CookieService]
+  styleUrl: './login.component.css',
+  providers: [CookieService],
 })
 export class LoginComponent {
   loginFromTwo: FormGroup;
@@ -53,16 +53,20 @@ export class LoginComponent {
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          console.log(error.error.message);
-          console.log(error);
+          console.log(error.error.message)
+          console.log(error)
         }
-      });
+      })
+
+
     } else {
       console.log("Form is invalid");
     }
   }
+  
 
-  validate(inpupt: string) {
-    return this.loginFromTwo.get(`${inpupt}`);
+  validate (inpupt:string)
+  {
+    return this.loginFromTwo.get(`${inpupt}`)
   }
 }

@@ -87,7 +87,12 @@
                 </select>
               </div>
             </div>
-      
+            <app-update-product
+              [show]="showEditModal" 
+              [productData]="productData" 
+              (updated)="onProductUpdated()" 
+              (close)="showEditModal = false">
+            </app-update-product> 
             <div class="table-responsive">
               <table class="table table-striped">
                 <thead>
@@ -98,7 +103,7 @@
                     </th>
                     <th>Category</th>
                     <th>Seller</th>
-                    <th>salesCount</th>
+                    <th>Sales</th>
                     <th (click)="sort('price')" style="cursor: pointer">
                       Price
                       <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
@@ -114,7 +119,7 @@
                     <td><img class="image" src="{{product.images[0]}}" alt="">{{product.name}}</td>
                     <td>{{product.categoryId.name}}</td>
                     <td>{{product.sellerId.firstName}} {{product.sellerId.lastName}}</td>
-                    <td>${{product.noOfSale}}</td>
+                    <td>{{product.noOfSale}}</td>
                     <td>${{product.price}}</td>
                     <td>{{product.quantity}}</td>
                     <td>
@@ -132,7 +137,7 @@
                         <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
                       </button>
                       <mat-menu #menu="matMenu" class="bg-white ">
-                        <button mat-menu-item (click)="openEditModal(productData)">
+                        <button mat-menu-item (click)="openEditModal(product)">
                           <mat-icon>edit</mat-icon>
                           Update
                         </button>
@@ -142,11 +147,11 @@
                           (updated)="onProductUpdated()" 
                           (close)="showEditModal = false">
                         </app-update-product> 
-                        <button mat-menu-item (click)="deleteProduct(product._id)">
+                        <button mat-menu-item (click)="deleteProduct(product!._id)">
                           <mat-icon>delete</mat-icon>
                           Delete
                         </button>
-                        <button mat-menu-item (click)="activeProduct(product._id)">
+                        <button mat-menu-item (click)="toggleProductStatus(product)">
                           <mat-icon>{{ product.isActive ? 'close' : 'check' }}</mat-icon>
                           {{ product.isActive ? 'Inactive' : 'Active' }}
                         </button>                        

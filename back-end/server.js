@@ -3,20 +3,20 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const user = require("./controllers/user.controller");
 const permission = require("./controllers/permission.controller");
-const Complaint = require("./controllers/complaint.controller");
-require('dotenv').config();
-
-const productController = require('./controllers/product.controller');
-const productRoutes = require('./routes/product.routes');
-
+const Complaint = require("./controllers/complaint.controller")
 const supplierController = require('./controllers/supplier.controller');
-const validateProduct = require('./middleware/productValidation');
+require('dotenv').config();
 const category = require("./controllers/category.controller");
 const fileUpload = require("express-fileupload");
 const app = express();
 const port = process.env.PORT;
+const mainInventory = require("./controllers/main.inventory.controller")
+const subInventory = require("./controllers/sub.inventory.controller");
 const upload = require("./controllers/media.controller");
 const order = require("./controllers/order.controller");
+const branch=require("./controllers/branch.controller");
+const product = require("./controllers/product.controller")
+const offlineOrders = require("./controllers/offline.order.controller")
 
 // Middleware
 app.use(cors());
@@ -29,29 +29,20 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB Atlas');
 
-    // Routes
-    app.get('/', (req, res) => {
-      res.json({ message: 'Hello from the back end!' });
-    });
-
     // API routes with /api prefix
-    app.use("/api/users", user);
-    app.use("/api/permission", permission);
-    app.use("/api/order", order);
-    app.use("/api/category", category);
-    app.use("/api/upload", upload);
+    app.use("/users", user);
+    app.use("/permission", permission);
+    app.use("/order", order);
+    app.use("/mainInventory", mainInventory);
+    app.use("/subInventory", subInventory);
+    // app.use(upload);
+    app.use("/complaint",Complaint);
+    app.use(category);
+    app.use(upload);
+    app.use(branch);
+    app.use("/product", product);
+    app.use("/offlineOrder", offlineOrders);
 
-    // Use product routes
-    app.use('/api/products', productRoutes);
-
-    // Supplier routes
-    app.get('/api/suppliers', supplierController.getAllSuppliers);
-    app.get('/api/suppliers/:id', supplierController.getSupplierById);
-    app.post('/api/suppliers', supplierController.createSupplier);
-    app.put('/api/suppliers/:id', supplierController.updateSupplier);
-    app.delete('/api/suppliers/:id', supplierController.deleteSupplier);
-
-    // Error handling middleware
     app.use((req, res, next) => {
       res.status(404).json({ message: "Route not found" });
     });

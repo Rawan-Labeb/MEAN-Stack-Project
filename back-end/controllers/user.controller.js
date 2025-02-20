@@ -8,8 +8,13 @@ const {getAllUsers,
     deleteUser,
     changeUserRole,
     getUserByEmail,
-    getUsersByRole
+    getUsersByRole,
+    requestPasswordReset,
+    changePassword
 } = require ("./../services/user.service")
+
+
+const {main} = require("./../services/forgetPassword.service")
 
 const {register, login} = require("./../services/auth.service")
 
@@ -24,22 +29,23 @@ router.use(express.urlencoded({ extended: true }));
 router.get("/getAllUsers", async (req, res, next) => {
     const users = await getAllUsers();
     if (users.success)
-        return res.send(users.message);
+        return res.json(users.message);
     else 
-        return res.status(400).send(users.message);
+        return res.status(400).json(users.message);
 })
 
 
 router.get("/getUserById/:id", async (req, res, next) => {
     try {
-        console.log(req.params.id)
+        // console.log(req.params.id)
         const user = await getUserById(req.params.id);
+        // console.log(user)
         if (user.success)
-            return res.send(user.message);
+            return res.json(user.message);
         else    
-            return res.status(400).send(user.message);
+            return res.status(400).json(user.message);
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
     }
 });
 
@@ -47,11 +53,11 @@ router.get("/getUserByEmail/:email", async (req, res, next) => {
     try {
         const user = await getUserByEmail(req.params.email);
         if (user.success)
-            return res.send(user.message);
+            return res.json(user.message);
         else
-            return res.status(400).send(user.message);
+            return res.status(400).json(user.message);
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
     }
 });
 
@@ -77,11 +83,11 @@ router.put("/updateUser/:id", async (req, res, next) => {
         const updatedUser = await updateUser(req.params.id, req.body);
         console.log(updatedUser)
         if (updatedUser.success)
-            return res.send(updatedUser.message);
+            return res.json(updatedUser.message);
         else
-            return res.status(400).send(updatedUser.message);
+            return res.status(400).json(updatedUser.message);
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
     }
 });
 
@@ -91,11 +97,11 @@ router.put("/deactivateUser/:id", async (req, res, next) => {
         const deactivatedUser = await deactivateUser(req.params.id);
         console.log(deactivatedUser)
         if (deactivatedUser.success)
-            return res.send(deactivatedUser.message);
+            return res.json(deactivatedUser.message);
         else
-            return res.status(400).send(deactivatedUser.message);
+            return res.status(400).json(deactivatedUser.message);
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
     }
 });
 
@@ -104,11 +110,11 @@ router.put("/activateUser/:id", async (req, res, next) => {
     try {
         const activatedUser = await activateUser(req.params.id);
         if (activatedUser.success)
-            return res.send(activatedUser.message);
+            return res.json(activatedUser.message);
         else
-            return res.status(400).send(activatedUser.message);
+            return res.status(400).json(activatedUser.message);
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
     }
 });
 
@@ -116,11 +122,11 @@ router.delete("/deleteUser/:id", async (req, res, next) => {
     try {
         const deletedUser = await deleteUser(req.params.id);
         if (deletedUser.success)
-            return res.send(deletedUser.message);
+            return res.json(deletedUser.message);
         else
-            return res.status(400).send(deletedUser.message);
+            return res.status(400).json(deletedUser.message);
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
     }
 });
 
@@ -129,11 +135,11 @@ router.put("/changeUserRole/:id", async (req, res, next) => {
     try {
         const updatedUserRole = await changeUserRole(req.params.id, req.body.role);
         if (updatedUserRole.success)
-            return res.send(updatedUserRole.message);
+            return res.json(updatedUserRole.message);
         else
-            return res.status(400).send(updatedUserRole.message);
+            return res.status(400).json(updatedUserRole.message);
     } catch (error) {
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
     }
 });
 
@@ -155,16 +161,51 @@ router.post("/login", async (req, res, next) => {
 router.get("/getUsersBasedOnRole/:role", async (req,res) => {
     try{
         const result = await getUsersByRole(req.params.role);
-
+        console.log(result)
         if (!result.success)
             return res.status(400).json({message: result.message});
 
-        return res.status(200).json({message: result.message});
+        return res.status(200).json(result.message);
 
     } catch (error) {
         return res.status(500).json({message: "Internal Server Error"});
     }    
 })
+
+router.post("/requestPasswordReset/:email", async (req, res) => {
+    try
+    {
+        const chk = await requestPasswordReset(req.params.email);
+        if (!chk.success)
+            return res.status(400).json({message: chk.message});
+
+        return res.status(200).json({message: chk.message});
+
+    } catch (error) {
+        return res.status(500).json({message: "Internal Server Error"});
+    } 
+})
+
+
+
+router.post('/resetPassword', async (req, res) => {
+    const { email, token, newPassword } = req.body;
+    try {
+
+        const result = await changePassword(email,token, newPassword);
+        if (result.success) {
+            res.status(200).json({ message: result.message });
+        } else {
+            res.status(400).json({ message: result.message });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
 
 
 module.exports =router;

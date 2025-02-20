@@ -6,7 +6,7 @@ module.exports.getCategories = async () => {
         return categories
     }catch (error)
     {
-        throw error
+        throw new Error("Error getting categories: " + error.message);
     }
 }
 
@@ -19,7 +19,7 @@ module.exports.getCategoryById = async(categoryId) => {
         return Category;
     }catch(error)
     {
-        throw error
+        throw new Error("Error getting category: " + error.message);
     }
 }
 
@@ -32,7 +32,7 @@ module.exports.getCategoriesByActive = async() => {
         return Categories;
     }catch(error)
     {
-        throw error
+        throw new Error("Error getting active categories: " + error.message);
     }
 }
 
@@ -45,7 +45,7 @@ module.exports.getCategoryByName = async(categoryName) => {
         return Category;
     }catch(error)
     {
-        throw error
+        throw new Error("Error getting category: " + error.message);
     }
 }
 module.exports.addCategory = async(data) => {

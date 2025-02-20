@@ -221,13 +221,13 @@ const validationOnCreateAndUpdate = async (orderData) => {
     }
 
     for (const item of orderData.items) {
-        const chkProdId = await validateProductId(item.productId);
-        if (!chkProdId.valid)
-            return { success: false, message: 'Invalid productId in items' };
+        // const chkProdId = await validateProductId(item.productId);
+        // if (!chkProdId.valid)
+        //     return { success: false, message: 'Invalid productId in items' };
 
-        if (isNaN(Number(item.price)) || Number(item.price) <= 0) {
-            return { success: false, message: 'Invalid price in items' };
-        }
+        // if (isNaN(Number(item.price)) || Number(item.price) <= 0) {
+        //     return { success: false, message: 'Invalid price in items' };
+        // }
         if (isNaN(Number(item.quantity)) || Number(item.quantity) <= 0) {
             return { success: false, message: 'Invalid quantity in items' };
         }

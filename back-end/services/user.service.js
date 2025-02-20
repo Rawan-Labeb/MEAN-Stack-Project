@@ -1,9 +1,8 @@
 
-
 const { updateSearchIndex } = require("../models/user.model");
 const {
     getUsers,
-    getUserById,
+    getUserById:getUserByIdFromRepo,
     getUserByEmail,
     createUser,
     updateUser,
@@ -11,8 +10,15 @@ const {
     activateUser,
     deleteUser,
     changeUserRole,
-    getUsersByRole
+    getUsersByRole,
+    changePassword
 } = require("./../repos/user.repo")
+
+const {signTokenForResetPassword,verifyToken} = require("./../utils/jwttoken.manager")
+
+
+
+const {main} = require("./forgetPassword.service")
 
 const bcrypt = require("bcrypt");
 
@@ -32,11 +38,17 @@ module.exports.getAllUsers =async () =>
 // get User By Id
 module.exports.getUserById = async (userId) => {
     try {
-        const validation = await validateUserId(userId);
-        if (!validation.valid) {
-            return { success: false, message: validation.message };
-        }
-        return { success: true, message: validation.message };
+
+        if (!userId)
+            return { success: false, message: "User Id Should Be passed" };
+
+        const user = await getUserByIdFromRepo(userId);
+
+        if (!user)
+            return {success: false, message: "No user With that Id"}
+
+        // console.log(validation)
+        return { success: true, message: user };
     } catch (error) {
         return { success: false, message: error.message };
     }
@@ -118,11 +130,14 @@ module.exports.updateUser = async (userId, userData) => {
 const validateUserData = async (data, isNewUser) => {
     const { firstName, lastName, email, password } = data;
 
-    if (isNewUser) {
-        if (!firstName || !lastName || !email || !password) {
-            return { valid: false, message: "All fields must be provided" };
-        }
+    if (!firstName || !lastName || !email) {
+        return { valid: false, message: "All fields must be provided" };
     }
+    if (isNewUser) {
+        if (!password)
+            return { valid: false, message: "All fields must be provided" };
+    }
+
 
     if (email && isNewUser) {
         // validate email
@@ -194,13 +209,28 @@ module.exports.deleteUser = async (userId) => {
     }
 }
 
+
+const validateUserId = async (userId) => {
+    if (!userId) {
+        return { valid: false, message: "User Id Should Be Passed" };
+    }
+
+    const user = await getUserByIdFromRepo(userId);
+    if (!user) {
+        return { valid: false, message: "No User With that Id" };
+    }
+
+    return { valid: true, message: user };
+}
+
+
 // validate userId
 module.exports.validateUserId = async (userId) => {
     if (!userId) {
         return { valid: false, message: "User Id Should Be Passed" };
     }
 
-    const user = await getUserById(userId);
+    const user = await getUserByIdFromRepo(userId);
     if (!user) {
         return { valid: false, message: "No User With that Id" };
     }
@@ -236,9 +266,10 @@ module.exports.getUsersByRole = async (userRole) => {
         if (!userRole)
             return { success: false, message: "Role Should Be passed" };
 
-        userRole = newRole.toLowerCase();
+        userRole = userRole.toLowerCase();
 
         const users = await getUsersByRole(userRole);
+        
         return {success:true, message: users};
 
     }catch (error)
@@ -249,8 +280,79 @@ module.exports.getUsersByRole = async (userRole) => {
 
 
 module.exports.userIsActive = async (userId) => {
-    const user = await getUserById(userId);
+    const user = await getUserByIdFromRepo(userId);
     return user.isActive;
 }
 
 
+module.exports.requestPasswordReset = async (email) => {
+    try
+    {
+        if (!email)
+            return { success: false, message: "Email Should Be passed" };
+
+        const user = await getUserByEmail(email);
+        if (!user) {
+            return { success: false, message: "No User With that Email" };
+        }
+        
+        const claims = {
+            sub: user._id,
+            email: user.email,
+        }
+      
+        const chk = await main(user.email, user.firstName, "http://localhost:4200/user/resetPassword");
+        if (!chk.success)
+            return {success:false, message: chk.message};
+        
+        const token = await signTokenForResetPassword({claims});
+
+        return {success:true, message: token};
+        
+
+    }catch (error)
+    {
+        return { success: false, message: error.message }
+    }
+}
+
+
+module.exports.changePassword = async (email, token, newPassword) => {
+    try {
+        if (!email || !newPassword) {
+            return { success: false, message: "Email and new password must be provided" };
+        }
+
+        const decodedToken = await verifyToken(token);
+        if (!decodedToken) {
+            return { success: false, message: "Invalid or expired token" };
+        }
+
+        // Check if the email in the token matches the provided email
+        if (decodedToken.email !== email) {
+            return { success: false, message: "Email does not match the token" };
+        }
+
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            return { success: false, message: "Password must be complex" };
+        }
+
+
+        const salt = await bcrypt.genSalt(10);
+
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        const result = await changePassword(email, hashedPassword, salt);
+
+        if (result.modifiedCount > 0) {
+            return { success: true, message: "Password changed successfully" };
+        } else {
+            return { success: false, message: "Failed to change password" };
+        }
+
+    } catch (error) {
+        console.error('Error changing password:', error);
+        return { success: false, message: 'Failed to change password' };
+    }
+};

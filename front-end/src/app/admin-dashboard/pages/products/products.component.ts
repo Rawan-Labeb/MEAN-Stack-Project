@@ -46,18 +46,20 @@ export class ProductsComponent implements OnInit, OnDestroy {
     return {
       _id: '',
       name: '',
-      price: 0,
-      sellerId: {_id:'679bd316017427c66ece2617',firstName:'',lastName:''},
-      categoryId: {_id:'',name:''},
       description: '',
+      price: 0,
       prevPrice: 0,
       noOfSale: 0,
       images: [],
       isActive: true,
       quantity: 0,
-      supplierId: '679bf428745c9d962586960e'
-    };
-  }
+      distributedItems: 0,
+      sellerId: {_id:'679bd13b5503613c0a14eb9b',firstName:'',lastName:''},
+      categoryId: {_id:'',name:''},
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  }  
 
   subscribeToProductUpdates(): void {
     this.productService.onProductUpdate()
@@ -107,7 +109,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     });
   }
   activeProduct(id: string): void {
-        this.productService.deleteProduct(id).subscribe({
+        this.productService.activeProduct(id,this.productData).subscribe({
           next: () => {
             this.loadProducts();
           },
@@ -115,6 +117,22 @@ export class ProductsComponent implements OnInit, OnDestroy {
         });
       }
   
+      inActiveproduct(id: string): void {
+        this.productService.deactiveProduct(id,this.productData).subscribe({
+          next: () => {
+            this.loadProducts();
+          },
+          error:(error) => console.error('❌ Error:', error)
+        });
+      }
+  
+      toggleProductStatus(product: Product) {
+        if (product.isActive) {
+          this.inActiveproduct(product._id);
+        } else {
+          this.activeProduct(product._id); 
+        }
+      }
   get activeProductsCount(): number {
     return this.products.filter(product => product.isActive === true).length;
   }
@@ -181,6 +199,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.editingProduct = product;
     this.productData = { ...product };
     this.showEditModal = true;
+    console.log("✅ Opening Edit Modal with Data:", this.productData);
   }
 
   onProductSaved(): void {
