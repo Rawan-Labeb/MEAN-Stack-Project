@@ -21,17 +21,10 @@ import { HeaderComponent } from './header/header.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 @Component({
   selector: 'app-root',
-  // standalone: true,
-//   imports: [
-//     RouterOutlet,
-//     FooterComponent,
-//     ToastModule,
-//     CommonModule,
-//     AdminDashboardComponent,
-//     HeaderComponent
-// ],
+  standalone: true,
 imports: [
-    RouterOutlet, FooterComponent, HeaderComponent, NotFoundComponent, LoginComponent, UserProfileComponent
+    RouterOutlet, FooterComponent, HeaderComponent, NotFoundComponent, LoginComponent, UserProfileComponent,
+    CartComponent,CheckoutComponent,CachierComponent,StatisticsComponent,CommonModule
     //,ProductDetailsComponent
     // NotFoundComponent,AboutComponent,ContactUsComponent,HomeComponent,ProductDetailsComponent,
     // FooterComponent,HeaderComponent,CatalogComponent

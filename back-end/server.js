@@ -18,6 +18,8 @@ const order = require("./controllers/order.controller");
 const branch=require("./controllers/branch.controller");
 const product = require("./controllers/product.controller")
 const offlineOrders = require("./controllers/offline.order.controller")
+const cartRoutes = require("./routes/cart.routes"); // تأكد من استيراد وحدة cartRoutes
+const checkoutRoutes = require("./routes/checkout.routes"); 
 
 // Middleware
 app.use(cors());
@@ -43,7 +45,10 @@ mongoose.connect(process.env.MONGO_URI)
     app.use(branch);
     app.use("/product", product);
     app.use("/offlineOrder", offlineOrders);
-
+ 
+    // Cart routes
+    app.use("/api/cart", cartRoutes);
+    app.use("/api/checkout", checkoutRoutes);
     app.use((req, res, next) => {
       res.status(404).json({ message: "Route not found" });
     });
@@ -61,3 +66,8 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => {
     console.error('MongoDB connection error:', err);
   });
+
+
+
+
+

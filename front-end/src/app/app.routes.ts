@@ -16,6 +16,9 @@ import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.co
 
 
 export const routes: Routes = [
+  {
+    path: 'cart',component: CartComponent},{path: 'checkout',component: CheckoutComponent },
+
   {path:"admindashboard", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
   {path:"home",component:HomeComponent},
   {path:"",component:HomeComponent},
@@ -33,17 +36,12 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent
   },
-
-    {path: "user", loadChildren: ()=> import("./authentication/user.routes").then(route => route.userRoutes)},
-  {
-    path: '',
-    redirectTo: 'cart',
-    pathMatch: 'full'
-  },
-  { path: '', redirectTo: 'seller', pathMatch: 'full' },
-  {
-    path: 'login',
-    component: LoginComponent
-  },
+  // {
+  //   path: '',
+  //   redirectTo: 'cart',
+  //   pathMatch: 'full'
+  // },
+  // { path: '', redirectTo: 'seller', pathMatch: 'full' },
   
 ];
+

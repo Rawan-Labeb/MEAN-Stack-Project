@@ -9,8 +9,11 @@ import { Product } from '../_models/product.model';
 })
 export class OrderService {
   private apiUrl = 'http://localhost:5000/order';
+    private productApiUrl = 'http://localhost:5000/product';
 
-  constructor(private http: HttpClient) {}
+
+  constructor(private http: HttpClient) {} // Update with your actual backend API URL
+
 
   createOrder(order: Order): Observable<any> {
     return this.http.post(`${this.apiUrl}/createOrder`, order);
