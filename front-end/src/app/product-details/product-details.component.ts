@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
+import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
 
- interface Perfume {
+interface Perfume {
   id: number;
   name: string;
   price: number;
@@ -13,6 +15,7 @@ import { ActivatedRoute } from '@angular/router';
   rating: number;
   reviews: Review[];
   inStock: boolean; 
+  inStockAmount: number; 
 }
 
 interface Review {
@@ -37,7 +40,7 @@ export class ProductDetailsComponent implements OnInit {
   // User input fields
   userRating: number = 0; // Selected rating
   userComment: string = ''; // Comment text
-  quantity: number = 1; // Default quantity
+  quantity: number = 0; // Default quantity
 
   // Static perfume data (replace with API call in a real app)
   private perfumes: Perfume[] = [
@@ -45,43 +48,103 @@ export class ProductDetailsComponent implements OnInit {
       id: 1,
       name: 'Eternity',
       price: 79.99,
-      image: 'https://via.placeholder.com/300x300?text=Eternity',
+      image: '',
       description: 'A timeless classic with floral and musk notes.',
-      category: 'floral',
-      rating: 4.5, // Average rating
+      category: 'floral', // You can adjust the category based on your preference or keep it based on the original (e.g. 'men' or 'unisex').
+      rating: 4.5,
       reviews: [
         { id: 1, customerName: 'John Doe', rating: 5, comment: 'Absolutely love this fragrance! It lasts all day.' },
         { id: 2, customerName: 'Jane Smith', rating: 4, comment: 'Great scent, but a bit too strong for summer.' }
       ],
-      inStock: true 
-
+      inStock: true,
+      inStockAmount: 10
     },
     {
       id: 2,
       name: 'Ocean Breeze',
       price: 69.99,
-      image: 'https://via.placeholder.com/300x300?text=Ocean+Breeze',
+      image: '',
       description: 'Fresh and invigorating with citrus and marine notes.',
-      category: 'citrus',
+      category: 'citrus', // Adjusted from 'woman' to a more fitting category 'citrus'.
       rating: 4.0,
       reviews: [
         { id: 1, customerName: 'Alice Johnson', rating: 4, comment: 'Perfect for summer days!' },
         { id: 2, customerName: 'Bob Brown', rating: 3, comment: 'Nice, but not my favorite.' }
       ],
-      inStock: false 
-
+      inStock: false,
+      inStockAmount: 0
+    },
+    {
+      id: 3,
+      name: 'Midnight Bloom',
+      price: 89.99,
+      image: '',
+      description: 'A deep and mysterious fragrance with notes of jasmine and sandalwood.',
+      category: 'floral', // Choose category based on preference, or align with the original 'unisex'.
+      rating: 4.2,
+      reviews: [
+        { id: 1, customerName: 'Chris White', rating: 4, comment: 'Such a unique scent, great for evening wear.' },
+        { id: 2, customerName: 'Debbie Black', rating: 4, comment: 'Beautiful scent, though a bit heavy for the day.' }
+      ],
+      inStock: true,
+      inStockAmount: 15
+    },
+    {
+      id: 4,
+      name: 'Spring Essence',
+      price: 59.99,
+      image: '',
+      description: 'A light and airy fragrance with floral and green notes.',
+      category: 'floral', // Adjusted from 'men' to 'floral' for relevance.
+      rating: 4.3,
+      reviews: [
+        { id: 1, customerName: 'Tom Harris', rating: 5, comment: 'Perfect for the spring season, very fresh!' },
+        { id: 2, customerName: 'Emily Green', rating: 4, comment: 'Lovely floral scent, but a bit subtle for me.' }
+      ],
+      inStock: true,
+      inStockAmount: 20
+    },
+    {
+      id: 5,
+      name: 'Night Mist',
+      price: 99.99,
+      image: '',
+      description: 'A captivating fragrance with rich vanilla and amber notes.',
+      category: 'oriental', // You can set the category to 'oriental' or 'warm' based on the fragrance's nature.
+      rating: 4.7,
+      reviews: [
+        { id: 1, customerName: 'David Blue', rating: 5, comment: 'Such a warm and comforting scent. My new favorite!' },
+        { id: 2, customerName: 'Sophia Red', rating: 4, comment: 'Rich and sensual, but a bit strong for daily wear.' }
+      ],
+      inStock: true,
+      inStockAmount: 12
     }
   ];
+  
 
-  constructor(private route: ActivatedRoute) {}
-
+  constructor(private route: ActivatedRoute,private router: Router,public subInventorySer:SubInventoryServicesService) {}
+  
+  public productId:any;
+  public perfumee:any;
   ngOnInit(): void {
-    const productId = Number(this.route.snapshot.paramMap.get('id'));
-    this.perfume = this.perfumes.find((p) => p.id === productId) || null;
+     this.productId = Number(this.route.snapshot.paramMap.get('id'));
+    console.log(this.productId);
+    // this.perfume = this.perfumes.find((p) => p.id === this.productId) || null;
+
     // Simulate loading delay (optional)
     setTimeout(() => {
       this.loading = false;
     }, 500);
+
+    this.subInventorySer.getSubInventoryById(this.productId).subscribe({
+      next: (data) => {
+        this.perfumee=data;
+      },
+      error: (err) => {
+        
+      }
+    });
+
   }
 
   // Set user rating when a star is clicked
@@ -111,18 +174,37 @@ export class ProductDetailsComponent implements OnInit {
     alert('Thank you for your review!');
   }
 
-  // Increase the quantity
   increaseQuantity(): void {
-    this.quantity++;
-  }
 
-  // Decrease the quantity
-  decreaseQuantity(): void {
-    if (this.quantity > 1) {
-      this.quantity--;
+    if (!this.perfume) {
+      console.error('Perfume object is null or undefined');
+      return;
+    }
+  
+    const availableStock = this.perfume.inStockAmount || 0;
+  
+    
+  
+    if (availableStock === 0) {
+      alert('This product is out of stock.');
+      return;
+    }
+  
+    if (this.quantity < availableStock) {
+      this.quantity++;
+      console.log('Increased quantity to:', this.quantity);
+    } else {
+      alert(`Sorry, only ${availableStock} units are available in stock.`);
     }
   }
+  
 
+  // Decrease the quantity
+decreaseQuantity(): void {
+  if (this.quantity > 0) {
+    this.quantity--;
+  }
+}
   
   // Add the product to the cart
 addToCart(): void {
@@ -132,4 +214,10 @@ addToCart(): void {
   const totalCost = this.quantity * this.perfume.price;
   alert(`"${this.perfume.name}" (Quantity: ${this.quantity}, Total: $${totalCost.toFixed(2)}) has been added to your cart!`);
 }
+
+goBackToCatalog(): void {
+  this.router.navigate(['/catalog']);
 }
+
+}
+

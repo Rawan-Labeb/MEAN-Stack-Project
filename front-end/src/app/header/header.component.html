@@ -4,7 +4,7 @@
       <!-- Logo -->
       <a class="navbar-brand d-flex align-items-center" href="/home">
         <img 
-          src="https://via.placeholder.com/100x40?text=Logo" 
+          src="" 
           alt="Logo" 
           class="d-inline-block align-text-top me-2" 
           style="max-height: 40px;"
@@ -69,15 +69,25 @@
               <i class="bi bi-person-circle fs-4 me-2"></i> Account
             </a>
             <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow-sm" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" routerLink="/userprofile"><i class="bi bi-person me-2"></i> User Profile</a></li>
-              <li><a class="dropdown-item" routerLink="/admindashboard"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</a></li>
-              <li><a class="dropdown-item" routerLink="/sellerdashboard"><i class="bi bi-speedometer2 me-2"></i> Seller Dashboard</a></li>
-              <li><a class="dropdown-item" routerLink="/userprofile"><i class="bi bi-clock-history me-2"></i> History</a></li>
+              <li *ngIf="userRole"><a class="dropdown-item" routerLink="/userprofile"><i class="bi bi-person me-2"></i> User Profile</a></li>
+              
+              <li *ngIf="userRole === 'admin'"><a class="dropdown-item" routerLink="/admindashboard"><i class="bi bi-speedometer2 me-2"></i> Admin Dashboard</a></li>
+              
+              <li *ngIf="userRole === 'seller'"><a class="dropdown-item" routerLink="/sellerdashboard"><i class="bi bi-speedometer2 me-2"></i> Seller Dashboard</a></li>
+              
+              <li *ngIf="userRole === 'customer'"><a class="dropdown-item" routerLink="/userprofile"><i class="bi bi-clock-history me-2"></i> History</a></li>
+              
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-              <li><a class="dropdown-item" routerLink="/login"><i class="bi bi-box-arrow-right me-2"></i> login</a></li>
-              <li><a class="dropdown-item" routerLink="/register"><i class="bi bi-pencil-square me-2"></i> Register</a></li>
+              
+              <!-- This will be visible to everyone, e.g., users who are logged in -->
+              <li *ngIf="userRole"><a class="dropdown-item" href="/home"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+              
+              <!-- This will only show for users who are not logged in (i.e., the guest role or not authenticated) -->
+              <li *ngIf="!userRole"><a class="dropdown-item" routerLink="/login"><i class="bi bi-box-arrow-right me-2"></i> Login</a></li>
+              
+              <li *ngIf="!userRole"><a class="dropdown-item" routerLink="/register"><i class="bi bi-pencil-square me-2"></i> Register</a></li>
             </ul>
+            
           </li>
   
           <!-- Cart Icon -->

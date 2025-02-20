@@ -9,13 +9,14 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
+  userRole:string|null=null;//='customer';
   // Mock cart items (replace with actual cart logic)
   cartItems = [
-    { id: 1, name: 'Eternity Perfume', price: 79.99 ,image: 'https://via.placeholder.com/100x100?text=Fragrance+A',
+    { id: 1, name: 'Eternity Perfume', price: 79.99 ,image: '',
       quantity: 2},
-    { id: 1, name: 'Eternity Perfume', price: 79.99 ,image: 'https://via.placeholder.com/100x100?text=Fragrance+A',
+    { id: 1, name: 'Eternity Perfume', price: 79.99 ,image: '',
       quantity: 2},
-    { id: 2, name: 'Ocean Breeze', price: 69.99 ,image: 'https://via.placeholder.com/100x100?text=Fragrance+A',
+    { id: 2, name: 'Ocean Breeze', price: 69.99 ,image: '',
       quantity: 2}
   ];
 
@@ -34,7 +35,12 @@ export class HeaderComponent {
     this.selected = selectedd;
   }
   increaseQuantity(item: any): void {
-    item.quantity++;
+    if (item.quantity < 10) {
+      item.quantity++;
+      console.log('Increased quantity to:', item.quantity);
+    } else {
+      alert(`Sorry, only ${10} units are available in stock.`);
+    }
   }
   
   decreaseQuantity(item: any): void {
