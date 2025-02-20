@@ -490,7 +490,7 @@
         <div class="col-md-6 col-lg-4 mb-3" *ngFor="let order of userOrder">
           <div class="card shadow-sm">
             <div class="card-body">
-              <h5 class="card-title fw-bold">Order #{{order.orderId}}</h5>
+              <h5 class="card-title fw-bold">Order #{{order._id}}</h5>
               <p class="text-muted"><i class="fa fa-calendar"></i> Order Date: {{order.date | date}}</p>
               <p><strong>Items:</strong>
                 <ul>
@@ -499,12 +499,12 @@
               <!-- </p> -->
               <p><strong>Status: </strong> 
                 <span [ngClass]="{
-                  'badge bg-success': order.status === 'Shipped',
-                  'badge bg-warning': order.status === 'Pending',
-                  'badge bg-primary': order.status === 'Completed',
-                  'badge bg-danger': order.status === 'Cancelled',
-                  'badge bg-secondary': order.status === 'Returned',
-                  'badge bg-info': order.status === 'Refunded'
+                  'badge bg-success': order.status === 'shipped',
+                  'badge bg-warning': order.status === 'pending',
+                  'badge bg-primary': order.status === 'completed',
+                  'badge bg-danger': order.status === 'cancelled',
+                  'badge bg-secondary': order.status === 'returned',
+                  'badge bg-info': order.status === 'refunded'
                 }">{{order.status}}</span>
               </p>
               <p><strong>Total:</strong> <span class="text-primary fw-bold">${{order.totalPrice}}</span></p>

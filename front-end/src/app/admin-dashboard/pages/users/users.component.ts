@@ -85,6 +85,7 @@ export class UsersComponent implements OnInit, OnDestroy{
         this.error = 'Failed to load users';
       } finally {
         this.loading = false;
+        this.cdr.detectChanges();
       }
     }
     

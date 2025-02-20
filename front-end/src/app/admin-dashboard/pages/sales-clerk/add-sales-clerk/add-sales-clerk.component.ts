@@ -6,6 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { User } from '../../../../_models/user.model';
 import { ToastrService } from 'ngx-toastr';
 import { UploadComponent } from 'src/app/upload/upload.component';
+import { Branch } from 'src/app/_models/branch.model';
+import { BranchService } from 'src/app/_services/branch.service';
 
 @Component({
   selector: 'app-add-sales-clerk',
@@ -13,20 +15,21 @@ import { UploadComponent } from 'src/app/upload/upload.component';
   templateUrl: './add-sales-clerk.component.html',
   styleUrl: './add-sales-clerk.component.css'
 })
-export class AddSalesClerkComponent {
+export class AddSalesClerkComponent implements OnInit{
+  branches:Branch[]=[];
   @Input() show = false;
     @Input() userData: User ={
-        _id: '',
-        role: 'customer',
-        email:'',
-        password:'',
-        salt:'',
-        firstName:'',
-        lastName:'',
-        address:{city:'',state:'',street:'',zipCode:''},
-        contactNo: '',
-        image:[],
-        isActive: false 
+      _id: '',
+      role: 'clerk',
+      email:'',
+      password:'',
+      salt:'',
+      firstName:'',
+      lastName:'',
+      branch:{_id:'',branchName:''},
+      contactNo: '',
+      image:[],
+      isActive: false
     };
     @Output() close = new EventEmitter<void>();
     @Output() saved = new EventEmitter<void>();
@@ -35,7 +38,20 @@ export class AddSalesClerkComponent {
     emailExists = false;
   
   
-    constructor(private userService: UserService , private toastr: ToastrService) {}
+    constructor(private userService: UserService , private toastr: ToastrService,private branchService:BranchService) {}
+    ngOnInit(): void {
+      this.loadBranches();
+    }
+
+    loadBranches(): void {
+      this.branchService.getBranchesByActive().subscribe({
+        next: (response) => {
+          this.branches = response;
+        },
+        error: (error) => console.error('❌ Error fetching branches:', error)
+      });
+    }
+    
     onImagesUploaded(imageUrls: string[]) {
       this.userData.image = imageUrls;
     }
@@ -60,19 +76,14 @@ export class AddSalesClerkComponent {
       try {
         this.loading = true;
         const userData:User = {
-          _id:this.userData._id,
+        _id:this.userData._id,
         role:this.userData.role,
         email:this.userData.email,
         password:this.userData.password,
         salt: this.userData.salt,
+        branch:this.userData.branch,
         firstName:this.userData.firstName.trim(),
         lastName:this.userData.lastName.trim(),
-        address: {
-          street: (this.userData.address || {}).street?.trim() || '',
-          city: (this.userData.address || {}).city?.trim() || '',
-          state: (this.userData.address || {}).state?.trim() || '',
-          zipCode: (this.userData.address || {}).zipCode?.trim() || ''
-        },
         contactNo: this.userData.contactNo,
         image:  this.userData.image,
         isActive: this.userData.isActive
