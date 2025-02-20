@@ -1,13 +1,24 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Chart } from 'chart.js/auto';
+import { OrderService } from '../../services/order.service';
 import { format } from 'date-fns';
+
+interface AnalyticsData {
+  months: string[];
+  sales: number[];
+  revenue: number[];
+  products: Array<{
+    name: string;
+    sales: number;
+  }>;
+}
 
 @Component({
   selector: 'app-sales-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './sales-chart.component.html',
   styleUrls: ['./sales-chart.component.css']
 })
@@ -22,107 +33,138 @@ export class SalesChartComponent implements OnInit {
   salesChart!: Chart;
   revenueChart!: Chart;
   productChart!: Chart;
+  loading = false;
 
-  mockData = {
-    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    sales: [1200, 1900, 1500, 2000, 2400, 1800],
-    revenue: [2400, 3800, 3000, 4000, 4800, 3600],
-    products: [
-      { name: 'Product A', sales: 64 },
-      { name: 'Product B', sales: 51 },
-      { name: 'Product C', sales: 43 }
-    ]
-  };
+  constructor(private orderService: OrderService) {}
 
   ngOnInit(): void {
-    // Initial setup
+    this.loadAnalytics();
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 100);
+  loadAnalytics(): void {
+    this.loading = true;
+    this.orderService.getAllOrders().subscribe({
+      next: (orders) => {
+        const analytics = this.processOrdersData(orders);
+        this.initializeCharts(analytics);
+      },
+      error: (error) => {
+        console.error('Error loading analytics:', error);
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 
-  initializeCharts() {
-    this.createSalesChart();
-    this.createRevenueChart();
-    this.createProductChart();
+  updateDateRange(): void {
+    this.loading = true;
+    const startDateTime = new Date(this.startDate).getTime();
+    const endDateTime = new Date(this.endDate).getTime();
+
+    this.orderService.getAllOrders().subscribe({
+      next: (orders) => {
+        // Filter orders by date range
+        const filteredOrders = orders.filter(order => {
+          const orderDate = new Date(order.date).getTime();
+          return orderDate >= startDateTime && orderDate <= endDateTime;
+        });
+        
+        const analytics = this.processOrdersData(filteredOrders);
+        this.initializeCharts(analytics);
+      },
+      error: (error) => {
+        console.error('Error loading analytics:', error);
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 
-  createSalesChart() {
+  processOrdersData(orders: any[]): AnalyticsData {
+    const monthlyData: { [key: string]: { sales: number; revenue: number } } = {};
+    const productSales: { [key: string]: number } = {};
+
+    orders.forEach(order => {
+      const monthYear = format(new Date(order.date), 'MMM yyyy');
+      
+      if (!monthlyData[monthYear]) {
+        monthlyData[monthYear] = { sales: 0, revenue: 0 };
+      }
+
+      monthlyData[monthYear].sales += order.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
+      monthlyData[monthYear].revenue += order.totalPrice;
+
+      order.items.forEach((item: any) => {
+        if (!productSales[item.productId]) {
+          productSales[item.productId] = 0;
+        }
+        productSales[item.productId] += item.quantity;
+      });
+    });
+
+    return {
+      months: Object.keys(monthlyData),
+      sales: Object.values(monthlyData).map(d => d.sales),
+      revenue: Object.values(monthlyData).map(d => d.revenue),
+      products: Object.entries(productSales).map(([id, sales]) => ({
+        name: `Product ${id}`,
+        sales
+      }))
+    };
+  }
+
+  initializeCharts(analytics: AnalyticsData): void {
     if (this.salesChart) {
       this.salesChart.destroy();
     }
-    
-    this.salesChart = new Chart(this.salesChartRef.nativeElement, {
-      type: 'line',
-      data: {
-        labels: this.mockData.months,
-        datasets: [{
-          label: 'Monthly Sales',
-          data: this.mockData.sales,
-          borderColor: '#4CAF50',
-          tension: 0.1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: 'Sales Trend' }
-        }
-      }
-    });
-  }
-
-  createRevenueChart() {
     if (this.revenueChart) {
       this.revenueChart.destroy();
     }
-
-    this.revenueChart = new Chart(this.revenueChartRef.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: this.mockData.months,
-        datasets: [{
-          label: 'Revenue',
-          data: this.mockData.revenue,
-          backgroundColor: '#2196F3'
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: 'Monthly Revenue' }
-        }
-      }
-    });
-  }
-
-  createProductChart() {
     if (this.productChart) {
       this.productChart.destroy();
     }
 
+    this.salesChart = new Chart(this.salesChartRef.nativeElement, {
+      type: 'line',
+      data: {
+        labels: analytics.months,
+        datasets: [{
+          label: 'Monthly Sales',
+          data: analytics.sales,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }]
+      }
+    });
+
+    this.revenueChart = new Chart(this.revenueChartRef.nativeElement, {
+      type: 'bar',
+      data: {
+        labels: analytics.months,
+        datasets: [{
+          label: 'Monthly Revenue',
+          data: analytics.revenue,
+          backgroundColor: 'rgb(54, 162, 235)'
+        }]
+      }
+    });
+
     this.productChart = new Chart(this.productChartRef.nativeElement, {
       type: 'pie',
       data: {
-        labels: this.mockData.products.map(p => p.name),
+        labels: analytics.products.map((p) => p.name),
         datasets: [{
-          data: this.mockData.products.map(p => p.sales),
-          backgroundColor: ['#4CAF50', '#2196F3', '#FFC107']
+          data: analytics.products.map((p) => p.sales),
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)',
+            'rgb(75, 192, 192)'
+          ]
         }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: 'Product Distribution' }
-        }
       }
     });
-  }
-
-  updateDateRange() {
-    this.initializeCharts();
   }
 }

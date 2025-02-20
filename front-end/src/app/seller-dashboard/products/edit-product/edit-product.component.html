@@ -19,12 +19,14 @@
             <label class="form-label">Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="productData.quantity" name="quantity" min="1" required>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="category">Category</label>
             <select id="category" name="categoryId" class="form-control" 
                     [(ngModel)]="productData.categoryId" required>
-              <option value="">Select a category</option>
-              <option *ngFor="let category of categories" [value]="category._id">
+              <option [ngValue]="null">Select a category</option>
+              <option *ngFor="let category of categories" 
+                      [ngValue]="category"
+                      [selected]="isSameCategory(category, productData.categoryId)">
                 {{ category.name }}
               </option>
             </select>
@@ -40,13 +42,19 @@
               <label class="form-check-label" for="isActive">Active</label>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-3">
             <label for="images">Product Images</label>
-            <input type="file" id="images" class="form-control" 
-                   (change)="onFileChange($event)" multiple accept="image/*">
-            <div class="selected-files mt-2" *ngIf="selectedFiles.length">
-              <div *ngFor="let file of selectedFiles" class="selected-file">
-                {{ file.name }}
+            <app-upload (imagesUploaded)="onImagesUploaded($event)"></app-upload>
+            
+            <!-- Show current images -->
+            <div class="current-images mt-2" *ngIf="productData.images?.length">
+              <h6>Current Images:</h6>
+              <div class="d-flex gap-2">
+                <div *ngFor="let image of productData.images; let i = index" class="position-relative">
+                  <img [src]="image" alt="Product image" style="width: 50px; height: 50px; object-fit: cover;">
+                  <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" 
+                          (click)="removeImage(i)">×</button>
+                </div>
               </div>
             </div>
           </div>

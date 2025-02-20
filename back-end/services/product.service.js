@@ -130,6 +130,15 @@ const productService = {
         } catch (error) {
             return { success: false, message: error.message };
         }
+    },
+
+    getProductsByCategory: async (categoryId) => {
+        try {
+            const products = await productRepo.getProductsByCategory(categoryId);
+            return { success: true, data: products };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     }
 };
 

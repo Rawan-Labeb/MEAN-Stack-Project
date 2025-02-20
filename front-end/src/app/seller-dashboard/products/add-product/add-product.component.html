@@ -7,22 +7,69 @@
       </div>
       <div class="modal-body">
         <form (ngSubmit)="onSubmit()" #addForm="ngForm">
+          <!-- Image Upload -->
+          <div class="mb-3">
+            <label class="form-label">Product Images</label>
+            <app-seller-upload (imagesUploaded)="onImagesUploaded($event)"></app-seller-upload>
+            
+            <!-- Show uploaded images -->
+            <div *ngIf="productData.images?.length" class="mt-2">
+              <h6>Uploaded Images:</h6>
+              <div class="d-flex gap-2 flex-wrap">
+                <div *ngFor="let image of productData.images" class="position-relative">
+                  <img [src]="image" 
+                       alt="Product image" 
+                       class="img-thumbnail"
+                       style="width: 50px; height: 50px; object-fit: cover;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Name -->
           <div class="mb-3">
             <label class="form-label">Name</label>
             <input type="text" class="form-control" [(ngModel)]="productData.name" name="name" required>
           </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" [(ngModel)]="productData.description" name="description"></textarea>
+          </div>
+
+          <!-- Price -->
           <div class="mb-3">
             <label class="form-label">Price</label>
             <input type="number" class="form-control" [(ngModel)]="productData.price" name="price" min="5" required>
           </div>
+
+          <!-- Quantity -->
           <div class="mb-3">
             <label class="form-label">Quantity</label>
             <input type="number" class="form-control" [(ngModel)]="productData.quantity" name="quantity" min="1" required>
           </div>
+
+          <!-- Category -->
           <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" [(ngModel)]="productData.description" name="description" rows="3"></textarea>
+            <label class="form-label">Category</label>
+            <select 
+              id="category" 
+              class="form-control" 
+              [(ngModel)]="productData.categoryId" 
+              name="category"
+              required>
+              <option [ngValue]="null">Select a category</option>
+              <option *ngFor="let category of categories" [ngValue]="category">
+                {{ category.name }}
+              </option>
+            </select>
+            <div *ngIf="!productData.categoryId" class="text-danger">
+              Please select a category
+            </div>
           </div>
+
+          <!-- Status -->
           <div class="mb-3">
             <label class="form-label">Status</label>
             <div class="form-check">

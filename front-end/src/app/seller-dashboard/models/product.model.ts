@@ -19,30 +19,51 @@ export interface Supplier {
 export interface Category {
   _id: string;
   name: string;
-  description: string;
-  image?: string;
-  isActive: boolean;
-  createdAt: string;
 }
 
 export interface ProductFormData {
   name: string;
+  description?: string;
   price: number;
   quantity: number;
-  description?: string;
-  categoryId: string;  // Keep as string
-  supplierId: string;  // Keep as string
-  sellerId: string;    // Keep as string
+  categoryId: Category;
+  sellerId: string;
+  supplierId: string;
   isActive: boolean;
   images?: string[];
 }
 
-export interface Product extends Omit<ProductFormData, 'categoryId' | 'supplierId' | 'sellerId'> {
+export interface Product {
   _id: string;
-  categoryId: Category | null;
-  supplierId: Supplier | null;
-  sellerId: Seller | null;
-  createdAt?: string;
-  updatedAt?: string;
-  __v?: number;
+  name: string;
+  description?: string;
+  price: number;
+  quantity: number;
+  images: string[];
+  categoryId: Category;
+  sellerId: string;
+  supplierId: string;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+export interface ProductSubmitData {
+  name: string;
+  description?: string;  // Make description optional
+  price: number;
+  quantity: number;
+  categoryId: string;  
+  sellerId: string;
+  supplierId?: string;
+  isActive: boolean;
+  images: string[]; 
+}
+
+export const DEFAULT_CATEGORIES: Category[] = [
+  { _id: '', name: 'Men' },
+  { _id: '', name: 'Women' },
+  { _id: '', name: 'Unisex' }
+];
+
+export const DEFAULT_CATEGORY: Category = DEFAULT_CATEGORIES[0];

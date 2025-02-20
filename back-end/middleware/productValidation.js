@@ -51,6 +51,11 @@ const validateProduct = async (req, res, next) => {
   try {
     console.log('Validating product data:', req.body);
     
+    // Convert categoryId to string if it's an object
+    if (req.body.categoryId && typeof req.body.categoryId === 'object') {
+      req.body.categoryId = req.body.categoryId._id;
+    }
+    
     const validatedData = await productValidationSchema.validateAsync(req.body, {
       abortEarly: false,
       stripUnknown: true

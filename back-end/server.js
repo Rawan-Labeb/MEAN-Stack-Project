@@ -5,7 +5,10 @@ const user = require("./controllers/user.controller");
 const permission = require("./controllers/permission.controller");
 const Complaint = require("./controllers/complaint.controller");
 require('dotenv').config();
+
 const productController = require('./controllers/product.controller');
+const productRoutes = require('./routes/product.routes');
+
 const supplierController = require('./controllers/supplier.controller');
 const validateProduct = require('./middleware/productValidation');
 const category = require("./controllers/category.controller");
@@ -38,23 +41,8 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/api/category", category);
     app.use("/api/upload", upload);
 
-    // Product routes
-    // Specific routes first
-    app.get('/api/products/admin/all', productController.getAllProductsAdmin);
-    app.get('/api/products/search', productController.searchProducts);
-    app.get('/api/products/price-range', productController.getProductsByPriceRange);
-    app.get('/api/products/best-sellers', productController.getBestSellers);
-    app.get('/api/products/available', productController.getAvailableProducts);
-    app.get('/api/products/seller/:sellerId', productController.getSellerProducts);
-    app.delete('/api/products/hard-delete/:id', productController.hardDeleteProduct);
-    app.patch('/api/products/toggle-status/:id', productController.toggleProductStatus);
-
-    // Generic CRUD routes last
-    app.get('/api/products', productController.getAllProducts);
-    app.post('/api/products', validateProduct, productController.createProduct);
-    app.get('/api/products/:id', productController.getProductById);
-    app.put('/api/products/:id', validateProduct, productController.updateProduct);
-    app.delete('/api/products/:id', productController.deleteProduct);
+    // Use product routes
+    app.use('/api/products', productRoutes);
 
     // Supplier routes
     app.get('/api/suppliers', supplierController.getAllSuppliers);

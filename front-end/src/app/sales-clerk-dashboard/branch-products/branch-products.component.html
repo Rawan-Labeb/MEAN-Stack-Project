@@ -1,0 +1,69 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <h2>Branch Inventory</h2>
+      <div class="header-actions">
+        <div class="search-box">
+          <input type="text" 
+                 class="form-control" 
+                 placeholder="Search products..." 
+                 [(ngModel)]="searchTerm" 
+                 (input)="applyFilter()">
+        </div>
+        <select class="form-select" 
+                [(ngModel)]="statusFilter" 
+                (change)="onStatusFilterChange()">
+          <option value="all">All Status</option>
+          <option value="active">Active Only</option>
+          <option value="inactive">Inactive Only</option>
+        </select>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>Inventory</th>
+              <th>Stock</th>
+              <th>Price</th>
+              <th>Last Restocked</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of filteredProducts">
+              <td>{{product.name}}</td>
+              <td>{{product.inventoryName}}</td>
+              <td>{{product.stock}}</td>
+              <td>{{product.price | currency}}</td>
+              <td>{{product.lastRestocked}}</td>
+              <td>
+                <span class="badge" 
+                      [class.bg-success]="product.isActive"
+                      [class.bg-danger]="!product.isActive">
+                  {{product.isActive ? 'Active' : 'Inactive'}}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-primary me-2" title="Toggle Status">
+                  <i class="fas" 
+                     [class.fa-check-circle]="!product.isActive" 
+                     [class.fa-times-circle]="product.isActive"></i>
+                </button>
+                <button class="btn btn-sm btn-info me-2" title="Request Restock">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

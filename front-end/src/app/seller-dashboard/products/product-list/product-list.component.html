@@ -2,9 +2,9 @@
   <div class="table-controls mb-3">
     <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm" (input)="onSearch()">
     <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
-      <option value="all">All</option>
-      <option value="active">Active</option>
-      <option value="inactive">Inactive</option>
+      <option value="all">All Products</option>
+      <option value="active">Active Products</option>
+      <option value="inactive">Inactive Products</option>
     </select>
     <button class="btn btn-primary" (click)="openAddModal()">
       <i class="fas fa-plus"></i> Add Product
@@ -24,29 +24,66 @@
   <table *ngIf="!loading && !error" class="table table-striped">
     <thead>
       <tr>
+        <th>Image</th>
         <th (click)="sort('name')">Name <i [class]="getSortIcon('name')"></i></th>
         <th (click)="sort('price')">Price <i [class]="getSortIcon('price')"></i></th>
         <th (click)="sort('quantity')">Quantity <i [class]="getSortIcon('quantity')"></i></th>
+        <th>Category</th>
         <th (click)="sort('isActive')">Status <i [class]="getSortIcon('isActive')"></i></th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
+      <tr *ngIf="filteredProducts.length === 0">
+        <td colspan="7" class="text-center">
+          <div class="alert alert-info">
+            No {{ statusFilter === 'all' ? '' : statusFilter }} products found
+            {{ searchTerm ? ' matching "' + searchTerm + '"' : '' }}
+          </div>
+        </td>
+      </tr>
       <tr *ngFor="let product of filteredProducts">
+        <td>
+          <ng-container *ngIf="product.images && product.images.length > 0; else noImage">
+            <div *ngIf="false" class="debug-info">
+              Images: {{ product.images | json }}
+            </div>
+            <img [src]="sanitizeImageUrl(product.images[0])" 
+                 [alt]="product.name"
+                 class="product-thumbnail"
+                 (error)="handleImageError($event)">
+          </ng-container>
+          <ng-template #noImage>
+            <img [src]="placeholderImage" 
+                 [alt]="product.name"
+                 class="product-thumbnail">
+          </ng-template>
+        </td>
         <td>{{ product.name }}</td>
         <td>{{ product.price | currency }}</td>
         <td>{{ product.quantity }}</td>
+        <td>{{ product.categoryId ? product.categoryId.name : 'Uncategorized' }}</td>
         <td>
           <span [class]="product.isActive ? 'badge bg-success' : 'badge bg-danger'">
             {{ product.isActive ? 'Active' : 'Inactive' }}
           </span>
         </td>
         <td>
-          <button class="btn btn-sm btn-warning me-2" (click)="openEditModal(product)">Edit</button>
-          <app-delete-product 
-            [productId]="product._id || ''" 
-            (deleted)="loadProducts()">
-          </app-delete-product>
+          <button class="btn btn-sm btn-warning me-2" (click)="openEditModal(product)">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          
+          <button class="btn btn-sm me-2" 
+                  [class.btn-success]="!product.isActive"
+                  [class.btn-danger]="product.isActive"
+                  (click)="toggleStatus(product)">
+            <i [class]="product.isActive ? 'fas fa-times-circle' : 'fas fa-check-circle'"></i>
+            {{ product.isActive ? 'Deactivate' : 'Activate' }}
+          </button>
+          
+          <button class="btn btn-sm btn-danger" (click)="deleteProduct(product._id)">
+            <i class="fas fa-trash"></i> Delete
+          </button>
         </td>
       </tr>
     </tbody>

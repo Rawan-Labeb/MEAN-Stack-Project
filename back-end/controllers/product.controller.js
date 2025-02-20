@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const productService = require('../services/product.service');
-const productService = require('../services/product.service');
 const Product = require('../models/product.model');
-const Category = require('../models/category.model'); // Ensure Category model is imported
 const Category = require('../models/category.model'); // Ensure Category model is imported
 
 const productController = {
@@ -113,14 +111,15 @@ const productController = {
     getSellerProducts: async (req, res) => {
         try {
             const sellerId = req.params.sellerId;
-            const result = await productService.getProductsBySellerId(sellerId);
-            if (result.success) {
-                res.status(200).json(result.data);
-            } else {
-                res.status(404).json({ message: result.message });
-            }
+            const products = await Product.find({ sellerId: sellerId })
+                .populate('categoryId')
+                .lean();
+            
+            console.log('Products being sent:', products);
+            res.status(200).json(products);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            console.error('Error fetching seller products:', error);
+            res.status(500).json({ message: 'Error fetching products' });
         }
     },
 
@@ -133,7 +132,6 @@ const productController = {
                 res.status(400).json({ message: result.message });
             }
         } catch (error) {
-            res.status(500).json({ message: error.message });
             res.status(500).json({ message: error.message });
         }
     },
@@ -148,7 +146,6 @@ const productController = {
             }
         } catch (error) {
             res.status(500).json({ message: error.message });
-            res.status(500).json({ message: error.message });
         }
     },
 
@@ -162,6 +159,26 @@ const productController = {
                 });
             } else {
                 res.status(400).json({ message: result.message });
+            }
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    getProductsByCategory: async (req, res) => {
+        try {
+            const categoryId = req.params.categoryId;
+            
+            // Validate categoryId format
+            if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+                return res.status(400).json({ message: 'Invalid category ID format' });
+            }
+
+            const result = await productService.getProductsByCategory(categoryId);
+            if (result.success) {
+                res.status(200).json(result.data);
+            } else {
+                res.status(404).json({ message: result.message });
             }
         } catch (error) {
             res.status(500).json({ message: error.message });

@@ -27,7 +27,9 @@ const productRepo = {
                 quantity: productData.quantity,
                 categoryId: productData.categoryId,
                 sellerId: productData.sellerId,
-                supplierId: productData.supplierId
+                supplierId: productData.supplierId,
+                images: productData.images || [], 
+                isActive: productData.isActive
             });
             return await product.save();
         } catch (error) {
@@ -111,6 +113,17 @@ const productRepo = {
         const product = await Product.findById(id);
         product.isActive = !product.isActive;
         return await product.save();
+    },
+
+    getProductsByCategory: async (categoryId) => {
+        return await Product.find({ 
+            categoryId: categoryId,
+            isActive: true,
+            quantity: { $gt: 0 }
+        })
+        .populate('categoryId')
+        .populate('sellerId')
+        .populate('supplierId');
     }
 };
 

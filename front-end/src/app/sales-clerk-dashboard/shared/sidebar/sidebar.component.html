@@ -1,0 +1,14 @@
+<div class="sidebar">
+  <div class="logo-details">
+    <i class="fas fa-store"></i>
+    <span class="logo_name">Sales Clerk Portal</span>
+  </div>
+  <ul class="nav-links">
+    <li *ngFor="let item of menuItems" routerLinkActive="active">
+      <a [routerLink]="item.path">
+        <i [class]="item.icon"></i>
+        <span class="link_name">{{ item.title }}</span>
+      </a>
+    </li>
+  </ul>
+</div>

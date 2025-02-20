@@ -1,22 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { OrderService, Order } from '../../services/order.service';
 import Swal from 'sweetalert2';
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  id: string;
-  date: Date;
-  customerName: string;
-  total: number;
-  status: 'pending' | 'shipped' | 'delivered';
-  items: OrderItem[];
-}
 
 @Component({
   selector: 'app-order-list',
@@ -25,70 +11,98 @@ interface Order {
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.css']
 })
-export class OrderListComponent {
-  orders: Order[] = [
-    {
-      id: '1',
-      date: new Date(),
-      customerName: 'John Doe',
-      total: 299.99,
-      status: 'pending',
-      items: [{ name: 'Product 1', quantity: 2, price: 149.99 }]
-    },
-    {
-      id: '2',
-      date: new Date(),
-      customerName: 'Jane Smith',
-      total: 499.99,
-      status: 'shipped',
-      items: [{ name: 'Product 2', quantity: 1, price: 499.99 }]
-    }
-  ];
+export class OrderListComponent implements OnInit {
+  orders: Order[] = [];
+  filteredOrders: Order[] = [];
+  statusFilter: string = 'all';
+  loading = false;
+  error: string | null = null;
 
-  statusFilter: 'all' | 'pending' | 'shipped' | 'delivered' = 'all';
-  filteredOrders: Order[] = this.orders;
+  constructor(private orderService: OrderService) {}
 
-  filterOrders(): void {
+  ngOnInit(): void {
+    this.loadOrders();
+  }
+
+  loadOrders(): void {
+    this.loading = true;
+    this.orderService.getAllOrders().subscribe({
+      next: (data) => {
+        this.orders = data;
+        this.applyFilters();
+      },
+      error: (error) => {
+        console.error('Error loading orders:', error);
+        this.error = 'Failed to load orders';
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  applyFilters(): void {
     if (this.statusFilter === 'all') {
-      this.filteredOrders = this.orders;
+      this.filteredOrders = [...this.orders];
     } else {
-      this.filteredOrders = this.orders.filter(order => order.status === this.statusFilter);
+      this.filteredOrders = this.orders.filter(order => 
+        order.status.toLowerCase() === this.statusFilter.toLowerCase()
+      );
     }
   }
 
   viewDetails(order: Order): void {
     Swal.fire({
-      title: `Order #${order.id}`,
+      title: `Order #${order._id}`,
       html: this.generateOrderDetailsHtml(order),
       width: '500px'
     });
   }
 
+  changeOrderStatus(order: Order, newStatus: string): void {
+    this.orderService.updateOrderStatus(order._id, newStatus).subscribe({
+      next: (updatedOrder) => {
+        const index = this.orders.findIndex(o => o._id === order._id);
+        if (index !== -1) {
+          this.orders[index] = updatedOrder;
+          this.applyFilters();
+        }
+        Swal.fire('Success', 'Order status updated successfully', 'success');
+      },
+      error: (error) => {
+        console.error('Error updating order status:', error);
+        Swal.fire('Error', 'Failed to update order status', 'error');
+      }
+    });
+  }
+
+  getStatusButtonClass(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'pending': return 'btn-warning';
+      case 'shipped': return 'btn-info';
+      case 'completed': return 'btn-success';
+      case 'cancelled': return 'btn-danger';
+      default: return 'btn-secondary';
+    }
+  }
+
   private generateOrderDetailsHtml(order: Order): string {
     return `
       <div class="text-left">
-        <p><strong>Customer:</strong> ${order.customerName}</p>
-        <p><strong>Date:</strong> ${order.date.toLocaleDateString()}</p>
-        <p><strong>Total:</strong> $${order.total}</p>
+        <p><strong>Customer:</strong> ${order.customerDetails.firstName} ${order.customerDetails.lastName}</p>
+        <p><strong>Email:</strong> ${order.customerDetails.email}</p>
+        <p><strong>Date:</strong> ${new Date(order.date).toLocaleDateString()}</p>
+        <p><strong>Total:</strong> $${order.totalPrice}</p>
         <p><strong>Status:</strong> ${order.status}</p>
         <hr>
         <h6>Items:</h6>
         ${order.items.map(item => `
           <div class="d-flex justify-content-between">
-            <span>${item.name} x${item.quantity}</span>
+            <span>Product ID: ${item.productId} x${item.quantity}</span>
             <span>$${item.price}</span>
           </div>
         `).join('')}
       </div>
     `;
-  }
-
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'pending': return 'bg-warning';
-      case 'shipped': return 'bg-info';
-      case 'delivered': return 'bg-success';
-      default: return 'bg-secondary';
-    }
   }
 }

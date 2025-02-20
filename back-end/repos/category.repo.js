@@ -96,3 +96,12 @@ module.exports.updateCategory = async (categoryId, data) => {
       throw new Error("Error deleting category by ID: " + error.message);
     }
   };
+
+module.exports.deleteAllCategories = async () => {
+  try {
+    await category.deleteMany({});
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};

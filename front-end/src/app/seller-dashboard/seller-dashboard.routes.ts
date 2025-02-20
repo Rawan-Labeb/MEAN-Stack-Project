@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { SellerDashboardComponent } from './seller-dashboard.component';
 import { SalesChartComponent } from './analytics/sales-chart/sales-chart.component';
+import { ProductListComponent } from './products/product-list/product-list.component';
 
 export const SELLER_DASHBOARD_ROUTES: Routes = [
   {
@@ -8,8 +9,7 @@ export const SELLER_DASHBOARD_ROUTES: Routes = [
     children: [
       {
         path: 'products',
-        loadComponent: () => import('./products/product-list/product-list.component')
-          .then(m => m.ProductListComponent)
+        component: ProductListComponent
       },
       {
         path: 'orders',
@@ -20,10 +20,6 @@ export const SELLER_DASHBOARD_ROUTES: Routes = [
         path: 'analytics',
         loadComponent: () => import('./analytics/sales-chart/sales-chart.component')
           .then(m => m.SalesChartComponent)
-      },
-      {
-        path: 'analytics',
-        component: SalesChartComponent
       },
       { path: '', redirectTo: 'products', pathMatch: 'full' }
     ]
