@@ -177,10 +177,6 @@ module.exports.deleteSubInventory = async (subInventoryId) => {
 
 
 
-
-
-
-
 module.exports.decreaseSubInventoryQuantity = async (id, quantityToDecrease) => {
   const session = await mongoose.startSession();
   session.startTransaction();

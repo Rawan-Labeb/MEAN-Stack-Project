@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
 
 interface Perfume {
   id: number;
@@ -71,9 +72,30 @@ export class CatalogComponent implements OnInit {
       .map((_, i) => i + 1);
   }
 
-  constructor() {}
+  constructor(
+    public subInventorySer:SubInventoryServicesService
+  ) {}
 
-  ngOnInit(): void {}
+  productRelatedtoBarnch:any[] = [];
+  test:any[] = [];
+  prodDetails:any;
+
+  ngOnInit(): void {
+    this.subInventorySer.getSubInventoryRelatedToBranch("Uptown Branch").subscribe({
+      next: (data) => {
+        // this.productRelatedtoBarnch = data;
+        // this.test = this.productRelatedtoBarnch.map(prod => prod.mainInventory); // Extracting products
+        // console.log(this.productRelatedtoBarnch);
+        this.prodDetails = data;
+      }
+    });
+
+
+
+
+    //console.log(this.productRelatedtoBarnch);
+
+  }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
