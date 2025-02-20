@@ -8,7 +8,7 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { HttpClient } from '@angular/common/http';
 import { createCategories } from './utils/create-categories';
 
-import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';import { RegisterComponent } from "./authentication/register/register.component";
+
 import { UserProfileComponent } from "./user-profile/user-profile.component";
 import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
 import { ResetPasswordComponent } from './authentication/change-password/change-password.component';

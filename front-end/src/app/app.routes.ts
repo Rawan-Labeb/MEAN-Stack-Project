@@ -9,8 +9,8 @@ import { ProductDetailsComponent } from './product-details/product-details.compo
 import { NotFoundComponent } from './not-found/not-found.component';
 import { RegisterComponent } from './authentication/register/register.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
-import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
-import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
+
+
 
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
