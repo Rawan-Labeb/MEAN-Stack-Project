@@ -37,7 +37,7 @@ export class UpdateProductComponent implements OnInit{
   }
 
   loadCategories(): void {
-    this.categoryService.getCategoriesActive().subscribe({
+    this.categoryService.getCategorierByActive().subscribe({
       next: (response) => {
         this.categories = response;
       },

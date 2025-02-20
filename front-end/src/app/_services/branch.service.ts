@@ -8,70 +8,63 @@ import { tap} from 'rxjs/operators';
   providedIn: 'root'
 })
 export class BranchService {
-  // private apiUrl = 'http://localhost:5000/branches';
-  // private branchUpdated = new Subject<Branch>();
-  //   constructor(private http: HttpClient) { }
+  private apiUrl = 'http://localhost:5000/branches';
+  private branchUpdated = new Subject<Branch>();
+    constructor(private http: HttpClient) { }
   
-  //   getAllBranches(): Observable<Branch[]> {
-  //     return this.http.get<Branch[]>(this.apiUrl);
-  //   }
-  //   getbranchesBasedOnType(type: string): Observable<Branch[]> {
-  //     return this.http.get<Branch[]>(`${this.apiUrl}/branchesByType/${type}`);
-  //   }
+    getAllBranches(): Observable<Branch[]> {
+      return this.http.get<Branch[]>(this.apiUrl);
+    }
+    getbranchesBasedOnType(type: string): Observable<Branch[]> {
+      return this.http.get<Branch[]>(`${this.apiUrl}/branchesByType/${type}`);
+    }
 
-  //   getUserById(id: string): Observable<Branch> {
-  //     return this.http.get<Branch>(`${this.apiUrl}/getUserById/${id}`);
-  //   }
+    getBranchById(id: string): Observable<Branch> {
+      return this.http.get<Branch>(`${this.apiUrl}/${id}`);
+    }
 
-  //   getUserByEmail(email: string): Observable<Branch> {
-  //     return this.http.get<Branch>(`${this.apiUrl}/getUserByEmail/${email}`);
-  //   }
+    getBranchByName(name: string): Observable<Branch> {
+      return this.http.get<Branch>(`${this.apiUrl}/branchByName/${name}`);
+    }
 
-  //   createUser(user: Branch): Observable<Branch> {
-  //     const userData = JSON.parse(JSON.stringify(user));
-  //     delete userData._id;
-  //       console.log('Adding user:', userData);
-  //       const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-  //       return this.http.post<Branch>(`${this.apiUrl}/register`, userData,{headers}).pipe(
-  //           tap(createdUser => {
-  //               console.log('user added successfully:', createdUser);
-  //           })
-  //       );
-  //     }
+    getBranchesByActive(): Observable<Branch[]> {
+      return this.http.get<Branch[]>(`${this.apiUrl}/get/active`);
+    }
+
+    createBranch(branch: Branch): Observable<Branch> {
+        console.log('Adding branch:', branch);
+        return this.http.post<Branch>(this.apiUrl, branch).pipe(
+            tap(createdBranch => {
+                console.log('branch added successfully:', createdBranch);
+            })
+        );
+      }
   
-  //   updateUser(id: string, user: Branch): Observable<Branch> {
-  //     console.log('Updating user at:', `${this.apiUrl}/updateUser/${id}`);
-  //       return this.http.put<Branch>(`${this.apiUrl}/updateUser/${id}`, user).pipe(
-  //         tap(updateUser => {
-  //           console.log('Update successful:', updateUser);
-  //           this.userUpdated.next(updateUser);
-  //         })
-  //       );
-  //   }
-  //   activeUser(id: string, user: Branch): Observable<Branch> {
-  //       return this.http.put<Branch>(`${this.apiUrl}/activateUser/${id}`, user).pipe(
-  //         tap(updateUser => {
-  //           console.log('Update successful:', updateUser);
-  //           this.userUpdated.next(updateUser);
-  //         })
-  //       );
-  //   }
-  //   inActiveUser(id: string, user: Branch): Observable<Branch> {
-  //       return this.http.put<Branch>(`${this.apiUrl}/deactivateUser/${id}`, user).pipe(
-  //         tap(updateUser => {
-  //           console.log('Update successful:', updateUser);
-  //           this.userUpdated.next(updateUser);
-  //         })
-  //       );
-  //   }
-    
-  //   deleteUser(id: string): Observable<void> {
-  //       console.log('Deleting product at:', `${this.apiUrl}/deleteUser/${id}`);
-  //       return this.http.delete<void>(`${this.apiUrl}/deleteUser/${id}`).pipe(
-  //         tap(() => console.log('Delete successful'))
-  //       );
-  //     }
-  //     onUserUpdate(): Observable<Branch> {
-  //         return this.userUpdated.asObservable();
-  //     }
+    updateBranch(id: string, branch: Branch): Observable<Branch> {
+      console.log('Updating branch at:', `${this.apiUrl}/${id}`);
+        return this.http.put<Branch>(`${this.apiUrl}/${id}`, branch).pipe(
+          tap(updateBranch => {
+            console.log('Update successful:', updateBranch);
+            this.branchUpdated.next(updateBranch);
+          })
+        );
+    }
+    toggleStatusBranch(id: string): Observable<Branch> {
+        return this.http.put<Branch>(`${this.apiUrl}/toggle/${id}`,{}).pipe(
+          tap(updateBranch => {
+            console.log('Update successful:', updateBranch);
+            this.branchUpdated.next(updateBranch);
+          })
+        );
+    }
+
+    deleteBranch(id: string): Observable<void> {
+        console.log('Deleting branch at:', `${this.apiUrl}/${id}`);
+        return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+          tap(() => console.log('Delete successful'))
+        );
+      }
+      onBranchUpdate(): Observable<Branch> {
+          return this.branchUpdated.asObservable();
+      }
 }
