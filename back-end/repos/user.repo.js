@@ -4,7 +4,8 @@ const User = require("./../models/user.model");
 // getAllUsers
 module.exports.getUsers = async () => {
     try {
-        const Users = await User.find({});
+        const Users = await User.find({})
+        .populate('branch')
         return Users;
     } catch (error) {
         throw new Error(`Error fetching users: ${error.message}`);
@@ -14,8 +15,8 @@ module.exports.getUsers = async () => {
 // getUserbyId
 module.exports.getUserById = async (userId) => {
     try {
-        const user = await User.findById(userId);
-        
+        const user = await User.findById(userId)
+        .populate('branch')
         return user;
     } catch (error) {
         throw new Error(`Error fetching user by ID: ${error.message}`);
@@ -25,7 +26,8 @@ module.exports.getUserById = async (userId) => {
 // getUserbyEmail
 module.exports.getUserByEmail = async (userEmail) => {
     try {
-        const user = await User.findOne({ email: userEmail });
+        const user = await User.findOne({ email: userEmail })
+        .populate('branch')
         return user;
     } catch (error) {
         throw new Error(`Error fetching user by email: ${error.message}`);
@@ -42,7 +44,7 @@ module.exports.updateUser = async (userId, updatedData) => {
             { _id: userId },
             { $set: updatedData },
             { new: true }
-        );
+        )
         return user;
     } catch (error) {
         throw new Error(`Error updating user: ${error.message}`);
@@ -56,7 +58,7 @@ module.exports.deactivateUser = async (userId) => {
             { _id: userId },
             { $set: { isActive: false } },
             { new: true }
-        );
+        )
         console.log("User Deactivated Successfully!");
         return user;
     } catch (error) {
@@ -122,8 +124,8 @@ module.exports.changeUserRole = async (userId, newRole) => {
 // getUsersByRole
 module.exports.getUsersByRole = async (selectedRole) => {
     try {
-        const users = await User.find({ role: selectedRole });
-        console.log(users)
+        const users = await User.find({ role: selectedRole })
+        .populate('branch')
         return users;
     } catch (error) {
         throw new Error(`Error fetching users by role: ${error.message}`);

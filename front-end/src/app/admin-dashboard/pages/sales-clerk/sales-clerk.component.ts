@@ -42,17 +42,16 @@ export class SalesClerkComponent {
       getInitialUserData(): User {
         return {
           _id: '',
-          role: 'customer',
+          role: 'clerk',
           email:'',
           password:'',
           salt:'',
           firstName:'',
           lastName:'',
-          branch:'',
-          address:{city:'',state:'',street:'',zipCode:''},
+          branch:{_id:'',branchName:''},
           contactNo: '',
           image:[],
-          isActive: false
+          isActive: true
         };
       }
       subscribeToUserUpdates(): void {
@@ -70,25 +69,21 @@ export class SalesClerkComponent {
       async loadUsers(): Promise<void> {
         this.loading = true;
         this.error = null;
-        
+      
         try {
-          const data = await firstValueFrom(this.UserService.getUsersBasedOnRole('customer'));
-          this.users = data.map(user => ({
-            ...user,
-            address: user.address || { city: '', state: '', street: '', zipCode: '' }
-          }));
+          const data = await firstValueFrom(this.UserService.getUsersBasedOnRole('clerk'));
+          this.users = [...data]; // لا حاجة لاستخدام map() إذا لم تكن هناك تعديلات
       
           this.filteredUsers = [...this.users];
-      
           this.applyFilters();
-          this.cdr.detectChanges();
         } catch (error) {
-          console.error('❌ Error loading users:', error);
-          this.error = 'Failed to load users';
+          console.error('❌ Error loading clerks:', error);
         } finally {
           this.loading = false;
+          this.cdr.detectChanges(); // تحديث واجهة المستخدم بعد أي حالة
         }
       }
+      
       
   
       get activeUsersCount(): number {
@@ -112,11 +107,11 @@ export class SalesClerkComponent {
             this.UserService.deleteUser(id).subscribe({
               next: () => {
                 this.loadUsers();
-                Swal.fire('Deleted!', 'user has been deleted.', 'success');
+                Swal.fire('Deleted!', 'clerk has been deleted.', 'success');
               },
               error: (error) => {
-                console.error('Error deleting user:', error);
-                Swal.fire('Error!', 'Failed to delete user.', 'error');
+                console.error('Error deleting clerk:', error);
+                Swal.fire('Error!', 'Failed to delete clerk.', 'error');
               }
             });
           }

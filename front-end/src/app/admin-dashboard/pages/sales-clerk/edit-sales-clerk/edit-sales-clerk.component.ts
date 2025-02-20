@@ -6,6 +6,8 @@ import { firstValueFrom } from 'rxjs';
 import { User } from '../../../../_models/user.model';
 import { ToastrService } from 'ngx-toastr';
 import { UploadComponent } from 'src/app/upload/upload.component';
+import { Branch } from 'src/app/_models/branch.model';
+import { BranchService } from 'src/app/_services/branch.service';
 
 @Component({
   selector: 'app-edit-sales-clerk',
@@ -13,7 +15,8 @@ import { UploadComponent } from 'src/app/upload/upload.component';
   templateUrl: './edit-sales-clerk.component.html',
   styleUrl: './edit-sales-clerk.component.css'
 })
-export class EditSalesClerkComponent {
+export class EditSalesClerkComponent implements OnInit{
+  branches:Branch[]=[]
   @Input() show = false;
     @Input() userData!: User; 
   
@@ -25,8 +28,21 @@ export class EditSalesClerkComponent {
     constructor(
       private userService: UserService,
       private toastr: ToastrService,
+      private branchService:BranchService
     ) {}
 
+    ngOnInit(): void {
+      this.loadBranches();
+    }
+
+    loadBranches(): void {
+      this.branchService.getBranchesByActive().subscribe({
+        next: (response) => {
+          this.branches = response;
+        },
+        error: (error) => console.error('❌ Error fetching branches:', error)
+      });
+    }
 
     onImagesUploaded(imageUrls: string[]) {
       this.userData.image = imageUrls;
@@ -39,12 +55,6 @@ export class EditSalesClerkComponent {
           ...this.userData,
           firstName: this.userData.firstName.trim(),
           lastName: this.userData.lastName.trim(),
-          address: {
-            street: this.userData?.address?.street?.trim() || '',
-            city: this.userData?.address?.city?.trim() || '',
-            state: this.userData?.address?.state?.trim() || '',
-            zipCode: this.userData?.address?.zipCode?.trim() || ''
-          } 
         };
 
         await firstValueFrom(this.userService.updateUser(this.userData._id, updatedUser));

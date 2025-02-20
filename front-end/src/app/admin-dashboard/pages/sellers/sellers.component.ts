@@ -51,7 +51,7 @@ users: User[] =[]
         address:{city:'',state:'',street:'',zipCode:''},
         contactNo: '',
         image:[],
-        isActive: false
+        isActive: true
       };
     }
     subscribeToUserUpdates(): void {

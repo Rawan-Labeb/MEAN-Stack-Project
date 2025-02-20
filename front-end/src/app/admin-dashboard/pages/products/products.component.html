@@ -103,7 +103,7 @@
                     </th>
                     <th>Category</th>
                     <th>Seller</th>
-                    <th>salesCount</th>
+                    <th>Sales</th>
                     <th (click)="sort('price')" style="cursor: pointer">
                       Price
                       <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
@@ -117,9 +117,9 @@
                 <tbody>
                   <tr *ngFor="let product of filteredProducts">
                     <td><img class="image" src="{{product.images[0]}}" alt="">{{product.name}}</td>
-                    <td>{{product.categoryId?.name}}</td>
-                    <td>{{product.sellerId?.firstName}} {{product.sellerId?.lastName}}</td>
-                    <td>${{product.noOfSale}}</td>
+                    <td>{{product.categoryId.name}}</td>
+                    <td>{{product.sellerId.firstName}} {{product.sellerId.lastName}}</td>
+                    <td>{{product.noOfSale}}</td>
                     <td>${{product.price}}</td>
                     <td>{{product.quantity}}</td>
                     <td>
@@ -147,11 +147,11 @@
                           (updated)="onProductUpdated()" 
                           (close)="showEditModal = false">
                         </app-update-product> 
-                        <button mat-menu-item (click)="deleteProduct(product._id)">
+                        <button mat-menu-item (click)="deleteProduct(product!._id)">
                           <mat-icon>delete</mat-icon>
                           Delete
                         </button>
-                        <button mat-menu-item (click)="activeProduct(product._id)">
+                        <button mat-menu-item (click)="toggleProductStatus(product)">
                           <mat-icon>{{ product.isActive ? 'close' : 'check' }}</mat-icon>
                           {{ product.isActive ? 'Inactive' : 'Active' }}
                         </button>                        

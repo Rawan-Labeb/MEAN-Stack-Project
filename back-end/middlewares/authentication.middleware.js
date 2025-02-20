@@ -1,4 +1,4 @@
-const {verifyToken, decodedToken} = require("../uility/jwtTokenManager");
+const {verifyToken, decodedToken} = require("../utils/jwttoken.manager");
 
 
 const authenticaitonMiddleware = async (req, res, next) => 
