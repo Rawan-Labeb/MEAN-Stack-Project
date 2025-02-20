@@ -6,25 +6,27 @@ import { SellersComponent } from './pages/sellers/sellers.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { ContactComponent } from './pages/contact/contact.component';
-//import { CategoryComponent } from './pages/category/category.component';
+import { SalesClerkComponent } from './pages/sales-clerk/sales-clerk.component';
+import { CashierComponent } from './pages/cashier/cashier.component';
+import { AdminDashboardComponent } from './admin-dashboard.component';
+import { CategoryComponent } from './pages/category/category.component';
 //import { ReviewComponent } from './pages/review/review.component';
 
 
 
 export const adminDashboardRoutes: Routes = [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    { path: 'dashboard', component: DashboardComponent },
-    { path: 'users', component: UsersComponent },
-    { path: 'sellers', component: SellersComponent },
-    { path: 'products', component: ProductsComponent },
-    { path: 'orders', component:OrdersComponent },
-   // { path: 'categories', component: CategoryComponent },
-   // { path: 'reviews', component: ReviewComponent },
-    { path: 'contact', component: ContactComponent },
-];
+    {path:"",component:AdminDashboardComponent, children:[
+        { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+        { path: 'dashboard', component: DashboardComponent },
+        { path: 'users', component: UsersComponent},
+        { path: 'sellers', component: SellersComponent },
+        { path: 'products', component: ProductsComponent },
+        { path: 'orders', component:OrdersComponent },
+        { path: 'categories', component: CategoryComponent },
+    // { path: 'reviews', component: ReviewComponent },
+        { path: 'contact-us', component: ContactComponent },
+        { path: 'sales-clerks', component: SalesClerkComponent },
+        { path: 'cashiers', component: CashierComponent },
 
-@NgModule({
-    imports: [RouterModule.forRoot(adminDashboardRoutes)],
-    exports: [RouterModule],
-  })
-  export class AppRoutingModule {}
+    ]},  
+];

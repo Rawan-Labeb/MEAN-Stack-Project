@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { Footer, Header, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from './authentication/login/login.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
@@ -13,41 +13,33 @@ import { CachierComponent } from './cachier/cachier.component';
 import { StatisticsComponent } from '../app/cachier/statistics/statistics.component';
 import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
 import { ResetPasswordComponent } from './authentication/change-password/change-password.component';
+import { SellerDashboardComponent } from "./seller-dashboard/seller-dashboard.component";
 
+// import { HeaderComponent } from "./admin-dashboard/core/header/header.component";
+import { FooterComponent } from './footer/footer.component';
+import { HeaderComponent } from './header/header.component';
+import { NotFoundComponent } from './not-found/not-found.component';
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [
-    RouterOutlet,
-    ToastModule,
-    CommonModule,
-    AdminDashboardComponent,
-    RegisterComponent,
-    LoginComponent,
-    UserProfileComponent,
-    RequestChangePasswordComponent,
-    ResetPasswordComponent,
-    CartComponent,
-    CheckoutComponent,
-    CachierComponent,
-    StatisticsComponent
+  // standalone: true,
+//   imports: [
+//     RouterOutlet,
+//     FooterComponent,
+//     ToastModule,
+//     CommonModule,
+//     AdminDashboardComponent,
+//     HeaderComponent
+// ],
+imports: [
+    RouterOutlet, FooterComponent, HeaderComponent, NotFoundComponent, LoginComponent, UserProfileComponent
+    //,ProductDetailsComponent
+    // NotFoundComponent,AboutComponent,ContactUsComponent,HomeComponent,ProductDetailsComponent,
+    // FooterComponent,HeaderComponent,CatalogComponent
+    ,
+    UserProfileComponent
 ],
-  template: `
-  <!-- <app-cart></app-cart> -->
-    <!-- <app-reset-password></app-reset-password> -->
-    <!--
-      <app-request-change-password></app-request-change-password>
-    <app-login></app-login>
-    <app-register></app-register>
-  <app-admin-dashboard></app-admin-dashboard>
-    <router-outlet></router-outlet>
-    <app-user-profile></app-user-profile>
-    <p-toast></p-toast> -->
-    <!-- <app-cachier></app-cachier> -->
-    <app-statistics></app-statistics>
-    <!-- <router-outlet></router-outlet> -->
+templateUrl: './app.component.html',
 
-    `,
   providers: [MessageService],
   styles: []
 })

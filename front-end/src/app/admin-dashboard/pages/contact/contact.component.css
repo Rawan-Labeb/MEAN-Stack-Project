@@ -6,7 +6,7 @@
 
 .page__box {
   min-height: 120px;
-  background: #1e293b;
+  background: #000072;
   margin: 0 -1rem;
   font-size: 36px;
   padding: 2rem;
@@ -47,4 +47,10 @@
 .form-control:focus, .form-select:focus {
   border-color: #80bdff;
   box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+.image {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
 }

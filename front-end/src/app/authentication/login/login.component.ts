@@ -52,13 +52,17 @@ export class LoginComponent {
           console.log(error.error.message)
           console.log(error)
         }
-      });
+      })
+
+
     } else {
       console.log("Form is invalid");
     }
   }
+  
 
-  validate(input: string) {
-    return this.loginFromTwo.get(`${input}`);
+  validate (inpupt:string)
+  {
+    return this.loginFromTwo.get(`${inpupt}`)
   }
 }

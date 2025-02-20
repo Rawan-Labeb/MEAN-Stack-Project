@@ -123,7 +123,7 @@ export class UserProfileComponent implements OnInit
   
   // Load orders
   loadUserOrders() {
-    this.orderSer.getUserOrders(this.id).subscribe({
+    this.orderSer.getOrdersByCustomerId(this.id).subscribe({
       next: (orders) => {
         this.userOrder = orders;
         console.log(orders);

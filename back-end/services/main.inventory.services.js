@@ -32,10 +32,10 @@ const validateCreateAndUpdateMainInventory = async (data) => {
         return {valid: false, message: "No Product With that Id"};
 
     // check qunatity
-    if (!data.quantity || data.quantity <= 0 || prod.quantity < data.quantity )
+    if (!data.quantity || data.quantity <= 0)
         return {valid: false, message: "Enter Valid Quantity"};
 
-    return {valid: true, message: "All Validation Passed"}
+    return {valid: true, message: prod}
 
 }
 
@@ -59,6 +59,12 @@ module.exports.createMainInventory = async (data) => {
 
         if (!chk.valid)
             return {success: false, message: chk.message};
+
+        
+        if (chk.message.quantity < data.quantity)
+        {
+            return {success: false, message: "Enter Valid Quantity"};
+        }
         
         // check prod Existance 
         const mInventory = await createMainInventory(data);
@@ -81,11 +87,9 @@ module.exports.updateMainInventoryById = async (id, data) => {
         if (!chkForId.valid)
             return {success: false, message: chkForId.message};
 
-
         const chk = await validateCreateAndUpdateMainInventory(data);
         if (!chk.valid)
             return {success: false, message: chk.message};
-
 
         const inventory = await updateMainInventoryById(id, data);
         return {success: true, message: inventory};

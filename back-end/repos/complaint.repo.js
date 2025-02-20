@@ -2,7 +2,8 @@ const Complaint = require("../models/complaint.model");
 
 const getAllComplaints = async () => {
     try {
-        const complaints = await Complaint.find();
+        const complaints = await Complaint.find()
+        .populate('user')
         return complaints;
     } catch (error) {
         throw new Error('Error fetching complaints: ' + error.message);
@@ -20,7 +21,8 @@ const createComplaint = async (complaintData) => {
 
 const getComplaintById = async (id) => {
     try {
-        const complaint = await Complaint.findById(id);
+        const complaint = await Complaint.findById(id)
+        .populate('user')
         if (!complaint) {
             throw new Error('Complaint not found');
         }

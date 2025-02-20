@@ -9,50 +9,47 @@ import { Product } from '../_models/product.model';
 })
 export class OrderService {
   private apiUrl = 'http://localhost:5000/order';
-    private productApiUrl = 'http://localhost:5000/product';
 
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) {} // Update with your actual backend API URL
+  createOrder(order: Order): Observable<any> {
+    return this.http.post(`${this.apiUrl}/createOrder`, order);
+  }
 
-
-  /** Get all orders */
-  getOrders(): Observable<Order[]> {
+  getAllOrders(): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.apiUrl}/getAllOrders`);
   }
 
-  /** Get a single order by ID */
-  getOrderById(orderId: string): Observable<Order> {
-    return this.http.get<Order>(`${this.apiUrl}/${orderId}`);
+  getOrderById(id: string): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/getOrderById/${id}`);
   }
 
-  /** Add a new order */
-  addOrder(order: Order): Observable<Order> {
-    return this.http.post<Order>(`${this.apiUrl}`, order);
+  getOrdersByCustomerAndStatus(id: string, status: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerAndStatus/${id}/${status}`);
   }
 
-  /** Update an existing order */
-  updateOrder(orderId: string, order: Order): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${orderId}`, order);
-  }
-
-  /** Delete an order */
-  deleteOrder(orderId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/deleteOrder/${orderId}`);
-  }
-  getUserOrders(id: string): Observable<Order[]> {
+  getOrdersByCustomerId(id: string): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerId/${id}`);
   }
 
-  removeFromOrder(orderId: string, productId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${orderId}/items/${productId}`);
+  getOrdersByStatus(status: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByStatus/${status}`);
   }
 
-  updateProductQuantity(productId: string, quantity: number): Observable<Product> {
-    return this.http.put<Product>(`${this.productApiUrl}/updateQuantity/${productId}`, { quantity });
+  getOrdersByProductId(id: string): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByProductId/${id}`);
   }
 
-  updateProductSales(productId: string, sales: number): Observable<Product> {
-    return this.http.put<Product>(`${this.productApiUrl}/updateSales/${productId}`, { sales });
+  changeOrderStatus(id: string, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/changeOrderStatus/${id}/${status}`, {});
+  }
+
+  deleteOrder(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/deleteOrder/${id}`);
+  }
+
+  updateOrder(id: string, order: Partial<Order>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/updateOrder/${id}`, order);
   }
 
 }
