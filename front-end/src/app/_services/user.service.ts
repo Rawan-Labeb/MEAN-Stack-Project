@@ -67,7 +67,7 @@ export class UserService {
     }
     
     deleteUser(id: string): Observable<void> {
-        console.log('Deleting product at:', `${this.apiUrl}/deleteUser/${id}`);
+        console.log('Deleting User at:', `${this.apiUrl}/deleteUser/${id}`);
         return this.http.delete<void>(`${this.apiUrl}/deleteUser/${id}`).pipe(
           tap(() => console.log('Delete successful'))
         );

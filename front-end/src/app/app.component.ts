@@ -26,11 +26,12 @@ import { NotFoundComponent } from './not-found/not-found.component';
 //     HeaderComponent
 // ],
 imports: [
-  RouterOutlet,FooterComponent,HeaderComponent,NotFoundComponent
-  //,ProductDetailsComponent
-  // NotFoundComponent,AboutComponent,ContactUsComponent,HomeComponent,ProductDetailsComponent,
-  // FooterComponent,HeaderComponent,CatalogComponent
-
+    RouterOutlet, FooterComponent, HeaderComponent, NotFoundComponent, LoginComponent, UserProfileComponent
+    //,ProductDetailsComponent
+    // NotFoundComponent,AboutComponent,ContactUsComponent,HomeComponent,ProductDetailsComponent,
+    // FooterComponent,HeaderComponent,CatalogComponent
+    ,
+    UserProfileComponent
 ],
 templateUrl: './app.component.html',
 

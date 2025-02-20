@@ -15,7 +15,7 @@ import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.co
 
 
 export const routes: Routes = [
-   //{path:"", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
+  {path:"admindashboard", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
   {path:"home",component:HomeComponent},
   {path:"",component:HomeComponent},
   {path:"about",component:AboutComponent},
@@ -25,7 +25,6 @@ export const routes: Routes = [
   {path:"login",component:LoginComponent},
   {path:"register",component:RegisterComponent},
   {path:"userprofile",component:UserProfileComponent},
-  {path:"admindashboard",component:AdminDashboardComponent},
   {path:"sellerdashboard",component:SellerDashboardComponent},
   
   {path:"**",component:NotFoundComponent},

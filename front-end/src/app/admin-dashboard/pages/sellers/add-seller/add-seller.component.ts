@@ -26,7 +26,7 @@ export class AddSellerComponent {
         address:{city:'',state:'',street:'',zipCode:''},
         contactNo: '',
         image:[],
-        isActive: false 
+        isActive: true 
     };
     @Output() close = new EventEmitter<void>();
     @Output() saved = new EventEmitter<void>();
