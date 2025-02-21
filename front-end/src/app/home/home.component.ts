@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+
 
 interface Perfume {
   id: number;
@@ -39,6 +41,7 @@ interface BlogPost {
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
+  constructor(private router: Router) {}
   // Static perfume data
   perfumes: Perfume[] = [
     {
@@ -101,9 +104,9 @@ export class HomeComponent {
 
   // Static category data
   categories: Category[] = [
-    { id: 1, name: 'Floral', image: 'https://via.placeholder.com/300x200?text=Floral' },
-    { id: 2, name: 'Oriental', image: 'https://via.placeholder.com/300x200?text=Oriental' },
-    { id: 3, name: 'Citrus', image: 'https://via.placeholder.com/300x200?text=Citrus' }
+    { id: 1, name: 'Men', image: 'https://via.placeholder.com/300x200?text=Floral' },
+    { id: 2, name: 'Woman', image: 'https://via.placeholder.com/300x200?text=Oriental' },
+    { id: 3, name: 'Unnisex', image: 'https://via.placeholder.com/300x200?text=Citrus' }
   ];
 
   // Static new arrivals data
@@ -160,4 +163,7 @@ export class HomeComponent {
 
   
   Array = Array;
+  goBackToCatalog(): void {
+    this.router.navigate(['/catalog']);
+  }
 }
