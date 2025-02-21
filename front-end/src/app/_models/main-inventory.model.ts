@@ -8,6 +8,7 @@ export interface MainInventory {
 
   export interface Product {
     _id: string;
+    
     name: string;
     price: number;
     prevPrice?: number;

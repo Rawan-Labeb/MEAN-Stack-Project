@@ -128,7 +128,7 @@ module.exports.updateUser = async (userId, userData) => {
 
 // validation on creation or update
 const validateUserData = async (data, isNewUser) => {
-    const { firstName, lastName, email, password } = data;
+    const { firstName, lastName, email, password, contactNo,address } = data;
 
     if (!firstName || !lastName || !email) {
         return { valid: false, message: "All fields must be provided" };
@@ -159,6 +159,29 @@ const validateUserData = async (data, isNewUser) => {
             return { valid: false, message: "Password must be complex" };
         }
     }
+
+    if (address)
+    {
+        if (address.zipCode)
+        {
+            const zipCodeRegex = /^[0-9]{5}$/;
+            if (!zipCodeRegex.test(data.address.zipCode)) {
+                return { valid: false, message: "Invalid zip code format" };
+            }
+        }
+    }
+
+
+    if (contactNo)
+    {
+        const contactNoRegex = /^[0-9]{10,15}$/;
+        if (!contactNoRegex.test(contactNo)) {
+            return { valid: false, message: "Invalid contact number format" };
+        }
+    }
+
+
+
     return { valid: true, message: "Valid" };
 }
 

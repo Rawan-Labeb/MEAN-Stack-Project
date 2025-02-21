@@ -10,6 +10,8 @@ import { register } from '../_models/register';
 import { userProfile } from '../_models/userProfile.model';
 import { Order } from '../_models/order.module';
 import { OrderService } from '../_services/order.service';
+import { UploadService } from '../_services/upload.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-profile',
@@ -37,7 +39,9 @@ export class UserProfileComponent implements OnInit
     private authSer: AuthServiceService,
     private cookieServices:CookieService,
     private locationSer:LocationServicesService,
-    private orderSer:OrderService
+    private orderSer:OrderService,
+    private uploadSer:UploadService,
+    private http:HttpClient
   ) {
 
     this.userProfileForm = new FormGroup({
@@ -50,7 +54,7 @@ export class UserProfileComponent implements OnInit
       state: new FormControl(''),
       stateName: new FormControl(''),
       zipCode: new FormControl('', [Validators.pattern('^[0-9]{5}(?:-[0-9]{4})?$')]),
-      contactNo: new FormControl('', [Validators.pattern('^[0-9]+$')]),
+      contactNo: new FormControl('', [Validators.pattern(/^[0-9]{10,15}$/)]),
       image: new FormControl('')
     });
     
@@ -230,7 +234,91 @@ onSubmit() {
   } else {
     console.error('Form is invalid');
   }
+
+
+
+
+  if (this.userProfileForm.valid) {
+    // Form is valid, process the data
+    console.log('Form Submitted', this.userProfileForm.value);
+  } else {
+    // Form is invalid, handle the errors
+    console.log('Form Invalid');
+  }
+
 }
+
+// // handel upload image
+//   // Method to handle file input change
+//   onFileChange(event:any) {
+//     const file = event.target.files[0];
+//     if (file) {
+//       this.userProfileForm.patchValue({
+//         image: file
+//       });
+//       this.userProfileForm.get('image')?.updateValueAndValidity();
+//       this.uploadFile(file);
+//     }
+//   }
+
+//   // Method to upload file to the API
+//   uploadFile(file: File) {
+//     // const formData = new FormData();
+//     // formData.append('file', file, file.name);
+
+//     // const apiEndpoint = 'YOUR_API_ENDPOINT_HERE';
+//     // this.http.post(apiEndpoint, formData).subscribe(response => {
+//     //   console.log('API Response:', response);
+//     //   // Handle the response from the API if needed
+//     // }, error => {
+//     //   console.error('API Error:', error);
+//     //   // Handle error
+//     // });
+//     // console.log(file);
+//     this.uploadSer.uploadImage(file).subscribe({
+//       next: (data) => {
+//         console.log(data);
+//       }
+//     })
+
+
+//   }
+
+
+  // Method to handle file input change
+  onFileChange(event:any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.userProfileForm.patchValue({
+        image: file
+      });
+      this.userProfileForm.get('image')?.updateValueAndValidity();
+      this.uploadImage(file); // Call the uploadImage method when a file is selected
+    }
+  }
+
+  // Method to upload file to the API using the service
+  uploadImage(file: File) {
+    this.uploadSer.uploadImage(file).subscribe({
+      next: (response) => {
+        
+        console.log('API Response:', response);
+        // Handle the response from the API if needed
+      },
+      error: (error) => {
+        console.error('API Error:', error);
+        // Handle error
+      }
+    });
+  }
+
+
+
+
+
+
+
+
 
 
 }
