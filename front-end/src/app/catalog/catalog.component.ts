@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
+import { CategoryService } from '../_services/category.service';
 
 interface Perfume {
   id: number;
@@ -75,12 +76,13 @@ export class CatalogComponent implements OnInit {
   // ngOnInit():void{}
 
   constructor(
-    public subInventorySer:SubInventoryServicesService
+    public subInventorySer:SubInventoryServicesService,
+    public categorySer:CategoryService
   ) {}
   
 
   productRelatedtoBarnch:any[] = [];
-  test:any[] = [];
+  products:any[] = [];
   prodDetails:any;
   loading: boolean = true; 
 
@@ -104,13 +106,27 @@ export class CatalogComponent implements OnInit {
       next: (data) => {
         this.productRelatedtoBarnch = data;
   
-        this.test = this.productRelatedtoBarnch.map(prod => prod.product);
-  
-        this.allPerfumes = this.test as Perfume[];
-  
-        console.log('Fetched products:', this.allPerfumes);
-        console.log('Raw API response:', this.productRelatedtoBarnch);
-        console.log(this.productRelatedtoBarnch[1].product.name);
+        this.allPerfumes = this.products as Perfume[];
+
+        const categoryRequests = this.productRelatedtoBarnch.map(prod =>
+          this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+        );
+
+        Promise.all(categoryRequests).then(categories => {
+          this.products = this.productRelatedtoBarnch.map((prod, index) => ({
+            productName: prod.product.name,
+            productPrice: prod.product.price,
+            productDescription: prod.product.description,
+            productImage: prod.product.images,
+            productCategory: categories[index]?.name ,
+            productQuantity: prod.quantity,
+            noOfSale: prod.numberOfSales,
+            _id: prod._id
+          }));
+        }).catch(error => {
+          console.error('Failed to retrieve categories', error);
+        });
+
   
         this.loading = false;
       },
@@ -119,6 +135,12 @@ export class CatalogComponent implements OnInit {
         this.loading = false; 
       }
     });
+
+
+
+
+
+
   }
 
   goToPage(page: number): void {

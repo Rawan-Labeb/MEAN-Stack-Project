@@ -6,38 +6,35 @@
 </div>
 
 <!-- Product Details -->
-<div *ngIf="!loading && perfume" class="container py-5">
+<div *ngIf="!loading" class="container py-5">
   <div class="row">
     <!-- Product Image -->
     <div class="col-md-6 text-center">
-      <img [src]="perfume.image" alt="{{ perfume.name }}" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+      <img [src]="product.productImage[0]" alt="{{ product.productName }}" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
     </div>
     <!-- Product Information -->
     <div class="col-md-6">
-      <h2 class="mb-3">{{ perfumee.product.name }}</h2>
-      <p class="fw-bold fs-4">${{ perfumee.product.price.toFixed(2) }}</p>
-      <p class="text-muted">{{ perfumee.product.categoryId  }}</p>
-      <p>{{ perfumee.product.description }}</p>
+      <h2 class="mb-3">{{ product.productName }}</h2>
+      <p class="fw-bold fs-4">${{ product.productPrice.toFixed(2) }}</p>
+      <p class="text-muted">{{ product.productCategory  }}</p>
+      <p>{{ product.productDescription }}</p>
 
       <!-- Ratings Section -->
-      <div class="mt-4">
+      <!-- <div class="mt-4">
         <h5 class="mb-3">Customer Rating</h5>
         <div class="rating d-flex align-items-center">
-          <!-- Display stars for average rating -->
           <span *ngFor="let star of Array(Math.floor(perfume.rating)).fill(0)">
             <i class="bi bi-star-fill text-warning"></i>
           </span>
-          <!-- Display half star if needed -->
           <span *ngIf="perfume.rating % 1 !== 0">
             <i class="bi bi-star-half text-warning"></i>
           </span>
-          <!-- Display empty stars for remaining -->
           <span *ngFor="let star of Array(5 - Math.ceil(perfume.rating)).fill(0)">
             <i class="bi bi-star text-muted"></i>
           </span>
           <span class="ms-2 text-muted">({{ perfume.reviews.length }} reviews)</span>
         </div>
-      </div>
+      </div> -->
 
       <!-- Quantity Section -->
       <div class="mt-4">
@@ -49,8 +46,8 @@
             (click)="decreaseQuantity()" 
             [disabled]="quantity <= 0"
             [class.opacity-50]="quantity <= 0"
-            title="Decrease Quantity"
-          >
+            title="Decrease Quantity">
+
             <i class="bi bi-dash"></i>
           </button>
           <input 
@@ -66,9 +63,9 @@
           type="button" 
           class="btn btn-outline-secondary rounded-end" 
           (click)="increaseQuantity()" 
-          [disabled]="!perfume.inStock || quantity >= (perfume.inStockAmount || 0)+1"
-          title="Increase Quantity"
-          >
+          [disabled]="quantity >= (product.productQuantity || 0)+1"
+          title="Increase Quantity">
+
           <i class="bi bi-plus"></i>
           </button>
 
@@ -81,12 +78,13 @@
       <button 
         class="btn btn-primary btn-lg w-100 mb-4" 
         (click)="addToCart()" 
-        [disabled]="!perfume.inStock"
-        [disabled]="quantity <= 0"
 
-        [class.opacity-50]="!perfume.inStock"
+        
+        [disabled]="product.productQuantity <= 0"
+
+        [class.opacity-50]="product.productQuantity <= 0"
       >
-        {{ perfume.inStock ? 'Add to Cart' : 'Out of Stock' }}
+        {{ product.productQuantity > 0 ? 'Add to Cart' : 'Out of Stock' }}
       </button>
 
       <!-- Back to Catalog Button -->
@@ -99,7 +97,7 @@
   </div>
 
   <!-- Comments Section -->
-  <section class="mt-5">
+  <!-- <section class="mt-5">
     <h3 class="mb-4">Customer Reviews</h3>
     <div class="review" *ngFor="let review of perfume.reviews">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -116,11 +114,10 @@
       <p>{{ review.comment }}</p>
       <hr>
     </div>
-    <!-- No Reviews Message -->
     <div *ngIf="perfume.reviews.length === 0" class="text-muted text-center mt-4">
       No reviews yet. Be the first to leave a review!
     </div>
-  </section>
+  </section> -->
 
   <!-- Add Review Section -->
   <section class="mt-5">
