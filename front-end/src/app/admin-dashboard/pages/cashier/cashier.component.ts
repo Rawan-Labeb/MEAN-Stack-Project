@@ -18,7 +18,7 @@ import { EditCashierComponent } from './edit-cashier/edit-cashier.component';
   templateUrl: './cashier.component.html',
   styleUrl: './cashier.component.css'
 })
-export class CashierComponent {
+export class CashierComponent implements OnInit, OnDestroy{
   users: User[] =[]
         filteredUsers: User[] = [];
         loading = false;

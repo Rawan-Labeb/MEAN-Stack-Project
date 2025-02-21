@@ -18,7 +18,7 @@ import { EditSalesClerkComponent } from './edit-sales-clerk/edit-sales-clerk.com
   templateUrl: './sales-clerk.component.html',
   styleUrl: './sales-clerk.component.css'
 })
-export class SalesClerkComponent {
+export class SalesClerkComponent implements OnInit, OnDestroy {
   users: User[] =[]
       filteredUsers: User[] = [];
       loading = false;
@@ -72,7 +72,7 @@ export class SalesClerkComponent {
       
         try {
           const data = await firstValueFrom(this.UserService.getUsersBasedOnRole('clerk'));
-          this.users = [...data]; // لا حاجة لاستخدام map() إذا لم تكن هناك تعديلات
+          this.users = [...data];
       
           this.filteredUsers = [...this.users];
           this.applyFilters();
