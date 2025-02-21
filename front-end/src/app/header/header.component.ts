@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-header',
@@ -9,6 +10,13 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
+  constructor(
+    public cookieSer:CookieService,
+    public router:Router
+  )
+  {
+
+  }
   userRole:string|null=null;//='customer';
   // Mock cart items (replace with actual cart logic)
   cartItems = [
@@ -33,6 +41,13 @@ export class HeaderComponent {
   selected: string = 'home';
   updateSelect(selectedd: string): void {
     this.selected = selectedd;
+  }
+
+
+  LogOut()
+  {
+    this.cookieSer.delete("token");
+    this.router.navigateByUrl("");
   }
   increaseQuantity(item: any): void {
     if (item.quantity < 10) {

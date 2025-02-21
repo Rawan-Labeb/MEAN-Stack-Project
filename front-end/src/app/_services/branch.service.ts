@@ -32,8 +32,10 @@ export class BranchService {
     }
 
     createBranch(branch: Branch): Observable<Branch> {
+      const branchData = JSON.parse(JSON.stringify(branch));
+      delete branchData._id;
         console.log('Adding branch:', branch);
-        return this.http.post<Branch>(this.apiUrl, branch).pipe(
+        return this.http.post<Branch>(this.apiUrl, branchData).pipe(
             tap(createdBranch => {
                 console.log('branch added successfully:', createdBranch);
             })

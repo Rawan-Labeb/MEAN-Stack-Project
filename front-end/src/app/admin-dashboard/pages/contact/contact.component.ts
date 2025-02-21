@@ -16,7 +16,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.css'
 })
-export class ContactComponent {
+export class ContactComponent implements OnInit, OnDestroy {
 complaints: Complaint[] =[]
     filteredComplaints: Complaint[] = [];
     loading = false;

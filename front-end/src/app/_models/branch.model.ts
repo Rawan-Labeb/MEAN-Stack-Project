@@ -1,5 +1,5 @@
 export interface Branch {
-    _id?: string;
+    _id: string;
     branchName: string;
     location?: string;
     contactNumber?: string;
@@ -7,5 +7,6 @@ export interface Branch {
     isActive?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
+    showSubSubMenu:boolean
   }
   

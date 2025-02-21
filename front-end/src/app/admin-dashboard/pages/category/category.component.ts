@@ -17,7 +17,7 @@ import { EditCategoryComponent } from './edit-category/edit-category.component';
   templateUrl: './category.component.html',
   styleUrl: './category.component.css'
 })
-export class CategoryComponent {
+export class CategoryComponent implements OnInit, OnDestroy{
   categories: Category[] =[]
       filteredCategories: Category[] = [];
       loading = false;
