@@ -96,15 +96,15 @@
     <div class="container">
       <h2 class="text-center mb-4">Perfume Collection</h2>
       <div class="row">
-        <div class="col-md-3 mb-4" *ngFor="let perfume of paginatedPerfumes">
+        <div class="col-md-3 mb-4" *ngFor="let perfume of productRelatedtoBarnch">
           <div class="card shadow-sm">
-            <img [src]="perfume.image" class="card-img-top" alt="{{ perfume.name }}" />
+            <img [src]="perfume?.product?.images[0]" class="card-img-top" alt="{{ perfume?.product?.name }}" />
             <div class="card-body">
-              <h5 class="card-title">{{ perfume.name }}</h5>
-              <p class="fw-bold">${{ perfume.price.toFixed(2) }}</p>
-              <p class="text-muted">{{ perfume.category | titlecase }}</p>
+              <h5 class="card-title">{{ perfume?.product?.name }}</h5>
+              <p class="fw-bold">${{ perfume?.product?.price.toFixed(2) }}</p>
+              <p class="text-muted">{{ perfume?.product?.categoryId | titlecase }}</p>
               <!-- <a href="#" class="btn btn-primary w-100">Add to Cart</a> -->
-              <a routerLink="details/{{perfume.id}}"  class="btn btn-primary w-100">Add to Cart</a>
+              <a routerLink="details/{{perfume._id}}"  class="btn btn-primary w-100">Add to Cart</a>
   
             </div>
           </div>
