@@ -83,9 +83,9 @@ export class CatalogComponent implements OnInit {
   ngOnInit(): void {
     this.subInventorySer.getSubInventoryRelatedToBranch("Uptown Branch").subscribe({
       next: (data) => {
-        // this.productRelatedtoBarnch = data;
-        // this.test = this.productRelatedtoBarnch.map(prod => prod.mainInventory); // Extracting products
-        // console.log(this.productRelatedtoBarnch);
+        this.productRelatedtoBarnch = data;
+        this.test = this.productRelatedtoBarnch.map(prod => prod.mainInventory); // Extracting products
+        console.log(this.productRelatedtoBarnch);
         this.prodDetails = data;
       }
     });
