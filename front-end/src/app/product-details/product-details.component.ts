@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
+import { CategoryService } from '../_services/category.service';
 
 interface Perfume {
   id: number;
@@ -122,23 +123,44 @@ export class ProductDetailsComponent implements OnInit {
   ];
   
 
-  constructor(private route: ActivatedRoute,private router: Router,public subInventorySer:SubInventoryServicesService) {}
+  constructor(private route: ActivatedRoute,
+    private router: Router,
+    public subInventorySer:SubInventoryServicesService,
+    private categorySer:CategoryService
+  ) {}
   
   public productId:any;
-  public perfumee:any;
+  public product:any;
   ngOnInit(): void {
-     this.productId = Number(this.route.snapshot.paramMap.get('id'));
-    console.log(this.productId);
-    // this.perfume = this.perfumes.find((p) => p.id === this.productId) || null;
-
-    // Simulate loading delay (optional)
     setTimeout(() => {
       this.loading = false;
     }, 500);
+     this.productId = this.route.snapshot.paramMap.get('id');
 
     this.subInventorySer.getSubInventoryById(this.productId).subscribe({
       next: (data) => {
-        this.perfumee=data;
+        const categoryId = data.product.categoryId;
+
+        
+        // Fetch the category information
+        this.categorySer.getCategoryById(categoryId).subscribe({
+          next: (categoryData) => {
+            this.product = {
+              productName: data.product.name,
+              productPrice: data.product.price,
+              productDescription: data.product.description,
+              productImage: data.product.images,
+              productCategory: categoryData.name, 
+              productQuantity: data.quantity,
+              noOfSale: data.numberOfSales,
+              inStock: data.quantity == 0 ? false : true,
+              _id: data._id
+            };
+          },
+          error: (err) => {
+            console.error('Failed to retrieve category', err);
+          }
+        });
       },
       error: (err) => {
         
@@ -175,27 +197,22 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   increaseQuantity(): void {
-
-    if (!this.perfume) {
+    if (!this.product) {
       console.error('Perfume object is null or undefined');
       return;
     }
-  
-    const availableStock = this.perfume.inStockAmount || 0;
-  
-    
-  
-    if (availableStock === 0) {
+    if (this.product.productQuantity === 0) {
       alert('This product is out of stock.');
       return;
     }
   
-    if (this.quantity < availableStock) {
+    if (this.quantity < this.product.productQuantity) {
       this.quantity++;
       console.log('Increased quantity to:', this.quantity);
     } else {
-      alert(`Sorry, only ${availableStock} units are available in stock.`);
+      alert(`Sorry, only ${this.product.productQuantity} units are available in stock.`);
     }
+
   }
   
 
@@ -208,11 +225,13 @@ decreaseQuantity(): void {
   
   // Add the product to the cart
 addToCart(): void {
-  if (!this.perfume) return;
+  if (!this.product) return;
 
+  
   // Show a more detailed alert message
-  const totalCost = this.quantity * this.perfume.price;
-  alert(`"${this.perfume.name}" (Quantity: ${this.quantity}, Total: $${totalCost.toFixed(2)}) has been added to your cart!`);
+  // const totalCost = this.quantity * this.perfume.price;
+  // alert(`"${this.perfume.name}" (Quantity: ${this.quantity}, Total: $${totalCost.toFixed(2)}) has been added to your cart!`);
+  
 }
 
 goBackToCatalog(): void {
