@@ -28,15 +28,22 @@ export class LoginComponent
     this.loginFrom = new FormGroup({
       email:new FormControl("", [Validators.required, Validators.email]),
       password: new FormControl("", [
-        Validators.required,
+        Validators.required, 
         Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
-      ])
-    });
-    this.loginForm = new Login(this.validate("email")?.value, this.validate("password")?.value, "");
+      ])      
+      })
+      this.loginForm = new Login(this.validate("email")?.value, this.validate("password")?.value, "");
+
   }
 
+  loginForm:Login;
+
+  loginData:Login = new Login("", "", "");
+
   Login() {
-    console.log(this.validate("email")?.value);
+
+
+    console.log(this.validate("email")?.value)
 
     if (this.loginFrom.valid) {
       const email = this.loginFrom.get('email')?.value;
@@ -44,7 +51,7 @@ export class LoginComponent
   
       console.log("Email:", email);
       console.log("Password:", password);
-
+  
       this.loginData = new Login(email, password, "");
 
       this.loginSer.login(this.loginData).subscribe({
