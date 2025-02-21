@@ -1,7 +1,8 @@
 /* Product Grid */
-.product-grid img {
-    height: 200px;
-    object-fit: cover;
+
+  .product-grid-img {
+    height: 400px; /* Fixed height for all images */
+    object-fit: cover; /* Ensures images are not distorted */
   }
   
   .card {
