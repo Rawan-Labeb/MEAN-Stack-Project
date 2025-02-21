@@ -13,6 +13,8 @@ const {getAllUsers,
     changePassword
 } = require ("./../services/user.service")
 
+const authorize = require("./../middlewares/authorization.middleware")
+
 
 const {main} = require("./../services/forgetPassword.service")
 

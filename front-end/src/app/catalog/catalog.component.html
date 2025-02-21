@@ -96,13 +96,13 @@
     <div class="container">
       <h2 class="text-center mb-4">Perfume Collection</h2>
       <div class="row">
-        <div class="col-md-3 mb-4" *ngFor="let perfume of productRelatedtoBarnch">
+        <div class="col-md-3 mb-4" *ngFor="let perfume of products">
           <div class="card shadow-sm">
-            <img [src]="perfume?.product?.images[0]" class="card-img-top" alt="{{ perfume?.product?.name }}" />
+            <img [src]="perfume?.productImage[0]" class="card-img-top" alt="{{ perfume?.productName }}" />
             <div class="card-body">
-              <h5 class="card-title">{{ perfume?.product?.name }}</h5>
-              <p class="fw-bold">${{ perfume?.product?.price.toFixed(2) }}</p>
-              <p class="text-muted">{{ perfume?.product?.categoryId | titlecase }}</p>
+              <h5 class="card-title">{{ perfume?.productName }}</h5>
+              <p class="fw-bold">${{ perfume?.productPrice.toFixed(2) }}</p>
+              <p class="text-muted">{{ perfume?.productCategory | titlecase }}</p>
               <!-- <a href="#" class="btn btn-primary w-100">Add to Cart</a> -->
               <a routerLink="details/{{perfume._id}}"  class="btn btn-primary w-100">Add to Cart</a>
   
