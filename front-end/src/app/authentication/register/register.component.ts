@@ -1,23 +1,26 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { register } from 'src/app/_models/register';
 import { AuthServiceService } from 'src/app/_services/auth-service.service';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, FormsModule, CommonModule],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
 
 export class RegisterComponent {
   registerForm: FormGroup;
+  errorMessage:string = "";
   constructor(
     private fb: FormBuilder,
     private userSer:AuthServiceService,
-        public cookieService:CookieService
+        public cookieService:CookieService,
+        public router:Router
 
   ) {
     this.registerForm = this.fb.group({
@@ -31,7 +34,7 @@ export class RegisterComponent {
       confirmPassword: ['', Validators.required]
     }, { validator: this.passwordMatchValidator });
 
-    this.flag = this.passwordMatchValidator(this.registerForm);
+    // this.flag = this.passwordMatchValidator(this.registerForm);
 
 
   }
@@ -40,9 +43,13 @@ export class RegisterComponent {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
 
-    return password && confirmPassword && password.value === confirmPassword.value
-      ? false : true;
-  }
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+        confirmPassword.setErrors({ mismatch: true });
+    } else {
+        confirmPassword?.setErrors(null);
+    }
+}
+
 
   register() {
     if (this.registerForm.invalid) {
@@ -63,16 +70,15 @@ export class RegisterComponent {
     this.userSer.register(user).subscribe(response => {
       console.log('User registered successfully:', response);
       this.cookieService.set("token", response.token);
-
+      this.router.navigateByUrl("");
 
       // Handle successful registration
     }, error => {
       console.error('Registration failed:', error);
+      this.errorMessage = error.error.token;
       // Handle registration failure
+
     });
   }
-
-  flag:boolean;
-
-
+  // flag:boolean;
 }
