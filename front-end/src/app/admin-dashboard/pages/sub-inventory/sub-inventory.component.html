@@ -1,5 +1,5 @@
 <div class="container-fluid page">
-    <div class="d-flex page__box p-3 mt-2">Branches</div>
+    <div class="d-flex page__box p-3 mt-2">SubInventory</div>
     <div class="page__content shadow p-3 position-relative">
       <div>
         <div>
@@ -9,24 +9,24 @@
               <div class="col-md-3">
                 <div class="card bg-primary text-white">
                   <div class="card-body">
-                    <h5 class="card-title">Total Branches</h5>
-                    <p class="card-text display-4">{{branches.length}}</p>
+                    <h5 class="card-title">Total SubInventory</h5>
+                    <p class="card-text display-4">{{subInventories.length}}</p>
                   </div>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="card bg-success text-white">
                   <div class="card-body">
-                    <h5 class="card-title">Active Branches</h5>
-                    <p class="card-text display-4">{{activeBranchesCount}}</p>
+                    <h5 class="card-title">Active SubInventory</h5>
+                    <p class="card-text display-4">{{activeSubInventoriessCount}}</p>
                   </div>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="card bg-danger text-white">
                   <div class="card-body">
-                    <h5 class="card-title">Inactive Branches</h5>
-                    <p class="card-text display-4">{{inactiveBranchesCount}}</p>
+                    <h5 class="card-title">Inactive SubInventory</h5>
+                    <p class="card-text display-4">{{inactiveSubInventoriesCount}}</p>
                   </div>
                 </div>
               </div>
@@ -39,15 +39,15 @@
                   <h3 class="mb-0"></h3>
                 </div>
                 <div class="col-auto">
-                  <button class="btn btn-primary" (click)="openAddModal()">
-                    Add Branch
-                  </button>
-                  <app-add-branch 
+                  <!-- <button class="btn btn-primary" (click)="openAddModal()">
+                    Add User
+                  </button> -->
+                  <!-- <app-add-user 
                     [show]="showAddModal" 
-                    [branchData]="branchData" 
+                    [userData]="userData" 
                     (close)="showAddModal = false" 
-                    (saved)="onBranchSaved()">
-                  </app-add-branch>
+                    (saved)="onUserSaved()">
+                  </app-add-user> -->
                 </div>
               </div>
             </div>
@@ -59,7 +59,7 @@
                           class="form-control" 
                           [(ngModel)]="searchTerm" 
                           (input)="onSearch()"
-                          placeholder="Search Branches...">
+                          placeholder="Search SubInventory...">
                 </div>
                 <div class="col-md-3">
                   <select class="form-select" 
@@ -72,43 +72,43 @@
                 </div>
               </div>
   
-              <app-edit-branch
+              <!-- <app-edit-user
                 [show]="showEditModal" 
-                [branchData]="branchData" 
-                (updated)="onBranchUpdated()" 
+                [userData]="userData" 
+                (updated)="onUserUpdated()" 
                 (close)="showEditModal = false">
-              </app-edit-branch>
+              </app-edit-user> -->
         
               <div class="table-responsive">
                 <table class="table table-striped">
                   <thead>
                     <tr>
-                      <th (click)="sort('branchName')" style="cursor: pointer" class="justify-content-between">
+                      <th (click)="sort('product')" style="cursor: pointer" class="justify-content-between">
                         Name
                         <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
                       </th>
-                      <th>Location</th>
-                      <th>Phone</th>
-                      <th>Type</th>
+                      <th>Price</th>
+                      <th>Count</th>
+                      <th>Seller</th>
+                      <th>Category</th>
+                      <th>Qty</th>
                       <th>Date</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let branch of filteredBranches">
-                      <td>{{branch.branchName}}</td>
-                      <td>{{branch.location}}</td>
-                      <td>{{branch.contactNumber}}</td>
+                    <tr *ngFor="let subInventory of filteredSubInventories">
+                        <td><img class="image" src="{{subInventory?.product?.images}}" alt="">{{subInventory?.product?.name}}</td>
+                        <td>{{subInventory?.product?.price}}</td>
+                        <td>{{subInventory?.product?.noOfSale}}</td>
+                        <td>{{subInventory?.product?.sellerId?.firstName}} {{subInventory?.product?.sellerId?.lastName}}</td>
+                        <td>{{subInventory?.product?.categoryId?.name}}</td>
+                        <td>{{subInventory.quantity}}</td>
+                        <td>{{subInventory.lastUpdated}}</td>
                       <td>
-                        <span class="badge" [ngClass]="branch.type === 'online' ? 'bg-warning' : 'bg-info'">
-                          {{ branch.type === 'online' ? 'Online' : 'Offline' }}
-                        </span>
-                      </td>
-                      <td>{{branch.createdAt}}</td>
-                      <td>
-                        <span class="badge" [ngClass]="branch.isActive ? 'bg-success' : 'bg-danger'">
-                          {{branch.isActive ? ' Active ' : 'Inactive'}}
+                        <span class="badge" [ngClass]="subInventory.active ? 'bg-success' : 'bg-danger'">
+                          {{subInventory.active ? ' Active ' : 'Inactive'}}
                         </span>
                       </td>
                       <td>
@@ -116,17 +116,25 @@
                           <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
                         </button>
                         <mat-menu #menu="matMenu" class="bg-white ">
-                          <button mat-menu-item (click)="openEditModal(branch)">
+                          <!-- <button mat-menu-item (click)="openEditModal(user)">
                             <mat-icon>edit</mat-icon>
                             Update
+                          </button> -->
+                          <button mat-menu-item (click)="increaseSubInventoryQuantity(subInventory._id)">
+                            <mat-icon>add</mat-icon>
+                            increase
                           </button>
-                          <button mat-menu-item (click)="deleteBranch(branch._id)">
+                          <button mat-menu-item (click)="decreaseSubInventoryQuantity(subInventory._id)">
+                            <mat-icon>remove</mat-icon>
+                            decrease
+                          </button>
+                          <button mat-menu-item (click)="deleteSubInventory(subInventory._id)">
                             <mat-icon>delete</mat-icon>
                             Delete
                           </button>
-                          <button mat-menu-item (click)="toggleBranchStatus(branch._id)">
-                            <mat-icon>{{ branch.isActive ? 'close' : 'check' }}</mat-icon>
-                            {{ branch.isActive ? 'Inactive' : 'Active' }}
+                          <button mat-menu-item (click)="toggleSubInventoryStatus(subInventory)">
+                            <mat-icon>{{ subInventory.active ? 'close' : 'check' }}</mat-icon>
+                            {{ subInventory.active ? 'Inactive' : 'Active' }}
                           </button>     
                         </mat-menu>
                       </td>

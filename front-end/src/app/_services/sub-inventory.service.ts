@@ -57,21 +57,22 @@ export class SubInventoryService {
           );
       }
       decreaseSubInventoryQuantity(id: string,quantity:number): Observable<SubInventory> {
-          return this.http.post<SubInventory>(`${this.apiUrl}/decreaseSubInventoryQuantity/${id}`,quantity).pipe(
+          return this.http.put<SubInventory>(`${this.apiUrl}/decreaseSubInventoryQuantity/${id}`,{"quantityToDecrease":quantity}).pipe(
             tap(updateSubInventory => {
               console.log('Update successful:', updateSubInventory);
               this.subInventoryUpdated.next(updateSubInventory);
             })
           );
       }
-      increaseSubInventoryQuantity(id: string,quantity:number): Observable<SubInventory> {
-          return this.http.post<SubInventory>(`${this.apiUrl}/increaseSubInventoryQuantity/${id}`,quantity).pipe(
-            tap(updateSubInventory => {
-              console.log('Update successful:', updateSubInventory);
-              this.subInventoryUpdated.next(updateSubInventory);
-            })
-          );
+      increaseSubInventoryQuantity(id: string, quantity: number): Observable<SubInventory> {
+        return this.http.put<SubInventory>(`${this.apiUrl}/increaseSubInventoryQuantity/${id}`,{"quantityToIncrease":quantity}).pipe(
+          tap(updateSubInventory => {
+            console.log('Update successful:', updateSubInventory);
+            this.subInventoryUpdated.next(updateSubInventory);
+          })
+        );
       }
+      
       
       deleteSubInventory(id: string): Observable<void> {
           console.log('Deleting SubInventory at:', `${this.apiUrl}/deleteSubInventory/${id}`);
