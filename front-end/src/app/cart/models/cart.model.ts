@@ -36,26 +36,24 @@
 //   __v: number;
 //   totalCartPrice: number;
 // }
-export class Cart {
-  constructor(
-    public _id: string,
-    public cart_id: string,
-    public product: {
-      product_id: string,
-      seller_id: string,
-      name: string,
-      qty: number,
-      price: number,
-      _id: string,
-      pic_path: string[]
-    }[],
-    public customer_id: string,
-    public createdAt: Date,
-    public updatedAt: Date,
-    public Total: number,
-  ) {}
-}
-// //////
+/////////////////////////////////
+///
+// export class Cart {
+//   constructor(
+//     public _id: string,
+//     public user: string,
+//     public items: {
+//       subInventory: string,
+//       branch: string,
+//       image: string,
+//       quantity: number,
+//       price: number,
+//       _id: string
+//     }[],
+//     public __v: number
+//   ) {}
+// }
+//////
 // export interface ICartRes {
 //   status: string;
 //   data: ICartData;
@@ -87,3 +85,36 @@ export class Cart {
 //   quantity: number;
 //   price: number;
 // }
+
+
+export class Cart {
+  constructor(
+    public _id: string,
+    public cart_id: string,
+    public items: {
+      subInventory: {
+        _id: string,
+        product: {
+          _id: string,
+          name: string,
+          price: number,
+          quantity: number,
+          images: string[]
+        },
+        branch: {
+          _id: string,
+          branchName: string
+        },
+        quantity: number,
+        price: number,
+        image: string
+      },
+      quantity: number,
+      price: number
+    }[],
+    public customer_id: string,
+    public createdAt: Date,
+    public updatedAt: Date,
+    public Total: number,
+  ) {}
+}

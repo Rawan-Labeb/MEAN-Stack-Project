@@ -3,14 +3,39 @@ const {
     getAllOrdersByBranchId,
     getOfflineOrderById: getOfflineOrderByIdFromRepo,
     createOfflineOrder,
-    cancelOfflineOrder
-} = require("./../repos/offline.order.repo")
+    cancelOfflineOrder,
+    deleteProductFromOrderService
+} = require("./../repos/offline.order.repo");
 
-const {
-    getBranchById
-} = require("./branch.service")
+const {getBranchById} = require("./branch.service");
 
+const OfflineOrder = require('../models/offilne.order.model'); // Correct the import statement
 
+module.exports.deleteProductFromOrderService = async (orderId, productId, quantity) => {
+    try {
+        const order = await OfflineOrder.findById(orderId);
+        if (!order) {
+            return { success: false, message: 'Order not found' };
+        }
+
+        const itemIndex = order.items.findIndex(item => item.subInventoryId === productId);
+        if (itemIndex === -1) {
+            return { success: false, message: 'Product not found in order' };
+        }
+
+        order.items[itemIndex].quantity -= quantity;
+        if (order.items[itemIndex].quantity <= 0) {
+            order.items.splice(itemIndex, 1);
+        }
+
+        await order.save();
+        return { success: true, message: 'Product removed from order' };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
+};
+
+// ...existing code...
 module.exports.getAllOfflineOrders = async () => {
     try
     {

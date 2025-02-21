@@ -1,9 +1,8 @@
-const express = require('express');
-const checkoutController = require('../controllers/checkout.controller');
-
+const express = require("express");
 const router = express.Router();
+const orderController = require("../controllers/checkout.controller");
 
-router.post("/",checkoutController.createOrder);
-console.log("✅ checkout.routes.js has been loaded successfully!");
+// ✅ ربط دالة createOrder في order.controller.js
+router.post("/createOrder", orderController.createOrder);
 
 module.exports = router;

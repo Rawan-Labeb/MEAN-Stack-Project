@@ -10,7 +10,7 @@ import { UserProfileComponent } from "./user-profile/user-profile.component";
 import { CartComponent } from "./cart/cart.component";
 import { CheckoutComponent } from './checkout/checkout.component';
 import { CachierComponent } from './cachier/cachier.component';
-import { StatisticsComponent } from '../app/cachier/statistics/statistics.component';
+// import { StatisticsComponent } from '../app/cachier/statistics/statistics.component';
 import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
 import { ResetPasswordComponent } from './authentication/change-password/change-password.component';
 import { SellerDashboardComponent } from "./seller-dashboard/seller-dashboard.component";
@@ -24,12 +24,12 @@ import { NotFoundComponent } from './not-found/not-found.component';
   standalone: true,
 imports: [
     RouterOutlet, FooterComponent, HeaderComponent, NotFoundComponent, LoginComponent, UserProfileComponent,
-    CartComponent,CheckoutComponent,CachierComponent,StatisticsComponent,CommonModule
+    CartComponent,CheckoutComponent,CachierComponent,CommonModule
+    //StatisticsComponent
     //,ProductDetailsComponent
     // NotFoundComponent,AboutComponent,ContactUsComponent,HomeComponent,ProductDetailsComponent,
     // FooterComponent,HeaderComponent,CatalogComponent
-    ,
-    UserProfileComponent
+    
 ],
 templateUrl: './app.component.html',
 

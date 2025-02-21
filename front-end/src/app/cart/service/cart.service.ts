@@ -1,64 +1,40 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
-import { Product } from '../../seller-dashboard/models/product.model';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  public apiUrl = 'http://localhost:5000/api';
+  private apiUrl = 'http://localhost:5000/api/cart';
 
   constructor(private http: HttpClient) {}
 
-  // إضافة منتج إلى السلة
-  addToCart(userId: string, productId: string, quantity: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/cart/add`, { userId, productId, quantity });
-  }
-
   getCart(userId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/cart/${userId}`);
+    return this.http.get(`${this.apiUrl}/${userId}`);
   }
 
-  addOrder(data: any): Observable<{ status: number, message: string, data: { ErrorMsg: string, success: boolean, order: any } }> {
-    return this.http.post<{ status: number, message: string, data: { ErrorMsg: string, success: boolean, order: any } }>(`${this.apiUrl}/orders`, data);
+  addToCart(userId: string, subInventoryId: string, quantity: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/add`, { userId, subInventoryId, quantity });
   }
 
-  updateCartItem(userId: string, productId: string, quantity: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/cart/${userId}`, { productId, quantity });
+  removeFromCart(userId: string, subInventoryId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/remove/${userId}/subInventory/${subInventoryId}`);
   }
 
-  increaseQuantity(userId: string, productId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/cart/inc/${userId}/product/${productId}`, {});
+  increaseQuantity(userId: string, subInventoryId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/inc/${userId}/subInventory/${subInventoryId}`, {});
   }
 
-  decreaseQuantity(userId: string, productId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/cart/dec/${userId}/product/${productId}`, {});
-  }
-
-  removeFromCart(userId: string, productId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/cart/remove/${userId}/product/${productId}`).pipe(
-      catchError(error => {
-        console.error('There was an error!', error);
-        return throwError(error);
-      })
-    );
+  decreaseQuantity(userId: string, subInventoryId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/dec/${userId}/subInventory/${subInventoryId}`, {});
   }
 
   clearCart(userId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/cart/clear/${userId}`);
+    return this.http.delete(`${this.apiUrl}/${userId}/delete`);
   }
 
-  getProductDetails(userId: string, productId: string): Observable<Product> {
-  return this.http.get<Product>(`${this.apiUrl}/cart/${userId}/product-details/${productId}`);
+  getProductDetails(userId: string, subInventoryId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${userId}/subInventory-details/${subInventoryId}`);
+  }
 }
-checkout(userId: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/checkout`, { userId });
-}
-
-}
-
-

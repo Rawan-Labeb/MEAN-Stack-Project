@@ -1,12 +1,19 @@
-const CheckoutService = require('../services/checkout.service');
+const { createOrder } = require("../services/order.service");
 
-const createOrder = async (req, res) => {
+module.exports.createOrder = async (req, res) => {
     try {
-        const order = await CheckoutService.createOrder(req.body);
-        res.status(201).json(order);
+        console.log("🔥 Received Order Data:", JSON.stringify(req.body, null, 2)); // ✅ طباعة البيانات قبل المعالجة
+
+        const result = await createOrder(req.body);
+
+        if (!result.success) {
+            console.error("❌ Order validation failed:", result.message); // ✅ طباعة الخطأ
+            return res.status(400).json({ error: result.message });
+        }
+
+        return res.status(201).json(result.message);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating order', error });
+        console.error("❌ Server Error:", error.message);
+        res.status(500).json({ error: error.message });
     }
 };
-
-module.exports = { createOrder };

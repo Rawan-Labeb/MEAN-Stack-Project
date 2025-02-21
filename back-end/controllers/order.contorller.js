@@ -344,6 +344,30 @@ const {
   router.use(express.json());
   router.use(express.urlencoded({ extended: true }));
   
+// module.exports.deleteProductFromOrder = async (req, res) => {
+//   const { orderId, productId } = req.params;
+
+//   try {
+//     const order = await getOrderById(orderId);
+//     if (!order) {
+//       return res.status(404).json({ success: false, message: 'Order not found' });
+//     }
+
+//     const productIndex = order.items.findIndex(item => item.productId === productId);
+//     if (productIndex === -1) {
+//       return res.status(404).json({ success: false, message: 'Product not found in order' });
+//     }
+
+//     order.items.splice(productIndex, 1);
+//     order.totalPrice = order.items.reduce((total, item) => total + item.price * item.quantity, 0);
+
+//     await updateOrder(orderId, order);
+
+//     res.json({ success: true, message: 'Product removed from order', order });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
   // create order
   router.post("/createOrder", async (req, res) => {
     try {

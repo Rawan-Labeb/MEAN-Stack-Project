@@ -11,7 +11,8 @@ const {
   updateOrderStatus,
   getUserOrders,
   getOrdersByStatus,
-  getUserOrdersById 
+  getUserOrdersById ,
+  deleteProductFromOrder
 } = require('../controllers/order.controller');
 
 const router = express.Router();
@@ -48,5 +49,9 @@ router.get('/status/:status', getOrdersByStatus);
 
 //get orders by user id
 router.get('/user/:userId/orders', getUserOrdersById); 
+
+// Delete product from order
+router.delete('/:orderId/product/:productId', deleteProductFromOrder); // Fix the route definition
+
 
 module.exports = router;

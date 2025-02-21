@@ -16,9 +16,9 @@ import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.co
 
 
 export const routes: Routes = [
-  {
-    path: 'cart',component: CartComponent},{path: 'checkout',component: CheckoutComponent },
-
+  { path: '', redirectTo: '/cart', pathMatch: 'full' },
+  { path: 'cart', component: CartComponent },
+  { path: 'checkout', component: CheckoutComponent },
   {path:"admindashboard", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
   {path:"home",component:HomeComponent},
   {path:"",component:HomeComponent},

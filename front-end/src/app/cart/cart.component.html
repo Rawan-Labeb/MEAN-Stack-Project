@@ -21,29 +21,22 @@
         <div class="row border-top border-bottom" *ngFor="let item of cartItems">
           <div class="row main align-items-center">
             <div class="col-2">
-              <img class="img-fluid" [src]="item.product.images[0]" alt="Product Image"/>
+              <img class="img-fluid" [src]="item.image" alt="Product Image"/>
             </div>
             <div class="col">
               <div class="row text-muted" style="font-weight: bold; color: #00003f;">{{ item.product.name }}</div>
-              <div class="row" style="font-weight: bold; color: #00003f;">&euro; {{ item.product.price }}</div>
-              <!-- <div class="row">
-                <span class="text-muted">Stock: </span>
-                <span [ngClass]="{'text-danger': item.product.quantity < 10}">{{ item.product.quantity }} left</span>
-              </div> -->
-              <!-- <div class="row">
-                <span class="text-muted">Description: </span>
-                <span>{{ item.product.description }}</span>
-              </div> -->
+              <div class="row" style="font-weight: bold; color: #00003f;">&euro; {{ item.price }}</div>
+              <div class="row">{{ item.product.description }}</div>
             </div>
             <div class="col">
-              <button (click)="increaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn" [disabled]="isOutOfStock(item)">&#8593;</button>
+              <button (click)="increaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8593;</button>
               <span class="border" style="font-weight: bold; color: #00003f; margin: auto;">{{ item.quantity }}</span>
-              <button (click)="decreaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn" [disabled]="isOutOfStock(item)">&#8595;</button>
+              <button (click)="decreaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8595;</button>
             </div>
             <button class="btn btn-sm btn-info" style="font-size: 16px;" (click)="showProductDetails(item)">
               Details
             </button>
-            <button class="close btn btn-sm" (click)="removeItem(item.product._id)">
+            <button class="close btn btn-sm" (click)="removeItem(item.subInventory)">
               &#10005;
             </button>
           </div>

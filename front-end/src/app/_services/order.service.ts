@@ -54,6 +54,10 @@ export class OrderService {
   updateOrder(id: string, order: Partial<Order>): Observable<any> {
     return this.http.put(`${this.apiUrl}/updateOrder/${id}`, order);
   }
-
+  getProductById(productId: string): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/getProductById/${productId}`);
+  }
+  deleteProductFromOrder(orderId: string, productId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${orderId}/product/${productId}`);
+  }
 }
-
