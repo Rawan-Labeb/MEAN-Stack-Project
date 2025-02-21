@@ -5,25 +5,28 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { CookieService } from 'ngx-cookie-service';
 import { CommonModule, JsonPipe } from '@angular/common';
 import { AuthServiceService } from 'src/app/_services/auth-service.service';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, JsonPipe, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, JsonPipe, CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
   providers: [CookieService],
 })
-export class LoginComponent {
-  loginFromTwo: FormGroup;
-  loginForm: Login;
-  loginData: Login = new Login("", "", "");
-
+export class LoginComponent 
+{
+  loginFrom:FormGroup;
+  loginFailed: boolean = false; 
   constructor(
-    public loginSer: AuthServiceService,
-    public cookieService: CookieService
-  ) {
-    this.loginFromTwo = new FormGroup({
-      email: new FormControl("", [Validators.required, Validators.email]),
+    public loginSer:AuthServiceService,
+    public cookieService:CookieService,
+    public router:Router
+  ){
+
+
+    this.loginFrom = new FormGroup({
+      email:new FormControl("", [Validators.required, Validators.email]),
       password: new FormControl("", [
         Validators.required,
         Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
@@ -35,10 +38,10 @@ export class LoginComponent {
   Login() {
     console.log(this.validate("email")?.value);
 
-    if (this.loginFromTwo.valid) {
-      const email = this.loginFromTwo.get('email')?.value;
-      const password = this.loginFromTwo.get('password')?.value;
-
+    if (this.loginFrom.valid) {
+      const email = this.loginFrom.get('email')?.value;
+      const password = this.loginFrom.get('password')?.value;
+  
       console.log("Email:", email);
       console.log("Password:", password);
 
@@ -47,10 +50,14 @@ export class LoginComponent {
       this.loginSer.login(this.loginData).subscribe({
         next: (data) => {
           this.cookieService.set("token", data.token);
+          console.log(data.token)
+          this.router.navigateByUrl("");
+          this.loginFailed = false;
         },
         error: (error) => {
           console.log(error.error.message)
           console.log(error)
+          this.loginFailed = true;
         }
       })
 
@@ -63,6 +70,8 @@ export class LoginComponent {
 
   validate (inpupt:string)
   {
-    return this.loginFromTwo.get(`${inpupt}`)
+    return this.loginFrom.get(`${inpupt}`)
   }
+
+
 }

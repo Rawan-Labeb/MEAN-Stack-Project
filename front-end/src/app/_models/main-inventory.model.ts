@@ -1,5 +1,5 @@
 export interface MainInventory {
-    _id?: string;
+    _id: string;
     product:Product; 
     quantity: number;
     distributed?: number;
@@ -8,6 +8,7 @@ export interface MainInventory {
 
   export interface Product {
     _id: string;
+    
     name: string;
     price: number;
     prevPrice?: number;

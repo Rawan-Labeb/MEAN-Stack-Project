@@ -10,6 +10,7 @@ import { userProfile } from '../_models/userProfile.model';
 // import {default as jwt_decode} from "jwt-decode"
 import {jwtDecode }from 'jwt-decode';
 import { Order } from '../_models/order.module';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class AuthServiceService {
   
   constructor(
     private http: HttpClient,
-
+    private cookieSer:CookieService
   ) { }
 
 
@@ -34,11 +35,6 @@ export class AuthServiceService {
     return this.http.post<register>(`${this.apiUrl}/register`,userData)
   }
 
-  // get user by email
-  // getUserDataByEmail (email:string)
-  // {
-  //   return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail`, email);
-  // }
   getUserDataByEmail(email: string) {
     return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail/${email}`);
   }
@@ -64,10 +60,24 @@ export class AuthServiceService {
   {
     return this.http.post(`${this.apiUrl}/requestPasswordReset/${email}`, {});
   }
-  // reset password 
-  resetPassword (email: string, token:string, password:string)
+  // reset password
+  
+  resetPassword(email: string, token: string, newPassword: string): Observable<any> {
+    const body = {
+        email: email,
+        token: token,
+        newPassword: newPassword
+    };
+    return this.http.post(`${this.apiUrl}/resetPassword`, body);
+}
+
+
+  isAuthenticated(): boolean
   {
-    return this.http.post(`${this.apiUrl}/resetPassword`, {email, token, password})
+    return this.cookieSer.check("token");
   }
+
+  
+
 
 }

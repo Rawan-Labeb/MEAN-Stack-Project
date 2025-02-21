@@ -1,5 +1,5 @@
 <div class="container-fluid page">
-    <div class="d-flex page__box p-3 mt-2">Users</div>
+    <div class="d-flex page__box p-3 mt-2">Branches</div>
     <div class="page__content shadow p-3 position-relative">
       <div>
         <div>
@@ -9,24 +9,24 @@
               <div class="col-md-3">
                 <div class="card bg-primary text-white">
                   <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <p class="card-text display-4">{{users.length}}</p>
+                    <h5 class="card-title">Total Branches</h5>
+                    <p class="card-text display-4">{{branches.length}}</p>
                   </div>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="card bg-success text-white">
                   <div class="card-body">
-                    <h5 class="card-title">Active Users</h5>
-                    <p class="card-text display-4">{{activeUsersCount}}</p>
+                    <h5 class="card-title">Active Branches</h5>
+                    <p class="card-text display-4">{{activeBranchesCount}}</p>
                   </div>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="card bg-danger text-white">
                   <div class="card-body">
-                    <h5 class="card-title">Inactive Users</h5>
-                    <p class="card-text display-4">{{inactiveUsersCount}}</p>
+                    <h5 class="card-title">Inactive Branches</h5>
+                    <p class="card-text display-4">{{inactiveBranchesCount}}</p>
                   </div>
                 </div>
               </div>
@@ -40,14 +40,14 @@
                 </div>
                 <div class="col-auto">
                   <button class="btn btn-primary" (click)="openAddModal()">
-                    Add User
+                    Add Branch
                   </button>
-                  <app-add-user 
+                  <app-add-branch 
                     [show]="showAddModal" 
-                    [userData]="userData" 
+                    [branchData]="branchData" 
                     (close)="showAddModal = false" 
-                    (saved)="onUserSaved()">
-                  </app-add-user>
+                    (saved)="onBranchSaved()">
+                  </app-add-branch>
                 </div>
               </div>
             </div>
@@ -59,7 +59,7 @@
                           class="form-control" 
                           [(ngModel)]="searchTerm" 
                           (input)="onSearch()"
-                          placeholder="Search Users...">
+                          placeholder="Search Branches...">
                 </div>
                 <div class="col-md-3">
                   <select class="form-select" 
@@ -72,37 +72,43 @@
                 </div>
               </div>
   
-              <app-edit-user
+              <app-edit-branch
                 [show]="showEditModal" 
-                [userData]="userData" 
-                (updated)="onUserUpdated()" 
+                [branchData]="branchData" 
+                (updated)="onBranchUpdated()" 
                 (close)="showEditModal = false">
-              </app-edit-user>
+              </app-edit-branch>
         
               <div class="table-responsive">
                 <table class="table table-striped">
                   <thead>
                     <tr>
-                      <th (click)="sort('firstName')" style="cursor: pointer" class="justify-content-between">
+                      <th (click)="sort('branchName')" style="cursor: pointer" class="justify-content-between">
                         Name
                         <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
                       </th>
-                      <th>Email</th>
-                      <th>Address</th>
-                      <th>phone</th>
+                      <th>Location</th>
+                      <th>Phone</th>
+                      <th>Type</th>
+                      <th>Date</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let user of filteredUsers">
-                      <td><img class="image" src="{{user.image}}" alt="">{{user.firstName}} {{user.lastName}}</td>
-                      <td>{{user.email}}</td>
-                      <td>{{user.address?.street}} {{user.address?.city}} {{user.address?.state}}</td>
-                      <td>{{user.contactNo}}</td>
+                    <tr *ngFor="let branch of filteredBranches">
+                      <td>{{branch.branchName}}</td>
+                      <td>{{branch.location}}</td>
+                      <td>{{branch.contactNumber}}</td>
                       <td>
-                        <span class="badge" [ngClass]="user.isActive ? 'bg-success' : 'bg-danger'">
-                          {{user.isActive ? ' Active ' : 'Inactive'}}
+                        <span class="badge" [ngClass]="branch.type === 'online' ? 'bg-warning' : 'bg-info'">
+                          {{ branch.type === 'online' ? 'Online' : 'Offline' }}
+                        </span>
+                      </td>
+                      <td>{{branch.createdAt}}</td>
+                      <td>
+                        <span class="badge" [ngClass]="branch.isActive ? 'bg-success' : 'bg-danger'">
+                          {{branch.isActive ? ' Active ' : 'Inactive'}}
                         </span>
                       </td>
                       <td>
@@ -110,17 +116,17 @@
                           <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
                         </button>
                         <mat-menu #menu="matMenu" class="bg-white ">
-                          <button mat-menu-item (click)="openEditModal(user)">
+                          <button mat-menu-item (click)="openEditModal(branch)">
                             <mat-icon>edit</mat-icon>
                             Update
                           </button>
-                          <button mat-menu-item (click)="deleteUser(user._id)">
+                          <button mat-menu-item (click)="deleteBranch(branch._id)">
                             <mat-icon>delete</mat-icon>
                             Delete
                           </button>
-                          <button mat-menu-item (click)="toggleUserStatus(user)">
-                            <mat-icon>{{ user.isActive ? 'close' : 'check' }}</mat-icon>
-                            {{ user.isActive ? 'Inactive' : 'Active' }}
+                          <button mat-menu-item (click)="toggleBranchStatus(branch._id)">
+                            <mat-icon>{{ branch.isActive ? 'close' : 'check' }}</mat-icon>
+                            {{ branch.isActive ? 'Inactive' : 'Active' }}
                           </button>     
                         </mat-menu>
                       </td>

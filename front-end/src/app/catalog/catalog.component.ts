@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
+import { CategoryService } from '../_services/category.service';
 
 interface Perfume {
   id: number;
@@ -19,20 +20,20 @@ interface Perfume {
   styleUrls: ['./catalog.component.css']
 })
 export class CatalogComponent implements OnInit {
-  allPerfumes: Perfume[] = [
-    { id: 1, name: 'Eternity', price: 79.99, image: 'https://via.placeholder.com/300x300?text=Eternity', category: 'men' },
-    { id: 2, name: 'Ocean Breeze', price: 69.99, image: 'https://via.placeholder.com/300x300?text=Ocean+Breeze', category: 'woman' },
-    { id: 3, name: 'Midnight Bloom', price: 89.99, image: 'https://via.placeholder.com/300x300?text=Midnight+Bloom', category: 'unisex' },
-    { id: 4, name: 'Spring Essence', price: 59.99, image: 'https://via.placeholder.com/300x300?text=Spring+Essence', category: 'men' },
-    { id: 5, name: 'Night Mist', price: 99.99, image: 'https://via.placeholder.com/300x300?text=Night+Mist', category: 'woman' }
+  allPerfumes: Perfume[]= [
+    { id: 1, name: 'Eternity', price: 79.99, image: '', category: 'men' },
+    { id: 2, name: 'Ocean Breeze', price: 69.99, image: '', category: 'woman' },
+    { id: 3, name: 'Midnight Bloom', price: 89.99, image: '', category: 'unisex' },
+    { id: 4, name: 'Spring Essence', price: 59.99, image: '', category: 'men' },
+    { id: 5, name: 'Night Mist', price: 99.99, image: '', category: 'woman' }
   ];
+  // allPerfumes: Perfume[] = [];
 
   selectedCategory: string = '';
   sortBy: string = 'price-asc'; 
   itemsPerPage: number = 4; 
   currentPage: number = 1;
 
-  // Computed properties
   get filteredPerfumes(): Perfume[] {
     return this.allPerfumes.filter((perfume) =>
       this.selectedCategory ? perfume.category === this.selectedCategory : true
@@ -71,29 +72,74 @@ export class CatalogComponent implements OnInit {
       .fill(0)
       .map((_, i) => i + 1);
   }
+  // constructor(){}
+  // ngOnInit():void{}
 
   constructor(
-    public subInventorySer:SubInventoryServicesService
+    public subInventorySer:SubInventoryServicesService,
+    public categorySer:CategoryService
   ) {}
+  
 
   productRelatedtoBarnch:any[] = [];
-  test:any[] = [];
+  products:any[] = [];
   prodDetails:any;
+  loading: boolean = true; 
 
+
+  // ngOnInit(): void {
+  //   this.subInventorySer.getSubInventoryRelatedToBranch("Uptown Branch").subscribe({
+  //     next: (data) => {
+  //       this.productRelatedtoBarnch = data;
+  //       this.test = this.productRelatedtoBarnch.map(prod => prod.product); // Extracting products
+  //       console.log(this.test);
+  //       console.log(this.productRelatedtoBarnch);
+  //       // this.prodDetails = data;
+  //     }
+  //   });
+
+  //   console.log(this.productRelatedtoBarnch);
+
+  // }
   ngOnInit(): void {
     this.subInventorySer.getSubInventoryRelatedToBranch("Uptown Branch").subscribe({
       next: (data) => {
-        // this.productRelatedtoBarnch = data;
-        // this.test = this.productRelatedtoBarnch.map(prod => prod.mainInventory); // Extracting products
-        // console.log(this.productRelatedtoBarnch);
-        this.prodDetails = data;
+        this.productRelatedtoBarnch = data;
+  
+        this.allPerfumes = this.products as Perfume[];
+
+        const categoryRequests = this.productRelatedtoBarnch.map(prod =>
+          this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+        );
+
+        Promise.all(categoryRequests).then(categories => {
+          this.products = this.productRelatedtoBarnch.map((prod, index) => ({
+            productName: prod.product.name,
+            productPrice: prod.product.price,
+            productDescription: prod.product.description,
+            productImage: prod.product.images,
+            productCategory: categories[index]?.name ,
+            productQuantity: prod.quantity,
+            noOfSale: prod.numberOfSales,
+            _id: prod._id
+          }));
+        }).catch(error => {
+          console.error('Failed to retrieve categories', error);
+        });
+
+  
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error fetching products:', err);
+        this.loading = false; 
       }
     });
 
 
 
 
-    //console.log(this.productRelatedtoBarnch);
+
 
   }
 
