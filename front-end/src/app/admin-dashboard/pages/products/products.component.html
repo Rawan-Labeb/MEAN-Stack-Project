@@ -155,9 +155,13 @@
                           <mat-icon>{{ product.isActive ? 'close' : 'check' }}</mat-icon>
                           {{ product.isActive ? 'Inactive' : 'Active' }}
                         </button>                        
-                        <button mat-menu-item>
+                        <!-- <button mat-menu-item>
                           <mat-icon>wysiwyg</mat-icon>
                           Reviews
+                        </button> -->
+                        <button mat-menu-item (click)="createMainInventory(product._id)">
+                          <mat-icon>inventory_2</mat-icon>
+                          MainInventory
                         </button>
                       </mat-menu>
                     </td>

@@ -11,6 +11,7 @@ import { AddProductComponent } from './add-product/add-product.component';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { UpdateProductComponent } from './update-product/update-product.component';
+import { MainInventoryService } from 'src/app/_services/main-inventory.service';
 
 @Component({
   selector: 'app-products',
@@ -35,7 +36,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   productData: Product = this.getInitialProductData();
 
-  constructor(private productService: ProductService, private cdr: ChangeDetectorRef) {}
+  constructor(private productService: ProductService, private cdr: ChangeDetectorRef ,private mainInventoryService:MainInventoryService) {}
 
   ngOnInit(): void {
     this.loadProducts();
@@ -108,6 +109,63 @@ export class ProductsComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  createMainInventory(id: string): void {
+    Swal.fire({
+      title: 'Create Main Inventory',
+      input: 'number',
+      inputLabel: 'Enter the initial quantity',
+      inputAttributes: {
+        min: '1',
+        step: '1'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Create',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary',
+      },
+      preConfirm: (quantity) => {
+        if (!quantity || quantity <= 0) {
+          Swal.showValidationMessage('Please enter a valid quantity');
+        }
+        return quantity;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const initialQuantity = Number(result.value);
+        
+        this.mainInventoryService.createMainInventory(id, initialQuantity).subscribe({
+          next: () => {
+            this.loadProducts();
+            Swal.fire({
+              title: 'Success!',
+              text: `Main Inventory created with an initial quantity of ${initialQuantity}.`,
+              icon: 'success',
+              confirmButtonText: 'OK',
+              customClass: {
+                confirmButton: 'btn btn-success'  
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error creating inventory:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: error?.error?.message || 'Failed to create main inventory.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              customClass: {
+                confirmButton: 'btn btn-danger'
+              }
+            });
+          }
+        });
+      }
+    });
+  }  
+  
   activeProduct(id: string): void {
         this.productService.activeProduct(id,this.productData).subscribe({
           next: () => {

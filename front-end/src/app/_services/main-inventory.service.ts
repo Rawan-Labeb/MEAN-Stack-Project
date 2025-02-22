@@ -20,13 +20,13 @@ export class MainInventoryService {
       return this.http.get<MainInventory>(`${this.apiUrl}/getMainInventoryById/${id}`);
     }
 
-    createMainInventory(mainInventory: MainInventory): Observable<MainInventory> {
-      const mainInventoryData = JSON.parse(JSON.stringify(mainInventory));
-      delete mainInventoryData._id;
-        console.log('Adding MainInventory:', mainInventoryData);
-        return this.http.post<MainInventory>(`${this.apiUrl}/createMainInventory`, mainInventoryData).pipe(
+    createMainInventory(id: string,quantity:number): Observable<MainInventory> {
+      // const mainInventoryData = JSON.parse(JSON.stringify(mainInventory));
+      // delete mainInventoryData._id;
+        // console.log('Adding MainInventory:', mainInventoryData);
+        return this.http.post<MainInventory>(`${this.apiUrl}/createMainInventory`, {"product":id,"quantity":quantity}).pipe(
             tap(createdMainInventory => {
-                console.log('MainInventory added successfully:', createdMainInventory);
+                console.log('MainInventory added successfully:', {"product":id,"quantity":quantity});
             })
         );
       }

@@ -160,7 +160,15 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
               },
               error: (error) => {
                 console.error('Error updating quantity:', error);
-                Swal.fire('Error!', 'Failed to update quantity.', 'error');
+                Swal.fire({
+                  title: 'Error!',
+                  text: error?.error?.message || 'Failed to increase quantity.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  customClass: {
+                    confirmButton: 'btn btn-danger'
+                  }
+                });
               }
             });
           }
@@ -207,7 +215,15 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
               },
               error: (error) => {
                 console.error('Error updating quantity:', error);
-                Swal.fire('Error!', 'Failed to update quantity.', error);
+                Swal.fire({
+                  title: 'Error!',
+                  text: error?.error?.message || 'Failed to decrease quantity.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  customClass: {
+                    confirmButton: 'btn btn-danger'
+                  }
+                });
               }
             });
           }

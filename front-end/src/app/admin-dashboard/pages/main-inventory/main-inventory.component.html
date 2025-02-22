@@ -96,6 +96,10 @@
                             <mat-icon>delete</mat-icon>
                             Delete
                           </button>
+                          <button mat-menu-item (click)="createSubInventory(mainInventory._id,mainInventory.product._id)">
+                            <mat-icon>delete</mat-icon>
+                            subInventory
+                          </button>
                           <!-- <button mat-menu-item (click)="toggleUserStatus(user)">
                             <mat-icon>{{ user.isActive ? 'close' : 'check' }}</mat-icon>
                             {{ user.isActive ? 'Inactive' : 'Active' }}

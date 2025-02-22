@@ -105,17 +105,37 @@ export class UsersComponent implements OnInit, OnDestroy{
         text: "You won't be able to revert this!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: 'Yes, delete it!',
+        customClass: {
+          confirmButton: 'btn btn-primary',
+          cancelButton:'btn btn-secondary'  
+        }
       }).then((result) => {
         if (result.isConfirmed) {
           this.UserService.deleteUser(id).subscribe({
             next: () => {
               this.loadUsers();
-              Swal.fire('Deleted!', 'user has been deleted.', 'success');
+              Swal.fire({
+                title: 'Success!',
+                text: `User has been deleted.`,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'btn btn-success'  
+                }
+              });
             },
             error: (error) => {
               console.error('Error deleting user:', error);
-              Swal.fire('Error!', 'Failed to delete user.', 'error');
+              Swal.fire({
+                title: 'Error!',
+                text: error?.error?.message || 'Failed to delete user.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'btn btn-danger'
+                }
+              });
             }
           });
         }
