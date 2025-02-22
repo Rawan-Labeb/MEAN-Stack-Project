@@ -163,6 +163,11 @@ module.exports.activeSubInventory = async (subInventoryId) => {
         if (!chk.valid)
             return {success: false, message: chk.message};
 
+        
+        if (!chk.message.product.isActive)
+            return {success: false, message: "Product is not active "};
+
+
         const Inventory = await activeSubInventory(chk.message._id);
         return {success: true, message: Inventory};
 
@@ -178,6 +183,8 @@ module.exports.deactiveSubInventory = async (subInventoryId) => {
         const chk = await validateSubInventoryId(subInventoryId);
         if (!chk.valid)
             return {success: false, message: chk.message};
+
+
 
         const Inventory = await deactiveSubInventory(chk.message._id);
         return {success: true, message: Inventory};
