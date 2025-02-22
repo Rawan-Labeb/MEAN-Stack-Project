@@ -20,7 +20,8 @@ const {signTokenForResetPassword,verifyToken} = require("./../utils/jwttoken.man
 
 const {main} = require("./forgetPassword.service")
 
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 
 
 // get all users

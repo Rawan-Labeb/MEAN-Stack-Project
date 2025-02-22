@@ -132,14 +132,14 @@ module.exports.updateOrder = async (orderId, updatedData) => {
 };
 
 // create order
-// module.exports.createOrder = async (orderData) => {
-//     try {
-//       const newOrder = await Order.create(orderData);
-//       return newOrder;
-//     } catch (error) {
-//       throw new Error("Could not create order.");
-//     }
-// };
+module.exports.createOrder = async (orderData) => {
+    try {
+      const newOrder = await Order.create(orderData);
+      return newOrder;
+    } catch (error) {
+      throw new Error("Could not create order.");
+    }
+};
   
 
 

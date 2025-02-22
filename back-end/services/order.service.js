@@ -118,9 +118,10 @@ module.exports.createOrder = async (orderData) =>
 {
     try{
         const chkForDataToCreate = await validationOnCreateAndUpdate(orderData);
-        if (!chkForDataToCreate.success)
+        if (!chkForDataToCreate.success){
+            console.error("❌ Order validation failed:", chkForDataToCreate.message); // ✅ طباعة الخطأ
              return { success: false, message: chkForDataToCreate.message };
-
+1}
         orderData.totalPrice = 0;
 
         orderData.items.forEach(element => {
@@ -130,7 +131,8 @@ module.exports.createOrder = async (orderData) =>
         const order = await createOrder(orderData);
         return {success: true, message:order};
     }catch (error)
-    {
+    {        console.error("❌ Order creation error:", error.message); // ✅ طباعة أي خطأ آخر
+
         return {success: false, message: error.message};
     }
 }
@@ -206,11 +208,16 @@ module.exports.changeOrderStatus = async (orderId, Status)=> {
 
 const validationOnCreateAndUpdate = async (orderData) => {
     const chkCustomerId = await validateUserId(orderData.customerId);
+
     if (!chkCustomerId.valid)
         return { success: false, message: 'Invalid customerId' };
 
     if (!chkCustomerId.message.isActive)
         return { success: false, message: 'Customer Not Valid' };
+    
+    console.log("Sent Email:", orderData.customerDetails.email);
+    console.log("DB Email:", chkCustomerId.message.email);
+
 
     if (!orderData.customerDetails.email ||  chkCustomerId.message.email != orderData.customerDetails.email)
         return { success: false, message: 'Invalid email address' };
