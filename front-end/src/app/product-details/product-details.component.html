@@ -80,7 +80,7 @@
         (click)="addToCart()" 
 
         
-        [disabled]="product.productQuantity <= 0"
+        [disabled]="quantity <= 0"
 
         [class.opacity-50]="product.productQuantity <= 0"
       >
