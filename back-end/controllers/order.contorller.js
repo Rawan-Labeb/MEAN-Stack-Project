@@ -452,19 +452,19 @@ const {
     }
   })
   
-  // get order by product id
-  router.get("/getOrdersByProductId/:id", async (req, res) => {
-    try {
-      const result = await getOrdersByProductId(req.params.id );
-      if (!result.success)
-        return res.status(400).json(result.message);
-      return res.status(200).json(result.message);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-  })
+  // get order by product id ====================================================================================================================
+  // router.get("/getOrdersByProductId/:id", async (req, res) => {
+  //   try {
+  //     const result = await getOrdersByProductId(req.params.id );
+  //     if (!result.success)
+  //       return res.status(400).json(result.message);
+  //     return res.status(200).json(result.message);
+  //   } catch (error) {
+  //       res.status(500).send(error.message);
+  //   }
+  // })
   
-  // change order status 
+  // change order status ================================================================================
   router.put("/changeOrderStatus/:id/:status", async (req, res) => {
     try {
       const result = await changeOrderStatus(req.params.id,req.params.status);
@@ -476,7 +476,7 @@ const {
     }
   })
   
-  // delete order 
+  // delete order ==============================================================================
   router.delete("/deleteOrder/:id", async (req, res) => {
     try {
       const result = await deleteOrder(req.params.id);
@@ -489,17 +489,17 @@ const {
   })
   
   
-  // update order data 
-  router.put("/updateOrder/:id", async (req, res) => {
-    try {
-      const result = await updateOrder(req.params.id, req.body);
-      if (!result.success)
-        return res.status(400).json(result.message);
-      return res.status(200).json("Order Updated Successfully");
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-  })
+  // update order data ===========================================================================
+  // router.put("/updateOrder/:id", async (req, res) => {
+  //   try {
+  //     const result = await updateOrder(req.params.id, req.body);
+  //     if (!result.success)
+  //       return res.status(400).json(result.message);
+  //     return res.status(200).json("Order Updated Successfully");
+  //   } catch (error) {
+  //       res.status(500).send(error.message);
+  //   }
+  // })
   
   module.exports = router;
   

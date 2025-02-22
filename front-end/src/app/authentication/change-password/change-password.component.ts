@@ -34,9 +34,17 @@ export class ResetPasswordComponent implements OnInit
 
   ngOnInit(): void {
     this.token = this.cookieSer.get("passwordToken")
-    const claims = this.authSer.decodeToken(this.token);
-    this.email = claims.email;
+    this.authSer.decodeToken(this.token).subscribe({
+      next: (response) => {
+        this.email = response.email;
+      },
+      error: (error) => {
+        console.log(error);     
+      }
+    })
   }
+
+
 
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -57,6 +65,10 @@ export class ResetPasswordComponent implements OnInit
     if (this.resetPasswordForm.valid) {
         console.log(this.resetPasswordForm.valid);
         const newPassword = this.resetPasswordForm.get('newPassword')?.value;
+
+        console.log(this.token)
+        console.log(this.email)
+        console.log(newPassword)
 
         this.authSer.resetPassword(this.email, this.token, newPassword).subscribe({
             next: (response) => {
