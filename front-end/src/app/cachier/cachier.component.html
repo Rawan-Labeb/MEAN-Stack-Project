@@ -1,83 +1,93 @@
-<app-header></app-header>
 <head>
   <meta charset="UTF-8">
   <title>Orders Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+
 </head>
+
 <body>
-<div class="app-container">
-  <div class="sidebar" style="background-color:#00003f;height:100vh; color:white;">
-    <div class="sidebar-header">
-      <div class="app-icon">
-        <h3>Casheir</h3>
-      </div>
-    </div>
-    <ul class="sidebar-list">
-      <li class="sidebar-list-item">
-        <a href="#" >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>Home</span>
-        </a>
-      </li>
-      <li class="sidebar-list-item active">
-        <a href="#" (click)="toggleCancelledOrders()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          <span>Cancelled Orders</span>
-        </a>
-      </li>
-      <li class="sidebar-list-item">
-        <a href="#">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-pie-chart"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-          <span>Statistics</span>
-        </a>
-      </li>
-    </ul>
+  <div class="sidebar-header" style="color: white; background-color:#00003f; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+    <p style="margin: 0; font-size: 18px; font-weight: bold;">Casheir</p>
+    <button class="btn back-button">Back ></button>
   </div>
-  <div class="app-content">
-    <div class="app-content-header">
-      <h1 class="app-content-headerText">{{ showCancelledOrders ? 'Cancelled Orders' : 'Orders' }}</h1>
-      <button class="btn btn-primary app-content-headerButton">Add Product</button>
+  <div class="app-container">
+    <div class="sidebar">
+      <ul class="sidebar-list">
+        <li class="sidebar-list-item active">
+          <a href="#" style="color: white; text-decoration: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            <span>Home</span>
+          </a>
+        </li>
+      </ul>
     </div>
-    <div class="app-content-actions">
-      <input class="form-control search-bar" placeholder="Search..." type="text">
-      <div class="app-content-actions-wrapper">
-        <div class="filter-button-wrapper">
-          <div class="filter-menu">
+
+    <div class="app-content" style="margin: auto;">
+      <div class="app-content-header">
+        <h1>{{ showCancelledOrders ? 'Cancelled Orders' : 'Orders' }}</h1>
+      </div>
+
+      <div class="products-area-wrapper">
+        <div class="products-header">
+          <div class="product-cell sortable-header" (click)="sortData('orderId')">
+            Order ID
+            <svg *ngIf="sortColumn === 'orderId'" class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="sortDirection === 'asc' ? 'M12 5l7 7H5z' : 'M12 19l-7-7h14z'" />
+            </svg>
+          </div>
+
+          <div class="product-cell sortable-header" (click)="sortData('totalPrice')">
+            Price
+            <svg *ngIf="sortColumn === 'totalPrice'" class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="sortDirection === 'asc' ? 'M12 5l7 7H5z' : 'M12 19l-7-7h14z'" />
+            </svg>
+          </div>
+
+          <div class="product-cell sortable-header" (click)="sortData('status')">
+            Status
+            <svg *ngIf="sortColumn === 'status'" class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="sortDirection === 'asc' ? 'M12 5l7 7H5z' : 'M12 19l-7-7h14z'" />
+            </svg>
+          </div>
+
+          <div class="product-cell sortable-header" (click)="sortData('date')">
+            Date
+            <svg *ngIf="sortColumn === 'date'" class="sort-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="sortDirection === 'asc' ? 'M12 5l7 7H5z' : 'M12 19l-7-7h14z'" />
+            </svg>
+          </div>
+
+          <div class="product-cell">Actions</div>
+        </div>
+
+        <div *ngIf="filteredOfflineOrders.length === 0" class="no-orders">
+          There are no {{ showCancelledOrders ? 'cancelled' : '' }} offline orders
+        </div>
+
+        <div *ngFor="let order of filteredOfflineOrders" class="products-row">
+          <div class="product-cell">{{ order._id?.slice(0, 10) }}</div>
+          <div class="product-cell">{{ order.totalPrice | currency }}</div>
+          <div class="product-cell">
+            <span class="badge" [ngClass]="{
+              'badge-info': order.status === 'completed',
+              'badge-danger': order.status === 'canceled'
+            }">
+              {{ order.status }}
+            </span>
+          </div>
+          <div class="product-cell">{{ order.date | date:'medium' }}</div>
+          <div class="product-cell">
+            <button class="btn btn-danger" *ngIf="order.status !== 'canceled'" (click)="cancelOrder(order._id!)">Cancel</button>
+            <button class="btn btn-info" (click)="viewDetails(order._id!)">Details</button>
           </div>
         </div>
       </div>
     </div>
-    <div class="products-area-wrapper tableView">
-      <div class="products-header" style="background-color:#00003f; color:white;">
-        <div class="product-cell">Order ID</div>
-        <div class="product-cell">Price</div>
-        <div class="product-cell">Status</div>
-        <div class="product-cell">Date</div>
-        <div class="product-cell">Actions</div>
-      </div>
-      <div *ngIf="filteredOfflineOrders.length === 0" class="no-orders" style="color:#00003f;display: block; text-align: center; padding: 20px; font-size: 24px; font-weight: semi-bold;">
-        There are no {{ showCancelledOrders ? 'cancelled' : '' }} offline orders
-      </div>
-      <div *ngFor="let order of filteredOfflineOrders" class="products-row">
-        <div class="product-cell">{{ order._id?.slice(0, 10) }}</div>
-        <div class="product-cell">{{ order.totalPrice | currency }}</div>
-        <div class="product-cell" >
-          <span style="width:100px; padding: 10px;" class="badge" [ngClass]="{
-            'badge-info': order.status === 'completed',
-            'badge-danger': order.status === 'canceled'
-          }">
-            {{ order.status }}
-          </span>
-        </div>
-        <div class="product-cell">{{ order.date | date:'medium' }}</div>
-        <div class="product-cell">
-          <button class="btn btn-danger btn-sm" style="margin: 10px;" *ngIf="order.status !== 'canceled'" (click)="cancelOrder(order._id!)">Cancel</button>
-          <button class="btn btn-info btn-sm"   style="margin: auto;"  (click)="viewDetails(order._id!)">Details</button>
-        </div>
-      </div>
-    </div>
   </div>
-</div>
 </body>
-<!-- <app-footer></app-footer> -->
+<app-footer></app-footer>

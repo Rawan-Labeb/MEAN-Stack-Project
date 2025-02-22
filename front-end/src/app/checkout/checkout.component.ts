@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../cart/service/cart.service';
 import { CheckoutService } from './service/checkout.service';
@@ -7,13 +8,14 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { RouterModule } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service'; 
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule]
+  imports: [CommonModule, RouterModule, FormsModule]
 })
 export class CheckoutComponent implements OnInit {
   firstName: string = '';
@@ -26,8 +28,9 @@ export class CheckoutComponent implements OnInit {
   email: string = '';
   paymentMethod: string = 'Cash';
   comments: string = '';
-
   data: any = {};
+  userId: string = ''; 
+
   governorates = [
     { name: 'Cairo', cities: ['Nasr City', 'Heliopolis', 'Maadi', 'Shubra', 'Zamalek', 'New Cairo'] },
     { name: 'Alexandria', cities: ['Sidi Gaber', 'Mansheya', 'Smouha', 'Montaza', 'Borg El Arab'] },
@@ -60,64 +63,49 @@ export class CheckoutComponent implements OnInit {
 
   selectedGovernorate: string = '';
   cities: string[] = [];
-
   constructor(
     private cartService: CartService,
     private checkoutService: CheckoutService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private cookieService: CookieService 
   ) {}
 
   ngOnInit(): void {
-    const customerId = '67b8ed1c1e0dd2e2fc573d63';
-    this.cartService.getCart(customerId).subscribe((res: any) => {
-      console.log(res.items);
-      this.data = res;
-      this.data.Total = 0;
-      if (res.items && Array.isArray(res.items)) {
-        res.items.forEach((item: any) => {
-          this.data.Total += item.price * item.quantity;
-        });
-      } else {
-        console.error('Product data is not available or not an array');
+    this.getUserIdFromToken();
+    if (!this.userId) {
+      console.error('User ID not found!');
+      Swal.fire('Error', 'User not authenticated!', 'error');
+      return;
+    }
+
+    this.cartService.getCart(this.userId).subscribe(
+      (res: any) => {
+        console.log(res.items);
+        this.data = res;
+        this.data.Total = res.items?.reduce((total: number, item: any) => total + item.price * item.quantity, 0) || 0;
+      },
+      error => console.error('Error loading cart:', error)
+    );
+  }
+
+  getUserIdFromToken(): void {
+    const token = this.cookieService.get('authToken'); 
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1])); 
+        this.userId = payload.sub; 
+      } catch (error) {
+        console.error('Error decoding token:', error);
       }
-    }, error => {
-      console.error('Error loading cart:', error);
-    });
+    }
   }
 
   validateCartItems(): boolean {
     let isValid = true;
     this.data.items.forEach((item: any, index: number) => {
       if (item.subInventory.product.quantity === 0) {
-        Swal.fire({
-          title: 'Out of Stock!',
-          text: `${item.subInventory.product.name} has been removed from your cart because it is out of stock.`,
-          icon: 'warning',
-          confirmButtonColor: '#d33',
-        }).then(() => {
-          this.removeItem(item.subInventory.product._id);
-        });
-        isValid = false;
-      } else if (item.quantity > item.subInventory.product.quantity) {
-        Swal.fire({
-          title: 'Quantity Adjusted!',
-          text: `The quantity of ${item.subInventory.product.name} exceeds the available stock. It has been adjusted to ${item.subInventory.product.quantity}.`,
-          icon: 'info',
-          confirmButtonColor: '#3085d6'
-        }).then(() => {
-          item.quantity = item.subInventory.product.quantity;
-        });
-        isValid = false;
-      } else if (!item.subInventory.product.isActive) {
-        Swal.fire({
-          title: 'Product Removed!',
-          text: `The product ${item.subInventory.product.name} has been removed from our site and your cart.`,
-          icon: 'info',
-          confirmButtonColor: '#3085d6'
-        }).then(() => {
-          this.removeItem(item.subInventory.product._id);
-        });
+        Swal.fire('Out of Stock!', `${item.subInventory.product.name} is out of stock.`, 'warning');
         isValid = false;
       }
     });
@@ -125,7 +113,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   removeItem(productId: string): void {
-    this.cartService.removeFromCart('67b8ed1c1e0dd2e2fc573d63', productId).subscribe(() => {
+    this.cartService.removeFromCart(this.userId, productId).subscribe(() => {
       this.data.items = this.data.items.filter((item: any) => item.subInventory.product._id !== productId);
     });
   }
@@ -133,15 +121,12 @@ export class CheckoutComponent implements OnInit {
   onGovernorateChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const governorate = target.value;
-    this.selectedGovernorate = governorate;
     const selected = this.governorates.find(g => g.name === governorate);
     this.cities = selected ? selected.cities : [];
   }
 
   convertToPaymentMethod(value: string): 'Cash' | 'Card' | 'Online' {
-    if (value === 'Cash' || value === 'Card' || value === 'Online') {
-      return value;
-    }
+    if (['Cash', 'Card', 'Online'].includes(value)) return value as 'Cash' | 'Card' | 'Online';
     throw new Error('Invalid payment method');
   }
 
@@ -151,103 +136,57 @@ export class CheckoutComponent implements OnInit {
   }
 
   placeOrder(): void {
-    if (!this.validateCartItems()) {
-      return;
-    }
-
-    const customerId = '67b8ed1c1e0dd2e2fc573d63';
+    if (!this.validateCartItems()) return;
 
     const customerDetails = {
       firstName: this.firstName,
       lastName: this.lastName,
-      address: {
-        street: this.street,
-        city: this.city,
-        zipCode: this.zipCode
-      },
+      address: { street: this.street, city: this.city, zipCode: this.zipCode },
       email: this.email,
       phone: this.phoneNumber
     };
 
-    console.log('Customer Details:', customerDetails);
+    if (!this.isValidOrder(customerDetails)) return;
 
-    if (!(customerDetails.address.street && customerDetails.address.city && customerDetails.address.zipCode && customerDetails.phone && customerDetails.email && customerDetails.firstName && customerDetails.lastName)) {
-      console.error('Please complete your billing details');
-      Swal.fire({
-        title: 'Incomplete Details',
-        text: 'Please complete your billing details',
-        icon: 'warning',
-        confirmButtonColor: '#d33',
-      });
-      return;
-    }
-
-    if (!this.isValidEmail(customerDetails.email)) {
-      console.error('Invalid email address');
-      Swal.fire({
-        title: 'Incomplete Details',
-        text: 'Please provide a valid email address',
-        icon: 'warning',
-        confirmButtonColor: '#d33',
-      });
-      return;
-    }
-    
     const orderItems = this.data.items.map((item: any) => ({
       productId: item.subInventory.product._id,
       quantity: item.quantity,
       price: item.subInventory.product.price,
-      subInventoryId: item.subInventory._id // Ensure subInventoryId is included
+      subInventoryId: item.subInventory._id
     }));
-    
-    const totalPrice = orderItems.reduce((total: number, item: any) => total + item.price * item.quantity, 0);
-    
+
     const orderData = {
-      customerId,
+      customerId: this.userId, 
       items: orderItems,
-      totalPrice,
-      status: 'pending' as 'pending', // Ensure the status is of type 'pending'
+      totalPrice: orderItems.reduce((total: number, item: any) => total + item.price * item.quantity, 0),
+      status: 'pending',
       paymentMethod: this.convertToPaymentMethod(this.paymentMethod),
-      customerDetails: {
-        firstName: customerDetails.firstName,
-        lastName: customerDetails.lastName,
-        address: {
-          street: customerDetails.address.street,
-          city: customerDetails.address.city,
-          zipCode: customerDetails.address.zipCode
-        },
-        email: customerDetails.email,
-        phone: customerDetails.phone
-      },
+      customerDetails,
       notes: this.comments
     };
-    
-    console.log('Order Data:', orderData);
-    
+
     this.checkoutService.createOrder(orderData).subscribe({
       next: (res: any) => {
         console.log('Order created successfully', res);
-        this.cartService.clearCart(customerId).subscribe({
-          next: () => {
-            console.log('Cart cleared successfully');
-            Swal.fire({
-              title: 'Order Successful!',
-              text: 'Your order has been placed successfully.',
-              icon: 'success',
-              confirmButtonColor: '#3085d6'
-            }).then(() => {
-              this.router.navigate(['/']);
-            });
-          },
-          error: (err: any) => {
-            console.error('Error clearing cart', err);
-          }
+        this.cartService.clearCart(this.userId).subscribe(() => {
+          Swal.fire('Success', 'Order placed successfully!', 'success').then(() => this.router.navigate(['/']));
         });
       },
-      error: (err: any) => {
-        console.error('Error creating order', err);
-      }
+      error: (err: any) => console.error('Error creating order', err)
     });
+  }
+
+  isValidOrder(customerDetails: any): boolean {
+    if (!customerDetails.firstName || !customerDetails.lastName || !customerDetails.email || !customerDetails.phone || 
+        !customerDetails.address.street || !customerDetails.address.city || !customerDetails.address.zipCode) {
+      Swal.fire('Incomplete Details', 'Please complete your billing details', 'warning');
+      return false;
+    }
+    if (!this.isValidEmail(customerDetails.email)) {
+      Swal.fire('Invalid Email', 'Please provide a valid email address', 'warning');
+      return false;
+    }
+    return true;
   }
 
   trackByProductId(index: number, item: any): number {

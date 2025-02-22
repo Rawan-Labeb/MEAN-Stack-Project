@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { OrderService } from '../_services/order.service';
 import { ProductService } from '../_services/product.service';
-import { OfflineOrderService } from '../_services/OfflineOrder.service'; // Import the OfflineOrderService
+import { OfflineOrderService } from '../_services/OfflineOrder.service'; 
 import { Order } from '../_models/order.module';
-import { OfflineOrder } from '../_models/offlineOrder.model'; // Import the OfflineOrder model
-import { Branch } from '../_models/branch.model'; // Import the Branch model
-import { SubInventory } from '../_models/sub-inventory.model'; // Import the SubInventory model
+import { OfflineOrder } from '../_models/offlineOrder.model'; 
+import { Branch } from '../_models/branch.model'; 
+import { SubInventory } from '../_models/sub-inventory.model'; 
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { OrderDetailsComponent } from './order-details/order-details.component';
 import { FooterComponent } from '../footer/footer.component';
 import { HeaderComponent } from '../header/header.component';
+import { CookieService } from 'ngx-cookie-service'; 
 
 @Component({
   selector: 'app-cachier',
@@ -21,22 +22,39 @@ import { HeaderComponent } from '../header/header.component';
 })
 export class CachierComponent implements OnInit {
   orders: Order[] = [];
-  offlineOrders: OfflineOrder[] = []; // Add offlineOrders array
+  offlineOrders: OfflineOrder[] = []; 
   filteredOrders: Order[] = [];
-  filteredOfflineOrders: OfflineOrder[] = []; // Add filteredOfflineOrders array
+  filteredOfflineOrders: OfflineOrder[] = []; 
   selectedOrder: Order | null = null;
-  selectedOfflineOrder: OfflineOrder | null = null; // Add selectedOfflineOrder
+  selectedOfflineOrder: OfflineOrder | null = null; 
   showCancelledOrders: boolean = false;
-  branchId: string = '67b129216e1b912065196f93'; // Replace with actual branch ID
+  branchId: string = '67b129216e1b912065196f93'; 
+  // userId: string = ''; 
+  // branchId: string = ''; 
 
   constructor(
     private orderService: OrderService,
     private productService: ProductService,
-    private offlineOrderService: OfflineOrderService // Inject the OfflineOrderService
+    private offlineOrderService: OfflineOrderService ,
+    private cookieService: CookieService 
+
   ) {}
 
   ngOnInit(): void {
-    this.getOfflineOrders(); // Fetch offline orders
+    this.getOfflineOrders(); 
+  }
+
+  getUserDataFromToken(): void {
+    const token = this.cookieService.get('authToken'); 
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1])); 
+        // this.userId = payload.sub; 
+        // this.branchId = payload.branchId || '67b129216e1b912065196f93'; 
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    }
   }
 
   getOfflineOrders(): void {
@@ -92,9 +110,9 @@ export class CachierComponent implements OnInit {
   viewDetails(_id: string): void {
     const offlineOrder = this.offlineOrders.find(order => order._id === _id);
     if (offlineOrder) {
-      console.log('Offline Order:', offlineOrder); // Log the offlineOrder object
+      console.log('Offline Order:', offlineOrder); 
       if (offlineOrder.branch && offlineOrder.branch._id) {
-        console.log('Branch ID:', offlineOrder.branch._id); // Log the branchId
+        console.log('Branch ID:', offlineOrder.branch._id);
 
         const branchDetailsPromise = this.offlineOrderService.getBranchById(offlineOrder.branch._id).toPromise();
         const subInventoryDetailsPromises = offlineOrder.items.map(item => {
@@ -139,7 +157,6 @@ export class CachierComponent implements OnInit {
               popup: 'swal-wide'
             },
             didOpen: () => {
-              // Add event listeners for delete buttons
               const popup = Swal.getPopup();
               if (popup) {
                 const deleteButtons = popup.querySelectorAll('.btn-danger');
@@ -190,6 +207,33 @@ export class CachierComponent implements OnInit {
       }
     });
   }
+
+  sortColumn: string = '';
+sortDirection: 'asc' | 'desc' = 'asc';
+sortData(column: string) {
+  if (this.sortColumn === column) {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    this.sortColumn = column;
+    this.sortDirection = 'asc';
+  }
+
+  this.filteredOfflineOrders.sort((a: any, b: any) => {
+    let valueA = a[column];
+    let valueB = b[column];
+
+    if (typeof valueA === 'string') {
+      valueA = valueA.toLowerCase();
+      valueB = valueB.toLowerCase();
+    }
+
+    if (valueA < valueB) return this.sortDirection === 'asc' ? -1 : 1;
+    if (valueA > valueB) return this.sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  this.filteredOfflineOrders = [...this.filteredOfflineOrders];
+}
 }
 //                    <th>Actions</th>
 
