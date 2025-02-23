@@ -1,10 +1,14 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, NgModule, OnInit } from '@angular/core';
+import { RouterOutlet, Router, RouterLink } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { Footer, Header, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from './authentication/login/login.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { HttpClient } from '@angular/common/http';
+import { createCategories } from './utils/create-categories';
+
+
 import { RegisterComponent } from "./authentication/register/register.component";
 import { UserProfileComponent } from "./user-profile/user-profile.component";
 import { CartComponent } from "./cart/cart.component";
