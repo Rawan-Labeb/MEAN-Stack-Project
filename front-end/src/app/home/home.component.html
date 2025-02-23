@@ -1,18 +1,27 @@
 <!-- Hero Section -->
-<section class="hero py-5">
-    <div class="container text-center">
-      <h1 class="display-4 fw-bold">Discover Your Signature Scent</h1>
-      <p class="lead">
-        Explore our exclusive collection of premium perfumes crafted for you.
-      </p>
-      <button class="btn btn-primary btn-lg" (click)="goBackToCatalog()">Shop Now</button>
-    </div>
+<section class="hero">
+  <div class="container text-center">
+    <h1 class="display-4 fw-bold">Discover Your Signature Scent</h1>
+    <p class="lead">
+      Explore our exclusive collection of premium perfumes crafted for you.
+    </p>
+    <button class="btn btn-primary btn-lg" (click)="goBackToCatalog()">Shop Now</button>
+  </div>
 </section>
+<!-- <section class="hero py-5 "  style="height: 100vh;" (click)="goBackToCatalog()" id="sales">
+  <div class="container text-center "   >
+    <h1 class="display-4 fw-bold" style="margin-top:-10px ;">Discover Your Signature Scent</h1>
+    <p class="lead">
+      Explore our exclusive collection of premium perfumes crafted for you.
+    </p>
+    <button class="btn btn-primary btn-lg" (click)="goBackToCatalog()" style="background-color: blueviolet;">Shop Now</button>
+  </div>
+</section> -->
   
   <!-- Featured Perfumes Section -->
   <section class="featured-perfumes py-5">
     <div class="container">
-      <h2 class="text-center mb-4">Featured Perfumes</h2>
+      <h2 class="text-center mb-4" style="color: rgb(91, 23, 155);">Featured Perfumes</h2>
       <div class="row">
         <div class="col-md-3" *ngFor="let perfume of perfumes">
           <div class="card shadow-sm">
@@ -42,10 +51,11 @@
       <div class="row">
         <div class="col-md-4" *ngFor="let category of categories">
           <div class="card shadow-sm text-center">
-            <img [src]="category.image" class="card-img-top" alt="{{ category.name }}" />
-            <div class="card-body">
+            <!-- <img src="{{category.image}}" class="card-img-top" alt="{{ category.name }}" /> -->
+            <!-- <img src="download.jpg" class="card-img-top" alt="{{ category.name }}" /> -->
+            <img [src]="category.image" class="card-img-top" alt="{{ category.name }}" />            <div class="card-body">
               <h5 class="card-title">{{ category.name }}</h5>
-              <a (click)="goBackToCatalog()" class="btn btn-outline-primary">View More</a>
+              <a (click)="goBackToCategory(category.name)" class="btn btn-outline-primary">View More</a>
             </div>
           </div>
         </div>
@@ -99,10 +109,10 @@
     <div class="container text-center">
       <h2>Brands We Love</h2>
       <div class="row mt-4">
-        <div class="col-md-2" *ngFor="let brand of ['Chanel', 'Dior', 'YSL', 'Tom Ford', 'Gucci', 'Versace']">
+        <div class="col-md-2" *ngFor="let brand of brands">
           <img 
-            src="https://via.placeholder.com/150x100?text={{ brand }}" 
-            alt="{{ brand }}" 
+            src='{{brand.imgPath}}' 
+            alt="{{ brand.name }}" 
             class="img-fluid"
           />
         </div>
@@ -134,7 +144,7 @@
     <div class="container">
       <h3>Find Your Perfect Fragrance Today!</h3>
       <p>Sign up for exclusive offers and discounts on your favorite perfumes.</p>
-      <button class="btn btn-success btn-lg">Subscribe Now</button>
+      <button class="btn btn-success btn-lg" (click)="goBackToUserReg()">Subscribe Now</button>
     </div>
   </section>
 

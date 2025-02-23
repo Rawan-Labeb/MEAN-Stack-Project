@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
+import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
 
 
 interface Perfume {
@@ -40,15 +41,32 @@ interface BlogPost {
   imports:[CommonModule,RouterLink],
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
-  constructor(private router: Router) {}
+export class HomeComponent implements OnInit{
+  constructor(private router: Router,
+  public subInventorySer: SubInventoryServicesService,
+    
+
+  ) {}
+  productRelatedtoBranch:any[]=[];
+  ngOnInit(): void {
+    this.subInventorySer.getSubInventoryRelatedToBranch("uptown branch").subscribe({
+      next:(data)=>{
+        this.productRelatedtoBranch=data;
+        console.log(this.productRelatedtoBranch);
+      }
+    })
+    
+  
+  }
+
+
   // Static perfume data
   perfumes: Perfume[] = [
     {
       id: 1,
       name: 'Eternity',
       price: 79.99,
-      image: 'https://via.placeholder.com/300x300?text=Eternity',
+      image: '',
       description: 'A timeless classic with floral and musk notes.',
       rating: 5
 
@@ -58,7 +76,7 @@ export class HomeComponent {
       id: 2,
       name: 'Ocean Breeze',
       price: 69.99,
-      image: 'https://via.placeholder.com/300x300?text=Ocean+Breeze',
+      image: '',
       description: 'Fresh and invigorating with citrus and marine notes.',
       rating: 4
     },
@@ -66,7 +84,7 @@ export class HomeComponent {
       id: 3,
       name: 'Midnight Bloom',
       price: 89.99,
-      image: 'https://via.placeholder.com/300x300?text=Midnight+Bloom',
+      image: '',
       description: 'An enchanting blend of floral and woody scents.',
       rating: 3
     },
@@ -74,10 +92,19 @@ export class HomeComponent {
       id: 3,
       name: 'Midnight Bloom',
       price: 89.99,
-      image: 'https://via.placeholder.com/300x300?text=Midnight+Bloom',
+      image: '',
       description: 'An enchanting blend of floral and woody scents.',
       rating: 5
     }
+  ];
+
+   brands = [
+    { name: 'Chanel', imgPath: 'assets/brands/channel.jpeg' },
+    { name: 'Dior', imgPath: 'assets/brands/dior2.png' },
+    { name: 'YSL', imgPath: 'assets/brands/ysl.jpeg' },
+    { name: 'Tom Ford', imgPath: 'assets/brands/tomford.jpeg' },
+    { name: 'Gucci', imgPath: 'assets/brands/gucci.jpeg' },
+    { name: 'Versace', imgPath: 'assets/brands/vercase.jpeg' }
   ];
 
   // Static review data
@@ -104,10 +131,11 @@ export class HomeComponent {
 
   // Static category data
   categories: Category[] = [
-    { id: 1, name: 'Men', image: 'https://via.placeholder.com/300x200?text=Floral' },
-    { id: 2, name: 'Woman', image: 'https://via.placeholder.com/300x200?text=Oriental' },
-    { id: 3, name: 'Unnisex', image: 'https://via.placeholder.com/300x200?text=Citrus' }
+    { id: 1, name: 'Men', image: 'assets/category/men.jpeg' },
+    { id: 2, name: 'Women', image: 'assets/category/women.jpeg' },
+    { id: 3, name: 'Unnisex', image: 'assets/category/unisex.jpeg' }
   ];
+  
 
   // Static new arrivals data
   newArrivals: Perfume[] = [
@@ -115,7 +143,7 @@ export class HomeComponent {
       id: 4,
       name: 'Spring Essence',
       price: 59.99,
-      image: 'https://via.placeholder.com/300x300?text=Spring+Essence',
+      image: '',
       description: 'A fresh and floral scent perfect for spring.',
       rating: 5
     },
@@ -123,7 +151,7 @@ export class HomeComponent {
       id: 5,
       name: 'Night Mist',
       price: 99.99,
-      image: 'https://via.placeholder.com/300x300?text=Night+Mist',
+      image: '',
       description: 'A luxurious fragrance for evening wear.',
       rating: 5
     },
@@ -131,7 +159,7 @@ export class HomeComponent {
       id: 5,
       name: 'Night Mist',
       price: 99.99,
-      image: 'https://via.placeholder.com/300x300?text=Night+Mist',
+      image: '',
       description: 'A luxurious fragrance for evening wear.',
       rating: 5
     },
@@ -139,7 +167,7 @@ export class HomeComponent {
       id: 5,
       name: 'Night Mist',
       price: 99.99,
-      image: 'https://via.placeholder.com/300x300?text=Night+Mist',
+      image: '',
       description: 'A luxurious fragrance for evening wear.',
       rating: 5
     }
@@ -151,13 +179,13 @@ export class HomeComponent {
       id: 1,
       title: 'The Art of Choosing the Right Fragrance',
       excerpt: 'Learn how to select a perfume that matches your personality and occasion.',
-      image: 'https://via.placeholder.com/300x200?text=Fragrance+Tips'
+      image: 'assets/tips/choose.jpeg',
     },
     {
       id: 2,
       title: 'Top 5 Perfumes for Summer 2023',
       excerpt: 'Discover the best fragrances to keep you fresh this summer.',
-      image: 'https://via.placeholder.com/300x200?text=Summer+Perfumes'
+      image: 'assets/tips/summer3.jpeg',
     }
   ];
 
@@ -165,5 +193,11 @@ export class HomeComponent {
   Array = Array;
   goBackToCatalog(): void {
     this.router.navigate(['/catalog']);
+  }
+  goBackToCategory(category:string): void {
+    this.router.navigate(['/catalog'], { queryParams: { category } });
+    }
+  goBackToUserReg(): void {
+    this.router.navigate(['/user/register']);
   }
 }
