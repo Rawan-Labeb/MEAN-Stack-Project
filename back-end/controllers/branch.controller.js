@@ -41,7 +41,7 @@ router.get('/branches/get/active', async (req, res, next) => {
         next(error);
     }
 });
-router.get('/branchesByType/:type', async (req, res, next) => {
+router.get('/branches/branchesByType/:type', async (req, res, next) => {
     try {
         const branches = await service.getBranchesByType(req.params.type);
         res.status(200).json(branches);

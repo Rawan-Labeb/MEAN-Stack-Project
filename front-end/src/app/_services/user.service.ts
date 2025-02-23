@@ -65,6 +65,15 @@ export class UserService {
           })
         );
     }
+
+    changeUserRole(id: string, role: string): Observable<User> {
+        return this.http.put<User>(`${this.apiUrl}/changeUserRole/${id}`, {role}).pipe(
+          tap(updateUser => {
+            console.log('Update successful:', updateUser);
+            this.userUpdated.next(updateUser);
+          })
+        );
+    }
     
     deleteUser(id: string): Observable<void> {
         console.log('Deleting User at:', `${this.apiUrl}/deleteUser/${id}`);

@@ -86,12 +86,13 @@
             <app-upload (imagesUploaded)="onImagesUploaded($event)"></app-upload>
             <div *ngIf="productData.images.length" class="d-flex flex-wrap gap-2">
               <div *ngFor="let image of productData.images; let i = index" class="position-relative">
-                <img [src]="productData.images" width="50" height="50">
+                <img [src]="productData.images[i]" width="50" height="50">
                 <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" (click)="removeImage(i)">
                   ×
                 </button>
               </div>
             </div>
+            
             <!-- Modal Footer -->
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>

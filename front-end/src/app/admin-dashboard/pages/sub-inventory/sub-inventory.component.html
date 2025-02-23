@@ -99,7 +99,7 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let subInventory of filteredSubInventories">
-                        <td><img class="image" src="{{subInventory?.product?.images}}" alt="">{{subInventory?.product?.name}}</td>
+                        <td><img class="image" src="{{subInventory?.product!.images[0]}}" alt="">{{subInventory?.product?.name}}</td>
                         <td>{{subInventory?.product?.price}}</td>
                         <td>{{subInventory?.product?.noOfSale}}</td>
                         <td>{{subInventory?.product?.sellerId?.firstName}} {{subInventory?.product?.sellerId?.lastName}}</td>

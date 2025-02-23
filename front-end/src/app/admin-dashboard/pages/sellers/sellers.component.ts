@@ -147,6 +147,48 @@ users: User[] =[]
       }
     }
     
+    changeUserRole(id: string): void { 
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to change this seller's role!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, change role!',
+        customClass: {
+          confirmButton: 'btn btn-primary',
+          cancelButton: 'btn btn-secondary'  
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.UserService.changeUserRole(id, "customer").subscribe({ 
+            next: () => {
+              this.loadUsers();
+              Swal.fire({
+                title: 'Success!',
+                text: `User role has been updated to customer.`,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'btn btn-success'  
+                }
+              });
+            },
+            error: (error) => {
+              console.error('Error changing user role:', error);
+              Swal.fire({
+                title: 'Error!',
+                text: error?.error?.message || 'Failed to change user role.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'btn btn-danger'
+                }
+              });
+            }
+          });
+        }
+      });
+    }
   
     applyFilters(): void {
       let filtered = [...this.users];
