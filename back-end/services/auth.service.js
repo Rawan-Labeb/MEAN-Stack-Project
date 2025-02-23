@@ -7,10 +7,13 @@ const { signToken } = require("./../utils/jwttoken.manager");
 const Userr = require("../models/user.model");
 
 const createClaims = (user) => {
+    const branch = user.branch || {};
     return {
         sub: user._id,
         email: user.email,
         role: user.role,
+        branchId: branch._id || null,
+        branchName: branch.name || null,
     };
 };
 
