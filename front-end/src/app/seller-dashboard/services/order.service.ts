@@ -1,56 +1,39 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-
-export interface OrderItem {
-  productId: string;
-  price: number;
-  quantity: number;
-}
-
-export interface Order {
-  _id: string;
-  customerId: string;
-  items: OrderItem[];
-  totalPrice: number;
-  status: 'pending' | 'shipped' | 'completed' | 'cancelled' | 'returned' | 'refunded';
-  paymentMethod: 'Cash' | 'Card' | 'Online';
-  date: Date;
-  customerDetails: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    address: {
-      street: string;
-      city: string;
-      zipCode: string;
-    };
-  };
-}
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AnalyticsData } from '../analytics/models/analytics.model';
+import { Order } from '../models/order.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = `${environment.apiUrl}/order`;
+  private apiUrl = 'http://localhost:5000/order';
 
   constructor(private http: HttpClient) {}
 
   getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/getAllOrders`);
+    return this.http.get<Order[]>(`${this.apiUrl}/getAllOrders`)
+      .pipe(catchError(this.handleError));
   }
 
-  getOrdersByStatus(status: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByStatus/${status}`);
+  changeOrderStatus(orderId: string, newStatus: string): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/changeOrderStatus/${orderId}/${newStatus}`, {})
+      .pipe(catchError(this.handleError));
   }
 
-  updateOrderStatus(orderId: string, status: string): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/changeOrderStatus/${orderId}/${status}`, {});
+  getSalesAnalytics(startDate: string, endDate: string): Observable<AnalyticsData> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    
+    return this.http.get<AnalyticsData>(`${this.apiUrl}/getSalesAnalytics`, { params })
+      .pipe(catchError(this.handleError));
   }
 
-  getOrderAnalytics(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/analytics`);
+  private handleError(error: HttpErrorResponse) {
+    console.error('An error occurred:', error);
+    return throwError(() => error.error?.message || 'Server error');
   }
 }

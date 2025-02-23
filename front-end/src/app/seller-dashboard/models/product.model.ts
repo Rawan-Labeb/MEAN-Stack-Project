@@ -19,6 +19,11 @@ export interface Supplier {
 export interface Category {
   _id: string;
   name: string;
+  description: string;
+  isActive: boolean;
+  image?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductFormData {
@@ -26,44 +31,44 @@ export interface ProductFormData {
   description?: string;
   price: number;
   quantity: number;
-  categoryId: Category;
+  categoryId: string;
   sellerId: string;
-  supplierId: string;
   isActive: boolean;
-  images?: string[];
+  images: string[];
 }
 
 export interface Product {
   _id: string;
   name: string;
-  description?: string;
+  description: string;
   price: number;
   quantity: number;
-  images: string[];
   categoryId: Category;
   sellerId: string;
-  supplierId: string;
   isActive: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  images: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  noOfSale?: number;
+  distributedItems?: number;
+  prevPrice?: number;
 }
 
 export interface ProductSubmitData {
   name: string;
-  description?: string;  // Make description optional
+  description: string;
   price: number;
   quantity: number;
   categoryId: string;  
-  sellerId: string;
-  supplierId?: string;
-  isActive: boolean;
+  sellerId?: string;
+  isActive?: boolean;
   images: string[]; 
 }
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { _id: '', name: 'Men' },
-  { _id: '', name: 'Women' },
-  { _id: '', name: 'Unisex' }
+  { _id: '', name: 'Men', description: '', isActive: true, image: [] },
+  { _id: '', name: 'Women', description: '', isActive: true, image: [] },
+  { _id: '', name: 'Unisex', description: '', isActive: true, image: [] }
 ];
 
 export const DEFAULT_CATEGORY: Category = DEFAULT_CATEGORIES[0];

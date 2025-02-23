@@ -1,14 +1,32 @@
-<div class="sidebar">
-  <div class="logo-details">
-    <i class="fas fa-store"></i>
-    <span class="logo_name">Sales Clerk Portal</span>
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <h3>Sales Clerk Portal</h3>
   </div>
-  <ul class="nav-links">
-    <li *ngFor="let item of menuItems" routerLinkActive="active">
-      <a [routerLink]="item.path">
-        <i [class]="item.icon"></i>
-        <span class="link_name">{{ item.title }}</span>
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="home" routerLinkActive="active">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="orders" routerLinkActive="active">
+        <i class="bi bi-cart"></i> Orders
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="branch-products" routerLinkActive="active">
+        <i class="bi bi-box"></i> Branch Products
       </a>
     </li>
   </ul>
-</div>
+
+  <!-- Footer Info -->
+  <div class="sidebar-footer">
+    <div class="branch-info">
+      <h6>Branch Information</h6>
+      <p>Main Store - Luxury Perfumes</p>
+      <p>Hours: 9AM - 10PM</p>
+      <p>Tel: (555) 123-4567</p>
+    </div>
+  </div>
+</nav>

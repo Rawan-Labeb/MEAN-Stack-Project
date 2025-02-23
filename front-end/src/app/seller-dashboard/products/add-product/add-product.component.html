@@ -1,87 +1,81 @@
 <div class="modal" [class.show]="show" [style.display]="show ? 'block' : 'none'">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Add New Product</h5>
         <button type="button" class="btn-close" (click)="onClose()"></button>
       </div>
       <div class="modal-body">
-        <form (ngSubmit)="onSubmit()" #addForm="ngForm">
-          <!-- Image Upload -->
-          <div class="mb-3">
-            <label class="form-label">Product Images</label>
-            <app-seller-upload (imagesUploaded)="onImagesUploaded($event)"></app-seller-upload>
-            
-            <!-- Show uploaded images -->
-            <div *ngIf="productData.images?.length" class="mt-2">
-              <h6>Uploaded Images:</h6>
-              <div class="d-flex gap-2 flex-wrap">
-                <div *ngFor="let image of productData.images" class="position-relative">
+        <div class="add-product-container" *ngIf="show">
+          <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <label for="name">Product Name</label>
+              <input type="text" id="name" formControlName="name" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea id="description" formControlName="description" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="price">Price</label>
+              <input type="number" id="price" formControlName="price" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="quantity">Quantity</label>
+              <input type="number" id="quantity" formControlName="quantity" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category" formControlName="categoryId" class="form-control">
+                <option value="">Select Category</option>
+                <option *ngFor="let category of categories" [value]="category._id">
+                  {{category.name}}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Product Images ({{MIN_IMAGES}}-{{MAX_IMAGES}} images required)</label>
+              <app-seller-upload 
+                (imagesUploaded)="onImagesUploaded($event)"
+                [isDisabled]="productForm.get('images')?.value?.length >= MAX_IMAGES"
+                [existingImages]="productForm.get('images')?.value || []">
+              </app-seller-upload>
+              
+              <div class="image-previews" *ngIf="productForm.get('images')?.value?.length">
+                <div class="image-preview-item" *ngFor="let image of productForm.get('images')?.value; let i = index">
                   <img [src]="image" 
-                       alt="Product image" 
-                       class="img-thumbnail"
-                       style="width: 50px; height: 50px; object-fit: cover;">
+                       [alt]="'Product image ' + (i + 1)" 
+                       class="preview-image"
+                       (error)="handleImageError($event)">
+                  <button type="button" 
+                          class="btn-remove" 
+                          (click)="removeImage(i)"
+                          [disabled]="productForm.get('images')?.value?.length <= MIN_IMAGES">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="image-info">
+                    <small>Image {{i + 1}} of {{productForm.get('images')?.value?.length}}</small>
+                  </div>
                 </div>
               </div>
+              <small class="text-muted">
+                {{productForm.get('images')?.value?.length || 0}} of {{MAX_IMAGES}} images uploaded
+              </small>
             </div>
-          </div>
 
-          <!-- Name -->
-          <div class="mb-3">
-            <label class="form-label">Name</label>
-            <input type="text" class="form-control" [(ngModel)]="productData.name" name="name" required>
-          </div>
-
-          <!-- Description -->
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" [(ngModel)]="productData.description" name="description"></textarea>
-          </div>
-
-          <!-- Price -->
-          <div class="mb-3">
-            <label class="form-label">Price</label>
-            <input type="number" class="form-control" [(ngModel)]="productData.price" name="price" min="5" required>
-          </div>
-
-          <!-- Quantity -->
-          <div class="mb-3">
-            <label class="form-label">Quantity</label>
-            <input type="number" class="form-control" [(ngModel)]="productData.quantity" name="quantity" min="1" required>
-          </div>
-
-          <!-- Category -->
-          <div class="mb-3">
-            <label class="form-label">Category</label>
-            <select 
-              id="category" 
-              class="form-control" 
-              [(ngModel)]="productData.categoryId" 
-              name="category"
-              required>
-              <option [ngValue]="null">Select a category</option>
-              <option *ngFor="let category of categories" [ngValue]="category">
-                {{ category.name }}
-              </option>
-            </select>
-            <div *ngIf="!productData.categoryId" class="text-danger">
-              Please select a category
+            <div class="button-group">
+              <button type="submit" [disabled]="loading" class="btn btn-primary">
+                {{loading ? 'Creating...' : 'Create Product'}}
+              </button>
+              <button type="button" (click)="onClose()" class="btn btn-secondary">Cancel</button>
             </div>
-          </div>
-
-          <!-- Status -->
-          <div class="mb-3">
-            <label class="form-label">Status</label>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" [(ngModel)]="productData.isActive" name="isActive" id="isActive">
-              <label class="form-check-label" for="isActive">Active</label>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="onClose()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!addForm.valid">Add Product</button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   </div>

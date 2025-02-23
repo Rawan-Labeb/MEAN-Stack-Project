@@ -1,70 +1,64 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
-import { SellerUploadService } from '../../services/seller-upload.service';
-import { firstValueFrom } from 'rxjs';
-import { ProductFormData, Category, DEFAULT_CATEGORIES, DEFAULT_CATEGORY, ProductSubmitData } from '../../models/product.model';
 import { CategoryService } from '../../services/category.service';
-import Swal from 'sweetalert2';
 import { SellerUploadComponent } from '../../components/seller-upload/seller-upload.component';
+import { Product, Category, ProductSubmitData } from '../../models/product.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-add-product',
+  templateUrl: './add-product.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule, SellerUploadComponent],
-  templateUrl: './add-product.component.html'
+  imports: [CommonModule, ReactiveFormsModule, SellerUploadComponent]
 })
 export class AddProductComponent implements OnInit {
   @Input() show = false;
-  @Input() productData: ProductFormData = {
-    name: '',
-    description: '',
-    price: 0,
-    quantity: 0,
-    categoryId: DEFAULT_CATEGORY,
-    sellerId: '679bd316017427c66ece2617', // Hardcoded seller ID
-    supplierId: '679bf428745c9d962586960e',
-    isActive: true
-  };
   @Output() close = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
+  productForm!: FormGroup;
+  categories: Category[] = [];
   loading = false;
 
-  categories: Category[] = [];
-  imageUrls: string[] = [];
+  readonly ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg'];
+  readonly MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+  readonly MAX_IMAGES = 8; // maximum images
+  readonly MIN_IMAGES = 3; // minimum required images
 
   constructor(
+    private fb: FormBuilder,
     private productService: ProductService,
-    private categoryService: CategoryService,
-    private uploadService: SellerUploadService
+    private categoryService: CategoryService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.initForm();
     this.loadCategories();
+  }
+
+  private initForm(): void {
+    this.productForm = this.fb.group({
+      name: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      price: [0, [Validators.required, Validators.min(0)]],
+      quantity: [0, [Validators.required, Validators.min(0)]],
+      categoryId: ['', [Validators.required]],
+      images: [[]]
+    });
   }
 
   private loadCategories() {
     this.loading = true;
     this.categoryService.getActiveCategories().subscribe({
       next: (categories) => {
-        console.log('Loaded categories:', categories);
-        if (categories && categories.length > 0) {
-          this.categories = categories;
-          if (!this.productData.categoryId?._id) {
-            this.productData.categoryId = categories[0];
-          }
-        } else {
-          this.categories = DEFAULT_CATEGORIES;
-          this.productData.categoryId = DEFAULT_CATEGORY;
-        }
+        this.categories = categories;
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading categories:', error);
-        this.categories = DEFAULT_CATEGORIES;
-        this.productData.categoryId = DEFAULT_CATEGORY;
+        Swal.fire('Error', 'Failed to load categories', 'error');
         this.loading = false;
       }
     });
@@ -72,95 +66,107 @@ export class AddProductComponent implements OnInit {
 
   onImagesUploaded(uploadedUrls: string[]): void {
     console.log('Received uploaded image URLs:', uploadedUrls);
+    const currentImages = this.productForm.get('images')?.value || [];
+    
+    if (currentImages.length + uploadedUrls.length > this.MAX_IMAGES) {
+      Swal.fire('Error', `Maximum ${this.MAX_IMAGES} images allowed`, 'error');
+      return;
+    }
+
     if (uploadedUrls && uploadedUrls.length > 0) {
-      this.imageUrls = uploadedUrls;
-      
-      // Update the productData with the new images
-      this.productData = {
-        ...this.productData,
-        images: uploadedUrls
+      // Combine existing images with new ones
+      const updatedImages = [...currentImages, ...uploadedUrls];
+      this.productForm.patchValue({ images: updatedImages });
+    }
+  }
+
+  onSubmit(): void {
+    if (!this.validateForm()) return;
+
+    if (this.productForm.valid) {
+      const formValues = this.productForm.value;
+      const submitData: ProductSubmitData = {
+        name: formValues.name.trim(),
+        description: formValues.description.trim(),
+        price: Number(formValues.price),
+        quantity: Number(formValues.quantity),
+        categoryId: formValues.categoryId,
+        images: formValues.images || [],
+        isActive: true
       };
-      console.log('Updated product data with images:', this.productData);
-    }
-  }
 
-  async onFileSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      try {
-        const uploadPromises = Array.from(input.files).map(file => 
-          firstValueFrom(this.productService.uploadProductImage(file))
-        );
-        
-        const results = await Promise.all(uploadPromises);
-        this.imageUrls = results.flat();
-        console.log('Uploaded image URLs:', this.imageUrls);
-      } catch (error) {
-        console.error('Error uploading images:', error);
-        // Handle error
-      }
-    }
-  }
-
-  async onSubmit(): Promise<void> {
-    try {
-      if (!this.productData.categoryId?._id) {
-        Swal.fire({
-          title: 'Error!',
-          text: 'Please select a category',
-          icon: 'error'
-        });
-        return;
-      }
-
-      // Check if we have images in productData instead of imageUrls
-      if (!this.productData.images?.length) {
-        Swal.fire({
-          title: 'Warning',
-          text: 'Please upload at least one image',
-          icon: 'warning'
-        });
-        return;
-      }
-
-      Swal.fire({
-        title: 'Adding Product...',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
+      this.loading = true;
+      this.productService.createProduct(submitData).subscribe({
+        next: (response) => {
+          console.log('Product created successfully:', response);
+          Swal.fire('Success', 'Product created successfully', 'success');
+          this.resetForm();
+          this.saved.emit();
+          this.close.emit();
+        },
+        error: (error) => {
+          console.error('Error creating product:', error);
+          Swal.fire('Error', 'Failed to create product', 'error');
+        },
+        complete: () => {
+          this.loading = false;
         }
       });
-
-      const productData: ProductSubmitData = {
-        ...this.productData,
-        images: this.productData.images, // Use images from productData
-        categoryId: this.productData.categoryId._id
-      };
-
-      console.log('Submitting product with images:', productData);
-      const result = await firstValueFrom(this.productService.addProduct(productData));
-      console.log('Product creation response:', result);
-
-      await Swal.fire({
-        title: 'Success!',
-        text: 'Product added successfully',
-        icon: 'success',
-        timer: 2000
-      });
-
-      this.saved.emit();
-      this.close.emit();
-    } catch (error) {
-      console.error('Error creating product:', error);
-      Swal.fire({
-        title: 'Error!',
-        text: 'Failed to add product',
-        icon: 'error'
-      });
     }
+  }
+
+  private validateForm(): boolean {
+    const formValues = this.productForm.value;
+
+    if (!formValues.images || formValues.images.length === 0) {
+      Swal.fire('Error', 'At least one image is required', 'error');
+      return false;
+    }
+
+    if (!formValues.name?.trim()) {
+      Swal.fire('Error', 'Product name is required', 'error');
+      return false;
+    }
+    if (!formValues.categoryId) {
+      Swal.fire('Error', 'Please select a category', 'error');
+      return false;
+    }
+    if (formValues.price <= 0) {
+      Swal.fire('Error', 'Price must be greater than 0', 'error');
+      return false;
+    }
+    if (formValues.quantity < 0) {
+      Swal.fire('Error', 'Quantity cannot be negative', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  private resetForm(): void {
+    this.productForm.reset({
+      name: '',
+      description: '',
+      price: 0,
+      quantity: 0,
+      categoryId: '',
+      images: []
+    });
   }
 
   onClose(): void {
     this.close.emit();
+  }
+
+  handleImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.style.display = 'none';
+    }
+  }
+
+  removeImage(index: number): void {
+    const currentImages = this.productForm.get('images')?.value || [];
+    currentImages.splice(index, 1);
+    this.productForm.patchValue({ images: currentImages });
   }
 }

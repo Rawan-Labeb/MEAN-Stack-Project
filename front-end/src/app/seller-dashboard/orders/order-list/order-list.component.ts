@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrderService, Order } from '../../services/order.service';
+import { OrderService } from '../../services/order.service';
+import { Order } from '../../models/order.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { OrderDetailsComponent } from '../order-details/order-details.component';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -14,11 +17,16 @@ import Swal from 'sweetalert2';
 export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   filteredOrders: Order[] = [];
-  statusFilter: string = 'all';
   loading = false;
   error: string | null = null;
+  statusFilter = 'all';
 
-  constructor(private orderService: OrderService) {}
+  readonly ORDER_STATUSES = ['pending', 'shipped', 'completed', 'cancelled', 'returned'];
+
+  constructor(
+    private orderService: OrderService,
+    private modalService: NgbModal
+  ) {}
 
   ngOnInit(): void {
     this.loadOrders();
@@ -26,14 +34,16 @@ export class OrderListComponent implements OnInit {
 
   loadOrders(): void {
     this.loading = true;
+    this.error = null;
+
     this.orderService.getAllOrders().subscribe({
       next: (data) => {
         this.orders = data;
         this.applyFilters();
       },
       error: (error) => {
-        console.error('Error loading orders:', error);
-        this.error = 'Failed to load orders';
+        this.error = typeof error === 'string' ? error : 'Failed to load orders';
+        console.error('Error:', error);
       },
       complete: () => {
         this.loading = false;
@@ -43,66 +53,58 @@ export class OrderListComponent implements OnInit {
 
   applyFilters(): void {
     if (this.statusFilter === 'all') {
-      this.filteredOrders = [...this.orders];
+      this.filteredOrders = this.orders;
     } else {
-      this.filteredOrders = this.orders.filter(order => 
-        order.status.toLowerCase() === this.statusFilter.toLowerCase()
-      );
+      this.filteredOrders = this.orders.filter(order => order.status === this.statusFilter);
     }
   }
 
-  viewDetails(order: Order): void {
-    Swal.fire({
-      title: `Order #${order._id}`,
-      html: this.generateOrderDetailsHtml(order),
-      width: '500px'
-    });
+  getStatusButtonClass(status: string): string {
+    const classes = {
+      pending: 'btn-warning',
+      shipped: 'btn-info',
+      completed: 'btn-success',
+      cancelled: 'btn-danger',
+      returned: 'btn-secondary'
+    };
+    return classes[status as keyof typeof classes] || 'btn-light';
   }
 
   changeOrderStatus(order: Order, newStatus: string): void {
-    this.orderService.updateOrderStatus(order._id, newStatus).subscribe({
-      next: (updatedOrder) => {
-        const index = this.orders.findIndex(o => o._id === order._id);
-        if (index !== -1) {
-          this.orders[index] = updatedOrder;
-          this.applyFilters();
-        }
-        Swal.fire('Success', 'Order status updated successfully', 'success');
-      },
-      error: (error) => {
-        console.error('Error updating order status:', error);
-        Swal.fire('Error', 'Failed to update order status', 'error');
+    if (order.status === newStatus) return;
+
+    Swal.fire({
+      title: 'Change Order Status',
+      text: `Are you sure you want to change the status to ${newStatus}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, change it!',
+      cancelButtonText: 'No, cancel!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.orderService.changeOrderStatus(order._id, newStatus).subscribe({
+          next: (updatedOrder) => {
+            const index = this.orders.findIndex(o => o._id === order._id);
+            if (index !== -1) {
+              this.orders[index] = updatedOrder;
+              this.applyFilters();
+            }
+            Swal.fire('Updated!', 'Order status has been updated.', 'success');
+          },
+          error: (error) => {
+            console.error('Error updating status:', error);
+            Swal.fire('Error!', 'Failed to update order status.', 'error');
+          }
+        });
       }
     });
   }
 
-  getStatusButtonClass(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'pending': return 'btn-warning';
-      case 'shipped': return 'btn-info';
-      case 'completed': return 'btn-success';
-      case 'cancelled': return 'btn-danger';
-      default: return 'btn-secondary';
-    }
-  }
-
-  private generateOrderDetailsHtml(order: Order): string {
-    return `
-      <div class="text-left">
-        <p><strong>Customer:</strong> ${order.customerDetails.firstName} ${order.customerDetails.lastName}</p>
-        <p><strong>Email:</strong> ${order.customerDetails.email}</p>
-        <p><strong>Date:</strong> ${new Date(order.date).toLocaleDateString()}</p>
-        <p><strong>Total:</strong> $${order.totalPrice}</p>
-        <p><strong>Status:</strong> ${order.status}</p>
-        <hr>
-        <h6>Items:</h6>
-        ${order.items.map(item => `
-          <div class="d-flex justify-content-between">
-            <span>Product ID: ${item.productId} x${item.quantity}</span>
-            <span>$${item.price}</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
+  viewDetails(order: Order): void {
+    const modalRef = this.modalService.open(OrderDetailsComponent, {
+      size: 'lg',
+      centered: true
+    });
+    modalRef.componentInstance.order = order;
   }
 }

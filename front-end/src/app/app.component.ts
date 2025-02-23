@@ -1,5 +1,5 @@
 import { Component, NgModule, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, RouterLink } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { Footer, Header, MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -20,33 +20,30 @@ import { HeaderComponent } from './header/header.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 @Component({
   selector: 'app-root',
-  // standalone: true,
-//   imports: [
-//     RouterOutlet,
-//     FooterComponent,
-//     ToastModule,
-//     CommonModule,
-//     AdminDashboardComponent,
-//     HeaderComponent
-// ],
-imports: [
-    RouterOutlet, FooterComponent, HeaderComponent, NotFoundComponent, LoginComponent, UserProfileComponent
-    //,ProductDetailsComponent
-    // NotFoundComponent,AboutComponent,ContactUsComponent,HomeComponent,ProductDetailsComponent,
-    // FooterComponent,HeaderComponent,CatalogComponent
-    ,
-    UserProfileComponent
-],
-templateUrl: './app.component.html',
-
+  templateUrl: './app.component.html',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    FooterComponent,
+    HeaderComponent
+  ],
   providers: [MessageService],
   styles: []
 })
 export class AppComponent implements OnInit {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   async ngOnInit() {
     // Comment this out after categories are created
     // await createCategories(this.http);
+  }
+
+  isDashboardRoute(): boolean {
+    const currentUrl = this.router.url;
+    return currentUrl.includes('/seller') || 
+           currentUrl.includes('/admin') || 
+           currentUrl.includes('/sales-clerk');
   }
 }

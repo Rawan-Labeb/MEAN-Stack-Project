@@ -8,7 +8,8 @@ import { tap, catchError, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class CategoryService {
-  private apiUrl = 'http://localhost:5000/api/category';
+  // Remove 'api/category' from the URL since it's already included in the endpoints
+  private apiUrl = 'http://localhost:5000';
 
   constructor(private http: HttpClient) {}
 
@@ -18,6 +19,7 @@ export class CategoryService {
 
   getActiveCategories(): Observable<Category[]> {
     console.log('Fetching active categories...');
+   
     return this.http.get<Category[]>(`${this.apiUrl}/categories/get/active`).pipe(
       tap(categories => {
         console.log('Received categories:', categories);

@@ -8,37 +8,9 @@ import { FooterComponent } from './shared/footer/footer.component';
   selector: 'app-sales-clerk-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule, SidebarComponent, FooterComponent],
-  template: `
-    <div class="dashboard-container">
-      <app-sidebar></app-sidebar>
-      <div class="main-content">
-        <div class="content-wrapper">
-          <router-outlet></router-outlet>
-        </div>
-        <app-footer></app-footer>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .dashboard-container {
-      display: flex;
-      min-height: 100vh;
-    }
-
-    .main-content {
-      flex: 1;
-      margin-left: 250px;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background-color: #f8f9fa;
-      overflow-y: auto;
-    }
-
-    .content-wrapper {
-      flex: 1;
-      padding: 20px;
-    }
-  `]
+  templateUrl: './sales-clerk-dashboard.component.html',
+  styleUrls: ['./sales-clerk-dashboard.component.css']
 })
-export class SalesClerkDashboardComponent {}
+export class SalesClerkDashboardComponent {
+  
+}

@@ -1,30 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+
+interface UploadResponse {
+  imageUrls: string[];
+  success: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class SellerUploadService {
-  private apiUrl = 'http://localhost:5000/api/upload/upload';
+  private apiUrl = 'http://localhost:5000/upload';
 
   constructor(private http: HttpClient) {}
 
-  uploadProductImages(files: FileList): Observable<{ imageUrls: string[] }> {
+  uploadProductImages(files: FileList): Observable<UploadResponse> {
     const formData = new FormData();
-    
-    // Log the files being uploaded
-    console.log('Uploading files:', files);
-    
-    for (let i = 0; i < files.length; i++) {
-      formData.append('imageUrls', files[i]);
-    }
-    
-    return this.http.post<{ imageUrls: string[] }>(this.apiUrl, formData).pipe(
-      tap(response => {
-        console.log('Upload response from server:', response);
-      })
-    );
+    Array.from(files).forEach(file => {
+      formData.append('imageUrls', file);
+    });
+
+    return this.http.post<UploadResponse>(this.apiUrl, formData);
   }
 }

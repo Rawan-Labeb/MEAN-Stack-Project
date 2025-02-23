@@ -26,14 +26,15 @@ import { RouterModule } from '@angular/router';
   styles: [`
     .sidebar {
       width: 250px;
-      height: 100%;
-      position: fixed;
+      height: 100vh;
+      position: sticky;
       top: 0;
       left: 0;
       background: #00004d;
       color: white;
       box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
       z-index: 1000;
+      overflow-y: auto;
     }
 
     .brand-logo {
@@ -92,8 +93,6 @@ export class SidebarComponent {
   menuItems = [
     { path: './home', icon: 'fas fa-home', title: 'Dashboard' },
     { path: './orders', icon: 'fas fa-shopping-cart', title: 'Orders' },
-    { path: './customers', icon: 'fas fa-users', title: 'Customers' },
-    { path: './branch-products', icon: 'fas fa-box', title: 'Branch Products' },
-    { path: './complaints', icon: 'fas fa-comment-alt', title: 'Complaints' }
+    { path: './branch-products', icon: 'fas fa-box', title: 'Branch Products' }
   ];
 }

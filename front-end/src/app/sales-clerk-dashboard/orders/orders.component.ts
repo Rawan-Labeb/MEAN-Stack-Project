@@ -1,122 +1,98 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Order {
-  id: string;
-  customer: string;
-  items: number;
-  total: number;
-  status: 'Completed' | 'Processing' | 'Cancelled';
-  date: string;
-  paymentMethod: string;
-}
+import { RouterModule } from '@angular/router';
+import { OfflineOrderService } from '../services/offline-order.service';
+import { OfflineOrder } from '../models/offline-order.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { OrderDetailsModalComponent } from './order-details-modal/order-details-modal.component';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    <div class="container-fluid">
-      <div class="card">
-        <div class="card-header">
-          <div class="d-flex justify-content-between align-items-center">
-            <h3>Today's Orders</h3>
-            <div class="d-flex gap-3">
-              <input 
-                type="text" 
-                class="form-control" 
-                placeholder="Search orders..."
-                [(ngModel)]="searchTerm">
-              <select class="form-select" [(ngModel)]="statusFilter">
-                <option value="all">All Status</option>
-                <option value="Completed">Completed</option>
-                <option value="Processing">Processing</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Items</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Time</th>
-                  <th>Payment</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let order of filteredOrders">
-                  <td>#{{order.id}}</td>
-                  <td>{{order.customer}}</td>
-                  <td>{{order.items}}</td>
-                  <td>{{order.total | currency}}</td>
-                  <td>
-                    <span class="badge" 
-                          [class.bg-success]="order.status === 'Completed'"
-                          [class.bg-primary]="order.status === 'Processing'"
-                          [class.bg-danger]="order.status === 'Cancelled'">
-                      {{order.status}}
-                    </span>
-                  </td>
-                  <td>{{order.date}}</td>
-                  <td>{{order.paymentMethod}}</td>
-                  <td>
-                    <button class="btn btn-sm btn-info me-2">
-                      <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-success">
-                      <i class="fas fa-print"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .card {
-      margin-bottom: 60px;
-      box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
-    }
-    .form-control, .form-select {
-      width: 200px;
-    }
-    .badge {
-      padding: 0.5em 0.75em;
-    }
-    .table td {
-      vertical-align: middle;
-    }
-  `]
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './orders.component.html',
+  styleUrls: ['./orders.component.css']
 })
-export class OrdersComponent {
-  orders: Order[] = [
-    { id: '1001', customer: 'John Smith', items: 3, total: 159.99, status: 'Completed', date: '10:30 AM', paymentMethod: 'Credit Card' },
-    { id: '1002', customer: 'Mary Johnson', items: 2, total: 89.99, status: 'Processing', date: '10:45 AM', paymentMethod: 'Cash' },
-    { id: '1003', customer: 'Robert Brown', items: 1, total: 45.00, status: 'Completed', date: '11:00 AM', paymentMethod: 'Debit Card' },
-    { id: '1004', customer: 'Alice Wilson', items: 4, total: 199.99, status: 'Cancelled', date: '11:15 AM', paymentMethod: 'Credit Card' },
-  ];
-
+export class OrdersComponent implements OnInit {
+  orders: OfflineOrder[] = [];
   searchTerm = '';
   statusFilter = 'all';
+  loading = false;
+  error: string | null = null;
+  
+  // Use one of the real branch IDs from your data
+  branchId: string = '67b129216e1b912065196f93'; // Uptown Branch ID
+
+  constructor(private orderService: OfflineOrderService, private modalService: NgbModal) {}
+
+  ngOnInit() {
+    this.loadOrders();
+  }
+
+  loadOrders() {
+    this.loading = true;
+    this.error = null;
+    this.orders = []; // Reset orders before loading
+
+    console.log('Loading orders for branch:', this.branchId); // Debug log
+
+    this.orderService.getAllOrdersByBranch(this.branchId)
+      .subscribe({
+        next: (data) => {
+          console.log('Received orders:', data); // Debug log
+          this.orders = data;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading orders:', error);
+          this.error = typeof error === 'string' ? error : 'Failed to load orders';
+          this.loading = false;
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+  }
+
+  cancelOrder(orderId: string) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+      this.loading = true;
+      this.orderService.cancelOrder(orderId).subscribe({
+        next: () => {
+          this.loadOrders(); // Reload orders after cancellation
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error canceling order:', error);
+          this.error = 'Failed to cancel order';
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  openOrderDetails(order: OfflineOrder) {
+    const modalRef = this.modalService.open(OrderDetailsModalComponent, {
+      size: 'lg',
+      centered: true
+    });
+    modalRef.componentInstance.order = order;
+  }
 
   get filteredOrders() {
     return this.orders.filter(order => {
-      const matchesSearch = order.customer.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                          order.id.includes(this.searchTerm);
+      const matchesSearch = 
+        order._id.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
+        order.branch.branchName.toLowerCase().includes(this.searchTerm.toLowerCase());
+      
       const matchesStatus = this.statusFilter === 'all' || order.status === this.statusFilter;
+      
       return matchesSearch && matchesStatus;
     });
+  }
+
+  getTotalItems(order: OfflineOrder): number {
+    return order.items.reduce((total, item) => total + item.quantity, 0);
   }
 }
