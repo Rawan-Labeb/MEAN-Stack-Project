@@ -9,7 +9,8 @@ const {
     deactiveSubInventory,
     deleteSubInventory,
     decreaseSubInventoryQuantity,
-    increaseSubInventoryQuantity
+    increaseSubInventoryQuantity,
+    getSubInventoriesByBranchId
 
 } = require("./../services/sub.inventory.services");
 
@@ -171,6 +172,23 @@ router.put("/increaseSubInventoryQuantity/:id", async (req, res) => {
         res.status(500).send(error.message);
     }
 })
+
+router.get("/getSubInventoriesByBranchId/:branchId", async(req, res) => {
+    try{
+        const result = await getSubInventoriesByBranchId(req.params.branchId);
+        if (!result.success)
+            return res.status(400).json(result.message);
+
+        return res.status(200).json(result.message);
+
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+)
+
+
+
 
 
 
