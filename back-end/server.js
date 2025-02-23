@@ -22,6 +22,9 @@ const cartRoutes = require("./routes/cart.routes"); // تأكد من استير�
 const checkoutRoutes = require("./routes/checkout.routes"); 
 const offlineOrderRoutes = require('./routes/offlineOrder.routes'); // Ensure this path is correct
 
+const distributionReq = require("./controllers/distribution.request..controller");
+const prodReq = require("./controllers/product.request.controller");
+const prodReview = require("./controllers/product.review.controller");
 
 // Middleware
 app.use(cors());
@@ -40,6 +43,9 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/order", order);
     app.use("/mainInventory", mainInventory);
     app.use("/subInventory", subInventory);
+    app.use("/distReq", distributionReq);
+    app.use("/prodReq", prodReq);
+    app.use("/prodReview", prodReview);
     // app.use(upload);
     app.use("/complaint",Complaint);
     app.use(category);
