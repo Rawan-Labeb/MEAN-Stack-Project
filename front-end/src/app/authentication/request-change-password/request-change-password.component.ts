@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 export class RequestChangePasswordComponent 
 {
   requestPasswordToChange: FormGroup;
+  requestFaild:boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -34,6 +35,7 @@ export class RequestChangePasswordComponent
           response => {
             this.cookieSer.set("passwordToken", response.message)
             console.log('Password reset requested successfully:', response);
+            this.requestFaild = false;
             Swal.fire({
               icon: 'success',
               title: 'Password Reset Requested',
@@ -41,6 +43,7 @@ export class RequestChangePasswordComponent
             });
           },
           error => {
+            this.requestFaild = true;
             console.error('Error requesting password reset:', error);
             if (error.status === 400) {
               Swal.fire({

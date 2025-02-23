@@ -10,6 +10,9 @@ import { SalesClerkComponent } from './pages/sales-clerk/sales-clerk.component';
 import { CashierComponent } from './pages/cashier/cashier.component';
 import { AdminDashboardComponent } from './admin-dashboard.component';
 import { CategoryComponent } from './pages/category/category.component';
+import { MainInventoryComponent } from './pages/main-inventory/main-inventory.component';
+import { BranchComponent } from './pages/branch/branch.component';
+import { SubInventoryComponent } from './pages/sub-inventory/sub-inventory.component';
 //import { ReviewComponent } from './pages/review/review.component';
 
 
@@ -27,6 +30,9 @@ export const adminDashboardRoutes: Routes = [
         { path: 'contact-us', component: ContactComponent },
         { path: 'sales-clerks', component: SalesClerkComponent },
         { path: 'cashiers', component: CashierComponent },
+        { path: 'mainInventories', component: MainInventoryComponent },
+        { path: 'branches', component: BranchComponent },
+        { path: 'subInventory/:branchName', component: SubInventoryComponent },
 
     ]},  
 ];

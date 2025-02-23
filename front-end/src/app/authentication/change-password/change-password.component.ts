@@ -18,6 +18,7 @@ export class ResetPasswordComponent implements OnInit
   resetPasswordForm: FormGroup;
   token: string = "";
   email: string = "";
+  errorMessage: string = ""; 
   constructor(
     private formBuilder: FormBuilder,
     private authSer: AuthServiceService,
@@ -25,7 +26,7 @@ export class ResetPasswordComponent implements OnInit
     private cookieSer:CookieService
   ) { 
     this.resetPasswordForm = new FormGroup({
-      newPassword: new FormControl("", [Validators.required, Validators.pattern('/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/')]),
+      newPassword: new FormControl("", [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)]),
       confirmPassword: new FormControl("", [Validators.required])
     }, {validators: this.passwordMatchValidator}
   );
@@ -33,38 +34,68 @@ export class ResetPasswordComponent implements OnInit
 
   ngOnInit(): void {
     this.token = this.cookieSer.get("passwordToken")
-    const claims = this.authSer.decodeToken(this.token);
-    this.email = claims.email;
+    this.authSer.decodeToken(this.token).subscribe({
+      next: (response) => {
+        this.email = response.email;
+      },
+      error: (error) => {
+        console.log(error);     
+      }
+    })
   }
+
+
+
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const newPassword = control.get('newPassword')?.value;
     const confirmPassword = control.get('confirmPassword')?.value;
-    return newPassword === confirmPassword ? null : { 'mismatch': true };
-  }
+    if (newPassword !== confirmPassword) {
+        control.get('confirmPassword')?.setErrors({ mismatch: true });
+        return { 'mismatch': true };
+    } else {
+        return null;
+    }
+}
+
+
+
 
   resetPassword(): void {
     if (this.resetPasswordForm.valid) {
-      const newPassword = this.resetPasswordForm.get('newPassword')?.value;
+        console.log(this.resetPasswordForm.valid);
+        const newPassword = this.resetPasswordForm.get('newPassword')?.value;
 
-      this.authSer.resetPassword(this.email, this.token, newPassword).subscribe(
-        response => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Password Reset Successful',
-            text: 'Your password has been reset successfully.',
-          }).then(() => {
-            this.router.navigate(['/login']);  // Redirect to the login page after successful password reset
-          });
-        },
-        error => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Password Reset Failed',
-            text: 'An error occurred while resetting your password. Please try again later.',
-          });
-        }
-      );
+        console.log(this.token)
+        console.log(this.email)
+        console.log(newPassword)
+
+        this.authSer.resetPassword(this.email, this.token, newPassword).subscribe({
+            next: (response) => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Password Reset Successful',
+                    text: 'Your password has been reset successfully.',
+                }).then(() => {
+                    this.router.navigate(['/user/login']);
+                    this.cookieSer.delete("passwordToken");
+                    
+                });
+            },
+            error: (error) => {
+                this.errorMessage = 'An error occurred while resetting your password. Please try again later.';
+                if (error.status === 401) { // Unauthorized error, indicating token expiration
+                    this.errorMessage = 'Your password reset link has expired. Please request a new password reset email.';
+                } else if (error.status === 400) { // Bad Request error, indicating other validation errors
+                    this.errorMessage = 'Invalid request. Please ensure the passwords meet the requirements and try again.';
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Reset Failed',
+                    text: this.errorMessage,
+                });
+            }
+        });
     }
-  }
+}
 }

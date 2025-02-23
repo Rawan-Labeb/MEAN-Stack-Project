@@ -4,7 +4,7 @@ body{
 }
 .account-block {
   padding: 0;
-  background-image: url(https://bootdey.com/img/Content/bg1.jpg);
+  background-image: url("./../EnterPage.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   height: 100%;
@@ -42,3 +42,7 @@ body{
   color: #fff;
 }
 
+#dataBlock
+{
+  height: 650px;
+}

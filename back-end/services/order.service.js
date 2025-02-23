@@ -118,9 +118,10 @@ module.exports.createOrder = async (orderData) =>
 {
     try{
         const chkForDataToCreate = await validationOnCreateAndUpdate(orderData);
-        if (!chkForDataToCreate.success)
+        if (!chkForDataToCreate.success){
+            console.error("❌ Order validation failed:", chkForDataToCreate.message); // ✅ طباعة الخطأ
              return { success: false, message: chkForDataToCreate.message };
-
+1}
         orderData.totalPrice = 0;
 
         orderData.items.forEach(element => {
@@ -130,55 +131,59 @@ module.exports.createOrder = async (orderData) =>
         const order = await createOrder(orderData);
         return {success: true, message:order};
     }catch (error)
-    {
+    {        console.error("❌ Order creation error:", error.message); // ✅ طباعة أي خطأ آخر
+
         return {success: false, message: error.message};
     }
 }
 
 // update Order
-module.exports.updateOrder = async (orderId, orderData) => {
-    try
-    {
-        const chkOrderId = await validateOrderId(orderId);
-        if (!chkOrderId.valid)
-            return {success: false, message: chkOrderId.message};
+// module.exports.updateOrder = async (orderId, orderData) => {
+//     try
+//     {
+//         const chkOrderId = await validateOrderId(orderId);
+//         if (!chkOrderId.valid)
+//             return {success: false, message: chkOrderId.message};
 
-        const chkForDataToUpdate = await validationOnCreateAndUpdate(orderData);
-        if (!chkForDataToUpdate.success)
-             return { success: false, message: chkForDataToUpdate.message };
+//         const chkForDataToUpdate = await validationOnCreateAndUpdate(orderData);
+//         if (!chkForDataToUpdate.success)
+//              return { success: false, message: chkForDataToUpdate.message };
         
-        orderData.totalPrice = 0;
+//         orderData.totalPrice = 0;
 
-        orderData.items.forEach(element => {
-            orderData.totalPrice += Number(element.quantity) * Number(element.price);    
-        });
-
-
-        const order = await updateOrder(orderId, orderData);
+//         orderData.items.forEach(element => {
+//             orderData.totalPrice += Number(element.quantity) * Number(element.price);    
+//         });
 
 
-        return {success: true, message: order};
+//         const order = await updateOrder(orderId, orderData);
 
-    }catch (error)
-    {
-        return {success: false, message: error.message};
-    }
-}
+
+//         return {success: true, message: order};
+
+//     }catch (error)
+//     {
+//         return {success: false, message: error.message};
+//     }
+// }
+
+
+
 // get order for product 
-module.exports.getOrdersByProductId = async (prodId) => {
-    try
-    {
-        const chkProd = await validateProductId(prodId);
-        if (!chkProd.valid)
-            return {success: false, message: chkProd.message};
+// module.exports.getOrdersByProductId = async (prodId) => {
+//     try
+//     {
+//         const chkProd = await validateProductId(prodId);
+//         if (!chkProd.valid)
+//             return {success: false, message: chkProd.message};
 
-        const orders = await getOrdersByProductId(prodId);
-        return {success:true, message: orders}
-    }catch (error)
-    {
-        return {success: false, message: error.message};
-    }
-}
+//         const orders = await getOrdersByProductId(prodId);
+//         return {success:true, message: orders}
+//     }catch (error)
+//     {
+//         return {success: false, message: error.message};
+//     }
+// }
 
 
 // change order Status
@@ -206,11 +211,16 @@ module.exports.changeOrderStatus = async (orderId, Status)=> {
 
 const validationOnCreateAndUpdate = async (orderData) => {
     const chkCustomerId = await validateUserId(orderData.customerId);
+
     if (!chkCustomerId.valid)
         return { success: false, message: 'Invalid customerId' };
 
     if (!chkCustomerId.message.isActive)
         return { success: false, message: 'Customer Not Valid' };
+    
+    console.log("Sent Email:", orderData.customerDetails.email);
+    console.log("DB Email:", chkCustomerId.message.email);
+
 
     if (!orderData.customerDetails.email ||  chkCustomerId.message.email != orderData.customerDetails.email)
         return { success: false, message: 'Invalid email address' };

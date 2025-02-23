@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable ,of} from 'rxjs';
 import { Login } from '../_models/login';
 import { register } from '../_models/register';
 import { userProfile } from '../_models/userProfile.model';
-
 // import * as jwt from 'jsonwebtoken';
 // import { default as jwt_decode } from 'jwt-decode';
 // import {default as jwt_decode} from "jwt-decode"
 import {jwtDecode }from 'jwt-decode';
 import { Order } from '../_models/order.module';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +19,7 @@ export class AuthServiceService {
   
   constructor(
     private http: HttpClient,
-
+    private cookieSer:CookieService
   ) { }
 
 
@@ -34,11 +34,6 @@ export class AuthServiceService {
     return this.http.post<register>(`${this.apiUrl}/register`,userData)
   }
 
-  // get user by email
-  // getUserDataByEmail (email:string)
-  // {
-  //   return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail`, email);
-  // }
   getUserDataByEmail(email: string) {
     return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail/${email}`);
   }
@@ -50,24 +45,48 @@ export class AuthServiceService {
   
 
   // decode token
-  decodeToken(token: string): any {
+  // decodeToken(token: string): any {
+  //   try {
+  //     return jwtDecode(token);
+  //   } catch (error) {
+  //     console.error('Invalid token', error);
+  //     return null;
+  //   }
+  // }
+
+
+  decodeToken(token: string): Observable<any> {
     try {
-      return jwtDecode(token);
+      const decoded = jwtDecode(token);
+      return of(decoded); // Wrapping it in an Observable
     } catch (error) {
       console.error('Invalid token', error);
-      return null;
+      return of(null); // Returning null inside an Observable
     }
   }
+
 
   // request password to change 
   requestChangePassword (email:string): Observable<any>
   {
     return this.http.post(`${this.apiUrl}/requestPasswordReset/${email}`, {});
   }
-  // reset password 
-  resetPassword (email: string, token:string, password:string)
+  // reset password
+  
+  resetPassword(email: string, token: string, newPassword: string): Observable<any> {
+    const body = {
+        email: email,
+        token: token,
+        newPassword: newPassword
+    };
+    return this.http.post(`${this.apiUrl}/resetPassword`, body);
+}
+
+
+  isAuthenticated(): boolean
   {
-    return this.http.post(`${this.apiUrl}/resetPassword`, {email, token, password})
+    return this.cookieSer.check("token");
   }
+
 
 }
