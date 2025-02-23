@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
-//import { CartComponent } from './Shopping/cart/cart.component';
-// import { LoginComponent } from './authentication/login/login.component';  
+import { CartComponent } from './cart/cart.component';
+import { LoginComponent } from './authentication/login/login.component';
+import { CheckoutComponent } from './checkout/checkout.component';
 
 import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
@@ -15,6 +16,9 @@ import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.co
 
 
 export const routes: Routes = [
+  { path: '', redirectTo: '', pathMatch: 'full' },
+  { path: 'cart', component: CartComponent },
+  { path: 'checkout', component: CheckoutComponent },
   {path:"admindashboard", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
   {path: "user", loadChildren: ()=> import("./authentication/user.routes").then(route => route.userRoutes)},
   {path:"home",component:HomeComponent},
@@ -29,20 +33,16 @@ export const routes: Routes = [
   {path:"sellerdashboard",component:SellerDashboardComponent},
   
   {path:"**",component:NotFoundComponent},
-  // {
-  //   path: 'login',
-  //   component: LoginComponent
-  // },
-
   {
-    path: '',
-    redirectTo: 'cart',
-    pathMatch: 'full'
+    path: 'login',
+    component: LoginComponent
   },
-  { path: '', redirectTo: 'seller', pathMatch: 'full' },
   // {
-  //   path: 'login',
-  //   component: LoginComponent
+  //   path: '',
+  //   redirectTo: 'cart',
+  //   pathMatch: 'full'
   // },
+  // { path: '', redirectTo: 'seller', pathMatch: 'full' },
   
 ];
+

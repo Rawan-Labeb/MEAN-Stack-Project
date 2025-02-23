@@ -5,6 +5,9 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
 import { CategoryService } from '../_services/category.service';
+import { CartService } from '../cart/service/cart.service';
+import { AuthServiceService } from '../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
 
 interface Perfume {
   id: number;
@@ -126,11 +129,15 @@ export class ProductDetailsComponent implements OnInit {
   constructor(private route: ActivatedRoute,
     private router: Router,
     public subInventorySer:SubInventoryServicesService,
-    private categorySer:CategoryService
+    private categorySer:CategoryService,
+    private cartSer:CartService,
+    private authSer:AuthServiceService,
+    private cookieSer:CookieService
   ) {}
   
   public productId:any;
   public product:any;
+  public userData:any;
   ngOnInit(): void {
     setTimeout(() => {
       this.loading = false;
@@ -166,6 +173,18 @@ export class ProductDetailsComponent implements OnInit {
         
       }
     });
+
+    // this.authSer.getUserDataByEmail().subscribe({
+    //   next: (data) => {
+    //     this.userData = data;
+    //   },
+    //   error: (err) => { 
+    //     console.error('Failed to retrieve user data', err);
+    //   }
+    // });
+    
+
+
 
   }
 
@@ -225,7 +244,36 @@ decreaseQuantity(): void {
   
   // Add the product to the cart
 addToCart(): void {
-  if (!this.product) return;
+  if (this.cookieSer.check("token"))
+  {
+    console.log(this.cookieSer.get("token"))
+    let token = this.cookieSer.get("token");
+    this.authSer.decodeToken(token).subscribe({
+      next: (claims:any) => {
+        this.cartSer.addToCart(claims.sub, this.product._id, this.quantity).subscribe({
+          next: (data) => {
+            alert('Added to cart successfully!');
+          },
+          error: (err) => {
+            console.error('Failed to add to cart', err);
+          }     
+      })
+    }
+  })
+  }
+  else  {
+    this.cartSer.addToCart("", this.product._id, this.quantity).subscribe({
+      next: (data) => {
+        alert('Added to cart successfully!');
+      },
+      error: (err) => {
+        console.error('Failed to add to cart', err);
+      }     
+  })
+
+  }
+  
+  // this.cartSer.addToCart()
 
   
   // Show a more detailed alert message

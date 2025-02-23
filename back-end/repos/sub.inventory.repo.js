@@ -70,7 +70,7 @@ module.exports.createSubInventory = async (data) => {
   
       return subInventories;
     } catch (error) {
-      throw new Error(error.message || "Could not get sub-inventories by branch name");
+      throw new Error(error.message || "Could not get sub-inventories");
     }
   };
 

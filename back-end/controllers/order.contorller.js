@@ -327,155 +327,179 @@
 
 
 const {
-  getAllOrders,
-  getOrderById,
-  getOrdersByCustomerAndStatus,
-  getOrdersByUserId,
-  getOrdersByStatus,
-  getOrdersByProductId,
-  deleteOrder,
-  changeOrderStatus,
-  createOrder,
-  updateOrder,
-} = require("../services/order.service")
+    getAllOrders,
+    getOrderById,
+    getOrdersByCustomerAndStatus,
+    getOrdersByUserId,
+    getOrdersByStatus,
+    getOrdersByProductId,
+    deleteOrder,
+    changeOrderStatus,
+    createOrder,
+    updateOrder,
+  } = require("../services/order.service")
 
-const router = require("express").Router();
-const express = require("express");
-router.use(express.json()); 
-router.use(express.urlencoded({ extended: true }));
+  const router = require("express").Router();
+  const express = require("express");
+  router.use(express.json());
+  router.use(express.urlencoded({ extended: true }));
+  
+// module.exports.deleteProductFromOrder = async (req, res) => {
+//   const { orderId, productId } = req.params;
 
+//   try {
+//     const order = await getOrderById(orderId);
+//     if (!order) {
+//       return res.status(404).json({ success: false, message: 'Order not found' });
+//     }
 
-// create order
-router.post("/createOrder", async (req, res) => {
-  try {
-    const result = await createOrder(req.body);
-    if (!result.success)
-      return res.status(400).json(result.message);
+//     const productIndex = order.items.findIndex(item => item.productId === productId);
+//     if (productIndex === -1) {
+//       return res.status(404).json({ success: false, message: 'Product not found in order' });
+//     }
 
+//     order.items.splice(productIndex, 1);
+//     order.totalPrice = order.items.reduce((total, item) => total + item.price * item.quantity, 0);
 
-    return res.status(201).json(result.message);
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
+//     await updateOrder(orderId, order);
 
-
-// retrieve orders 
-router.get("/getAllOrders", async (req, res) => {
-  try {
-    const result = await getAllOrders();
-    if (!result.success)
-      return res.status(400).json(result.message);
-
-    return res.status(200).json(result.message);
-
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-
-// get order by id
-router.get("/getOrderById/:id", async (req, res) => {
-  try {
-    const result = await getOrderById(req.params.id);
-    if (!result.success)
-      return res.status(400).json(result.message);
-
-    return res.status(200).json(result.message);
-
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-// get orders by cutomer and status
-router.get("/getOrderByCustomerAndStatus/:id/:status", async (req, res) => {
-  try {
-    const result = await getOrdersByCustomerAndStatus(req.params.id,req.params.status );
-    if (!result.success)
-      return res.status(400).json(result.message);
-    return res.status(200).json(result.message);
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-
-// get order by customer id 
-router.get("/getOrderByCustomerId/:id", async (req, res) => {
-  try {
-    const result = await getOrdersByUserId(req.params.id );
-    if (!result.success)
-      return res.status(400).json(result.message);
-    return res.status(200).json(result.message);
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-
-
-// get order by status
-router.get("/getOrdersByStatus/:status", async (req, res) => {
-  try {
-    const result = await getOrdersByStatus(req.params.status );
-    if (!result.success)
-      return res.status(400).json(result.message);
-    return res.status(200).json(result.message);
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-// get order by product id
-router.get("/getOrdersByProductId/:id", async (req, res) => {
-  try {
-    const result = await getOrdersByProductId(req.params.id );
-    if (!result.success)
-      return res.status(400).json(result.message);
-    return res.status(200).json(result.message);
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-// change order status 
-router.put("/changeOrderStatus/:id/:status", async (req, res) => {
-  try {
-    const result = await changeOrderStatus(req.params.id,req.params.status);
-    if (!result.success)
-      return res.status(400).json(result.message);
-    return res.status(200).json(result.message);
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-// delete order 
-router.delete("/deleteOrder/:id", async (req, res) => {
-  try {
-    const result = await deleteOrder(req.params.id);
-    if (!result.success)
-      return res.status(400).json(result.message);
-    return res.status(200).json("Order Deleted Successfully");
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-
-// update order data 
-router.put("/updateOrder/:id", async (req, res) => {
-  try {
-    const result = await updateOrder(req.params.id, req.body);
-    if (!result.success)
-      return res.status(400).json(result.message);
-    return res.status(200).json("Order Updated Successfully");
-  } catch (error) {
-      res.status(500).send(error.message);
-  }
-})
-
-module.exports = router;
-
+//     res.json({ success: true, message: 'Product removed from order', order });
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+  // create order
+  router.post("/createOrder", async (req, res) => {
+    try {
+      const result = await createOrder(req.body);
+      if (!result.success)
+        return res.status(400).json(result.message);
+  
+  
+      return res.status(201).json(result.message);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  module.exports = router;
+  
+  // retrieve orders 
+  router.get("/getAllOrders", async (req, res) => {
+    try {
+      const result = await getAllOrders();
+      if (!result.success)
+        return res.status(400).json(result.message);
+  
+      return res.status(200).json(result.message);
+  
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  
+  // get order by id
+  router.get("/getOrderById/:id", async (req, res) => {
+    try {
+      const result = await getOrderById(req.params.id);
+      if (!result.success)
+        return res.status(400).json(result.message);
+  
+      return res.status(200).json(result.message);
+  
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  // get orders by cutomer and status
+  router.get("/getOrderByCustomerAndStatus/:id/:status", async (req, res) => {
+    try {
+      const result = await getOrdersByCustomerAndStatus(req.params.id,req.params.status );
+      if (!result.success)
+        return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  
+  // get order by customer id 
+  router.get("/getOrderByCustomerId/:id", async (req, res) => {
+    try {
+      const result = await getOrdersByUserId(req.params.id );
+      if (!result.success)
+        return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  
+  
+  // get order by status
+  router.get("/getOrdersByStatus/:status", async (req, res) => {
+    try {
+      const result = await getOrdersByStatus(req.params.status );
+      if (!result.success)
+        return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  // get order by product id ====================================================================================================================
+  // router.get("/getOrdersByProductId/:id", async (req, res) => {
+  //   try {
+  //     const result = await getOrdersByProductId(req.params.id );
+  //     if (!result.success)
+  //       return res.status(400).json(result.message);
+  //     return res.status(200).json(result.message);
+  //   } catch (error) {
+  //       res.status(500).send(error.message);
+  //   }
+  // })
+  
+  // change order status ================================================================================
+  router.put("/changeOrderStatus/:id/:status", async (req, res) => {
+    try {
+      const result = await changeOrderStatus(req.params.id,req.params.status);
+      if (!result.success)
+        return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  // delete order ==============================================================================
+  router.delete("/deleteOrder/:id", async (req, res) => {
+    try {
+      const result = await deleteOrder(req.params.id);
+      if (!result.success)
+        return res.status(400).json(result.message);
+      return res.status(200).json("Order Deleted Successfully");
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+  })
+  
+  
+  // update order data ===========================================================================
+  // router.put("/updateOrder/:id", async (req, res) => {
+  //   try {
+  //     const result = await updateOrder(req.params.id, req.body);
+  //     if (!result.success)
+  //       return res.status(400).json(result.message);
+  //     return res.status(200).json("Order Updated Successfully");
+  //   } catch (error) {
+  //       res.status(500).send(error.message);
+  //   }
+  // })
+  
+  module.exports = router;
+  
