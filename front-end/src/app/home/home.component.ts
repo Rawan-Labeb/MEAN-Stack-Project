@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
+import { CookieService } from 'ngx-cookie-service';
+import { AuthServiceService } from '../_services/auth-service.service';
 
 
 interface Perfume {
@@ -42,8 +44,12 @@ interface BlogPost {
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit{
-  constructor(private router: Router,
-  public subInventorySer: SubInventoryServicesService,
+  constructor(
+    private router: Router,
+    public subInventorySer: SubInventoryServicesService,
+    public cookieServices:CookieService,
+    public authSer: AuthServiceService,
+  
     
 
   ) {}
@@ -199,5 +205,20 @@ export class HomeComponent implements OnInit{
     }
   goBackToUserReg(): void {
     this.router.navigate(['/user/register']);
+  }
+
+  getToken(): string {
+    return this.cookieServices.get('token'); 
+  }
+
+  decodeUserToken(token: string): any {
+    try {
+      const decoded = this.authSer.decodeToken(token);
+      console.log('Decoded Token:', decoded); // Log the decoded token
+      return decoded;
+    } catch (error) {
+      console.error('Invalid token', error);
+      return null;
+    }
   }
 }
