@@ -1,15 +1,19 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { Order } from "../_models/order.module";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Order } from '../_models/order.module';
+import { Product } from '../_models/product.model';
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root'
 })
 export class OrderService {
   private apiUrl = 'http://localhost:5000/order';
+    private productApiUrl = 'http://localhost:5000/product';
 
-  constructor(private http: HttpClient) {}
+
+  constructor(private http: HttpClient) {} // Update with your actual backend API URL
+
 
   createOrder(order: Order): Observable<any> {
     return this.http.post(`${this.apiUrl}/createOrder`, order);
@@ -50,6 +54,10 @@ export class OrderService {
   updateOrder(id: string, order: Partial<Order>): Observable<any> {
     return this.http.put(`${this.apiUrl}/updateOrder/${id}`, order);
   }
-
+  getProductById(productId: string): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/getProductById/${productId}`);
+  }
+  deleteProductFromOrder(orderId: string, productId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${orderId}/product/${productId}`);
+  }
 }
-

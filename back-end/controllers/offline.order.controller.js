@@ -3,83 +3,93 @@ const {
     getAllOrdersByBranchId,
     getOfflineOrderById,
     createOfflineOrder,
-    cancelOfflineOrder
-} = require("./../services/offline.orders.service")
-const router = require("express").Router();
-const express = require("express");
-router.use(express.json()); 
-router.use(express.urlencoded({ extended: true }));
-
-
-router.get("/getAllOfflineOrders", async (req, res) => {
-    try{
-        const result = await getAllOfflineOrders();
-        if (!result.success)
-            return res.status(400).json(result.message);
-
-        return res.status(200).json(result.message);
-
+    cancelOfflineOrder,deleteProductFromOrderService
+  } = require("../services/offline.orders.service");
+  const { getBranchById } = require('../services/branch.service'); // Correct import for getBranchById
+  const { getSubInventoryById } = require('../services/sub.inventory.services'); // Correct import for getSubInventoryById
+  
+  const router = require("express").Router();
+  const express = require("express");
+  router.use(express.json());
+  router.use(express.urlencoded({ extended: true }));
+  module.exports.deleteProductFromOrder = async (req, res) => {
+    try {
+      const { orderId, productId, quantity } = req.body;
+      const result = await deleteProductFromOrderService(orderId, productId, quantity);
+      if (!result.success) return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
     } catch (error) {
-        res.status(500).send(error.message);
+      res.status(500).send(error.message);
     }
-})
-
-router.get("/getOfflineOrdersByBranchId/:branchId", async (req, res) => {
-    try{
-        const result = await getAllOrdersByBranchId(req.params.branchId);
-        if (!result.success)
-            return res.status(400).json(result.message);
-
-        return res.status(200).json(result.message);
-
+  };
+  module.exports.getAllOfflineOrders = async (req, res) => {
+    try {
+      const result = await getAllOfflineOrders();
+      if (!result.success) return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
     } catch (error) {
-        res.status(500).send(error.message);
+      res.status(500).send(error.message);
     }
-})
-
-
-router.get("/getOfflineOrderbyId/:orderId", async (req, res) => {
-    try{
-        const result = await getOfflineOrderById(req.params.orderId);
-        if (!result.success)
-            return res.status(400).json(result.message);
-
-        return res.status(200).json(result.message);
-
+  };
+  
+  module.exports.getAllOrdersByBranchId = async (req, res) => {
+    try {
+      const result = await getAllOrdersByBranchId(req.params.branchId);
+      if (!result.success) return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
     } catch (error) {
-        res.status(500).send(error.message);
+      res.status(500).send(error.message);
     }
-})
-
-router.post("/createOfflineOrder", async (req, res) => {
-    try{
-        const result = await createOfflineOrder(req.body);
-        if (!result.success)
-            return res.status(400).json(result.message);
-
-        return res.status(201).json(result.message);
-
+  };
+  
+  module.exports.getOfflineOrderById = async (req, res) => {
+    try {
+      const result = await getOfflineOrderById(req.params.orderId);
+      if (!result.success) return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
     } catch (error) {
-        res.status(500).send(error.message);
+      res.status(500).send(error.message);
     }
-})
-
-
-router.post("/cancelOfflineOrder/:orderId", async (req, res) => {
-    try{
-        const result = await cancelOfflineOrder(req.params.orderId);
-        if (!result.success)
-            return res.status(400).json(result.message);
-
-        return res.status(201).json(result.message);
-
+  };
+  
+  module.exports.createOfflineOrder = async (req, res) => {
+    try {
+      const result = await createOfflineOrder(req.body);
+      if (!result.success) return res.status(400).json(result.message);
+      return res.status(201).json(result.message);
     } catch (error) {
-        res.status(500).send(error.message);
+      res.status(500).send(error.message);
     }
-})
-
-
-
-
-
-module.exports = router;
+  };
+  
+  module.exports.cancelOfflineOrder = async (req, res) => {
+    try {
+      const result = await cancelOfflineOrder(req.params.orderId);
+      if (!result.success) return res.status(400).json(result.message);
+      return res.status(200).json(result.message);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  };
+  
+  module.exports.getBranchById = async (req, res) => {
+    try {
+      const { branchId } = req.params;
+      const branch = await getBranchById(branchId);
+      if (!branch) return res.status(404).json({ message: 'Branch not found' });
+      return res.status(200).json(branch);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  };
+  
+  module.exports.getSubInventoryById = async (req, res) => {
+    try {
+      const { subInventoryId } = req.params;
+      const subInventory = await getSubInventoryById(subInventoryId);
+      if (!subInventory) return res.status(404).json({ message: 'Sub-Inventory not found' });
+      return res.status(200).json(subInventory);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  };
