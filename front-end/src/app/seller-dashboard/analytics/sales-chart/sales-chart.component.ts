@@ -6,6 +6,10 @@ import { OrderService } from '../../services/order.service';
 import { AnalyticsData } from '../models/analytics.model';
 import { Order } from '../../models/order.model';
 import { ChartConfiguration, ChartType } from 'chart.js';
+import { AuthServiceService } from '../../../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
+import { switchMap, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-sales-chart',
@@ -46,7 +50,11 @@ export class SalesChartComponent implements OnInit, AfterViewInit {
 
   public lineChartType: ChartType = 'line';
 
-  constructor(private orderService: OrderService) {
+  constructor(
+    private orderService: OrderService,
+    private authService: AuthServiceService,
+    private cookieService: CookieService
+  ) {
     const today = new Date();
     this.endDate = today.toISOString().split('T')[0];
     this.startDate = new Date(today.setMonth(today.getMonth() - 1))
@@ -54,7 +62,14 @@ export class SalesChartComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.loadAnalytics();
+    const token = this.cookieService.get('token');
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decodedToken => {
+        if (decodedToken) {
+          this.loadAnalytics();
+        }
+      });
+    }
   }
 
   ngAfterViewInit() {
@@ -69,16 +84,31 @@ export class SalesChartComponent implements OnInit, AfterViewInit {
     this.error = null;
     this.destroyCharts();
 
-    this.orderService.getAllOrders().subscribe({
+    const token = this.cookieService.get('token');
+    if (!token) {
+      this.error = 'No authentication token found';
+      this.loading = false;
+      return;
+    }
+
+    this.orderService.getSellerOrders().pipe(
+      catchError(error => {
+        console.error('Detailed error:', error);
+        return of([]);
+      })
+    ).subscribe({
       next: (orders) => {
+        if (orders.length === 0) {
+          this.error = 'No orders found for this seller';
+          return;
+        }
         this.analytics = this.processOrdersData(orders);
-        console.log('Analytics data:', this.analytics);
         setTimeout(() => {
           this.initializeCharts();
         }, 0);
       },
       error: (err) => {
-        this.error = typeof err === 'string' ? err : 'Failed to load analytics';
+        this.error = 'Failed to load analytics data';
         console.error('Analytics error:', err);
       },
       complete: () => {
@@ -94,8 +124,8 @@ export class SalesChartComponent implements OnInit, AfterViewInit {
     let totalOrders = orders.length;
 
     orders.forEach(order => {
-      // Process daily sales
-      const date = new Date(order.date!).toISOString().split('T')[0];
+      // Use createdAt instead of date
+      const date = new Date(order.createdAt || '').toISOString().split('T')[0];
       const existing = salesByDate.get(date) || { amount: 0, count: 0 };
       salesByDate.set(date, {
         amount: existing.amount + order.totalPrice,

@@ -19,7 +19,6 @@ import { OrdersComponent } from './sales-clerk-dashboard/orders/orders.component
 import { BranchProductsComponent } from './sales-clerk-dashboard/branch-products/branch-products.component';
 import { OrderListComponent } from './seller-dashboard/orders/order-list/order-list.component';
 import { SalesChartComponent } from './seller-dashboard/analytics/sales-chart/sales-chart.component';
-import { SellerGuard } from './guards/seller.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -36,7 +35,17 @@ export const routes: Routes = [
   // {path:"login",component:LoginComponent},
   // {path:"register",component:RegisterComponent},
   // {path:"userprofile",component:UserProfileComponent},
-  {path:"sellerdashboard",component:SellerDashboardComponent},
+  {
+    path: "sellerdashboard",
+    component: SellerDashboardComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./seller-dashboard/seller-dashboard.routes')
+          .then(m => m.SELLER_DASHBOARD_ROUTES)
+      }
+    ]
+  },
   
   {path:"**",component:NotFoundComponent},
   {

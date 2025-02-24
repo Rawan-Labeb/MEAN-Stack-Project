@@ -46,26 +46,36 @@
                 [existingImages]="productForm.get('images')?.value || []">
               </app-seller-upload>
               
-              <div class="image-previews" *ngIf="productForm.get('images')?.value?.length">
-                <div class="image-preview-item" *ngFor="let image of productForm.get('images')?.value; let i = index">
-                  <img [src]="image" 
-                       [alt]="'Product image ' + (i + 1)" 
-                       class="preview-image"
-                       (error)="handleImageError($event)">
-                  <button type="button" 
-                          class="btn-remove" 
-                          (click)="removeImage(i)"
-                          [disabled]="productForm.get('images')?.value?.length <= MIN_IMAGES">
+              <div class="image-preview-container">
+                <div *ngFor="let url of previewUrls; let i = index" class="image-preview">
+                  <img [src]="url" alt="Preview">
+                  <button class="delete-image-btn" (click)="removeImage(i)">
                     <i class="fas fa-times"></i>
                   </button>
-                  <div class="image-info">
-                    <small>Image {{i + 1}} of {{productForm.get('images')?.value?.length}}</small>
-                  </div>
                 </div>
               </div>
               <small class="text-muted">
                 {{productForm.get('images')?.value?.length || 0}} of {{MAX_IMAGES}} images uploaded
               </small>
+            </div>
+
+            <div class="form-group">
+              <label for="images">Product Images</label>
+              <input type="file" 
+                     id="images" 
+                     multiple 
+                     (change)="onFileSelected($event)" 
+                     accept="image/*" 
+                     class="form-control">
+              
+              <div class="image-preview-container">
+                <div *ngFor="let url of previewUrls; let i = index" class="image-preview">
+                  <img [src]="url" alt="Preview">
+                  <button class="delete-image-btn" (click)="removeImage(i)">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="button-group">

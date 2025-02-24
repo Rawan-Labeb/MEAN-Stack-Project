@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-add-product',
   templateUrl: './add-product.component.html',
+  styleUrls: ['./add-product.component.css'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, SellerUploadComponent]
 })
@@ -26,6 +27,9 @@ export class AddProductComponent implements OnInit {
   readonly MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
   readonly MAX_IMAGES = 8; // maximum images
   readonly MIN_IMAGES = 3; // minimum required images
+
+  // Add previewUrls property
+  previewUrls: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -77,6 +81,21 @@ export class AddProductComponent implements OnInit {
       // Combine existing images with new ones
       const updatedImages = [...currentImages, ...uploadedUrls];
       this.productForm.patchValue({ images: updatedImages });
+    }
+  }
+
+  // Method to handle file selection
+  onFileSelected(event: any): void {
+    const files = event.target.files;
+    if (files) {
+      this.previewUrls = []; // Clear existing previews
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.previewUrls.push(e.target.result);
+        };
+        reader.readAsDataURL(file as Blob);
+      });
     }
   }
 
@@ -164,9 +183,12 @@ export class AddProductComponent implements OnInit {
     }
   }
 
+  // Method to remove image preview
   removeImage(index: number): void {
-    const currentImages = this.productForm.get('images')?.value || [];
-    currentImages.splice(index, 1);
-    this.productForm.patchValue({ images: currentImages });
+    this.previewUrls.splice(index, 1);
+    // Also remove from the actual files array if you're tracking that
+    const fileList = Array.from(this.productForm.get('images')?.value || []);
+    fileList.splice(index, 1);
+    this.productForm.patchValue({ images: fileList });
   }
 }

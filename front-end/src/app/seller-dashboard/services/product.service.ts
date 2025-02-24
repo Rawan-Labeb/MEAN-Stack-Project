@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, Subject, throwError } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, Subject, throwError, of } from 'rxjs';
 import { Product, ProductFormData, ProductSubmitData } from '../models/product.model';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -11,7 +11,7 @@ import { CookieService } from 'ngx-cookie-service';
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:5000';
+  private apiUrl = 'http://localhost:5000'; 
   private productUpdated = new Subject<Product>();
 
   constructor(
@@ -20,13 +20,29 @@ export class ProductService {
     private cookieService: CookieService
   ) {}
 
-  private getSellerId(): string {
+  private getSellerId(): Observable<string> {
     const token = this.cookieService.get('token');
     if (!token) {
       throw new Error('No authentication token found');
     }
-    const decodedToken = this.authService.decodeToken(token);
-    return decodedToken.id; // or whatever field contains the user/seller ID
+    return this.authService.decodeToken(token).pipe(
+      map(decodedToken => {
+        if (!decodedToken) {
+          throw new Error('Invalid token');
+        }
+        return decodedToken.id;
+      })
+    );
+  }
+
+  getSellerIdFromToken(): Observable<string | null> {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return this.authService.decodeToken(token).pipe(
+        map(decodedToken => decodedToken ? decodedToken.id : null)
+      );
+    }
+    return of(null);
   }
 
   // Keep core CRUD operations
@@ -46,14 +62,33 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/product/getProductById/${id}`);
   }
 
-  createProduct(productData: ProductSubmitData): Observable<Product> {
-    const sellerId = this.getSellerId();
-    const product = {
-      ...productData,
-      sellerId: sellerId
-    };
+  createProduct(product: ProductSubmitData): Observable<any> {
+    const token = this.cookieService.get('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
 
-    return this.http.post<Product>(`${this.apiUrl}/product/createProduct`, product);
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json');
+
+    return this.authService.decodeToken(token).pipe(
+      switchMap(decodedToken => {
+        if (!decodedToken) {
+          throw new Error('Invalid token');
+        }
+
+        const productData = {
+          ...product,
+          sellerId: decodedToken.sub
+        };
+
+        return this.http.post(`${this.apiUrl}/product/createProduct`, productData, { headers }).pipe(
+          tap(response => console.log('Create product response:', response)),
+          catchError(this.handleError)
+        );
+      })
+    );
   }
 
   updateProduct(id: string, data: ProductSubmitData): Observable<Product> {
@@ -88,6 +123,10 @@ export class ProductService {
     );
   }
 
+  getProductsBySeller(sellerId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/seller/${sellerId}`);
+  }
+
   // Consolidate image upload methods
   uploadProductImages(files: FileList): Observable<{imageUrls: string[]}> {
     const formData = new FormData();
@@ -103,12 +142,13 @@ export class ProductService {
   }
 
   private handleError(error: HttpErrorResponse) {
-    console.error('API Error:', error);
-    if (error.status === 400) {
-      const errors = error.error?.errors || [];
-      const errorMessage = errors.map((e: any) => `${e.field}: ${e.message}`).join(', ');
-      return throwError(() => new Error(errorMessage || error.error?.message));
-    }
-    return throwError(() => new Error('An error occurred. Please try again.'));
+    console.error('Error details:', {
+      status: error.status,
+      message: error.error,
+      headers: error.headers.keys(),
+      url: error.url
+    });
+    
+    return throwError(() => error);
   }
 }

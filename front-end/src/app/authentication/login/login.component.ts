@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Login } from '../../_models/login';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms'; // Import FormsModule
+// import { UserServiceService } from '../../_services/user.service';
 import { CookieService } from 'ngx-cookie-service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, JsonPipe } from '@angular/common';
 import { AuthServiceService } from 'src/app/_services/auth-service.service';
 import { Router, RouterLink } from '@angular/router';
 
@@ -27,15 +28,22 @@ export class LoginComponent
     this.loginFrom = new FormGroup({
       email:new FormControl("", [Validators.required, Validators.email]),
       password: new FormControl("", [
-        Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
-      ])
-    });
-    this.loginForm = new Login(this.validate("email")?.value || "", this.validate("password")?.value || "", "");
+        Validators.required, 
+        Validators.pattern(/^(?=.[A-Z])(?=.[a-z])(?=.\d)(?=.[@$!%?&#])[A-Za-z\d@$!%?&#]{8,}$/)
+      ])      
+      })
+      this.loginForm = new Login(this.validate("email")?.value, this.validate("password")?.value, "");
+
   }
 
+  loginForm:Login;
+
+  loginData:Login = new Login("", "", "");
+
   Login() {
-    console.log(this.validate("email")?.value);
+
+
+    console.log(this.validate("email")?.value)
 
     if (this.loginFrom.valid) {
       const email = this.loginFrom.get('email')?.value;
@@ -43,7 +51,7 @@ export class LoginComponent
   
       console.log("Email:", email);
       console.log("Password:", password);
-
+  
       this.loginData = new Login(email, password, "");
 
       this.loginSer.login(this.loginData).subscribe({
@@ -67,9 +75,8 @@ export class LoginComponent
   }
   
 
-  validate (inpupt:string)
-  {
-    return this.loginFrom.get(`${inpupt}`)
+  validate(input: string) {
+    return this.loginFrom.get(input);
   }
 
 

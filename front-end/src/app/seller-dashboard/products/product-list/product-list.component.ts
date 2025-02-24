@@ -20,7 +20,8 @@ import Swal from 'sweetalert2';
     EditProductComponent,
     AddProductComponent,
     DeleteProductComponent
-  ]
+  ],
+  styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
@@ -37,42 +38,41 @@ export class ProductListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
-  }
-
-  loadProducts(): void {
-    this.loading = true;
-    const token = this.cookieService.get('token');
-    if (!token) {
-      this.error = 'Not authenticated';
-      this.loading = false;
-      return;
-    }
-
-    try {
-      const decodedToken = this.authService.decodeToken(token);
-      const sellerId = decodedToken.id;
-
-      this.productService.getSellerProducts(sellerId).subscribe({
-        next: (products) => {
-          this.products = products;
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error loading products:', error);
-          this.error = 'Failed to load products';
-          this.loading = false;
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decodedToken => {
+        if (decodedToken) {
+          const sellerId = decodedToken.id; 
+          this.loadProducts(sellerId);
         }
       });
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      this.error = 'Authentication error';
-      this.loading = false;
     }
+  }
+
+  loadProducts(sellerId: string): void {
+    this.loading = true;
+    this.productService.getProductsBySeller(sellerId).subscribe(
+      (products) => {
+        this.products = products;
+        this.loading = false;
+      },
+      (error) => {
+        console.error('Error loading products:', error);
+        this.error = 'Failed to load products';
+        this.loading = false;
+      }
+    );
   }
 
   onProductSaved(): void {
-    this.loadProducts();
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decodedToken => {
+        if (decodedToken) {
+          this.loadProducts(decodedToken.id);
+        }
+      });
+    }
   }
 
   onAddProduct(): void {
@@ -87,13 +87,28 @@ export class ProductListComponent implements OnInit {
   toggleProductStatus(product: Product): void {
     if (product.isActive) {
       this.productService.deactivateProduct(product._id).subscribe({
-        next: () => this.loadProducts(),
+        next: () => {
+          this.refreshProducts();
+        },
         error: (error) => console.error('Error deactivating product:', error)
       });
     } else {
       this.productService.activateProduct(product._id).subscribe({
-        next: () => this.loadProducts(),
+        next: () => {
+          this.refreshProducts();
+        },
         error: (error) => console.error('Error activating product:', error)
+      });
+    }
+  }
+
+  private refreshProducts(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decodedToken => {
+        if (decodedToken) {
+          this.loadProducts(decodedToken.id);
+        }
       });
     }
   }
@@ -105,6 +120,6 @@ export class ProductListComponent implements OnInit {
   }
 
   onProductDeleted(): void {
-    this.loadProducts();
+    this.refreshProducts();
   }
 }

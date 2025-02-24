@@ -1,20 +1,27 @@
 export interface Order {
-  _id: string;  // Ensure _id is always a string
+  _id: string;
   customerId: string;
   items: OrderItem[];
-  totalPrice: number;
-  status: 'pending' | 'shipped' | 'completed' | 'cancelled' | 'returned' | 'refunded';
-  paymentMethod: 'Cash' | 'Card' | 'Online';
-  date?: string;
+  status: 'pending' | 'shipped' | 'completed' | 'cancelled' | 'returned';
+  paymentMethod: string;
   customerDetails: CustomerDetails;
+  totalPrice: number;  
+  date: string;        
   notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface OrderItem {
   productId: string;
-  price: number;
+  product?: {
+    sellerId: string;
+    name: string;
+    price: number;
+  };
   quantity: number;
-  _id?: string;
+  price: number;
+  subInventoryId?: string;
 }
 
 export interface CustomerDetails {

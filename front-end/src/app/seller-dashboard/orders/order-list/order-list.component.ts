@@ -6,6 +6,9 @@ import { Order } from '../../models/order.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { OrderDetailsComponent } from '../order-details/order-details.component';
 import Swal from 'sweetalert2';
+import { AuthServiceService } from '../../../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
+import { switchMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-order-list',
@@ -15,7 +18,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./order-list.component.css']
 })
 export class OrderListComponent implements OnInit {
-  orders: Order[] = [];
+  orders: any[] = [];
   filteredOrders: Order[] = [];
   loading = false;
   error: string | null = null;
@@ -25,25 +28,44 @@ export class OrderListComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private authService: AuthServiceService,
+    private cookieService: CookieService
   ) {}
 
   ngOnInit(): void {
-    this.loadOrders();
+    this.loadSellerOrders();
   }
 
-  loadOrders(): void {
+  private loadSellerOrders(): void {
     this.loading = true;
-    this.error = null;
+    const token = this.cookieService.get('token');
+    
+    if (!token) {
+      this.error = 'No authentication token found';
+      this.loading = false;
+      return;
+    }
 
-    this.orderService.getAllOrders().subscribe({
-      next: (data) => {
-        this.orders = data;
-        this.applyFilters();
+    this.authService.decodeToken(token).pipe(
+      switchMap(decodedToken => {
+        if (!decodedToken) {
+          throw new Error('Invalid token');
+        }
+        console.log('Fetching orders for seller:', decodedToken.sub);
+        return this.orderService.getSellerOrders();
+      })
+    ).subscribe({
+      next: (filteredOrders) => {
+        console.log('Received orders:', filteredOrders);
+        this.orders = filteredOrders;
+        this.filteredOrders = filteredOrders; // Initialize filtered orders
+        this.applyFilters(); // Apply any active filters
       },
       error: (error) => {
-        this.error = typeof error === 'string' ? error : 'Failed to load orders';
-        console.error('Error:', error);
+        this.error = 'Failed to load orders';
+        console.error('Detailed error:', error);
+        this.loading = false;
       },
       complete: () => {
         this.loading = false;
