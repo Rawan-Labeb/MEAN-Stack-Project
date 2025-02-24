@@ -12,7 +12,7 @@ const {
     increaseSubInventoryQuantity,
     getSubInventoriesByBranchId,
     getDeactiveSubInventoriesByBranchId,
-    getActiveSubInventoriesByBranchId
+    getActiveSubInventoriesByBranchId,
 
 } = require("./../services/sub.inventory.services");
 

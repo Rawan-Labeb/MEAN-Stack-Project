@@ -7,7 +7,8 @@ const {
     updateDistributionRequestStatusAndMessage,
     deleteDistributionRequest,
     getDistributionRequestsByStatus,
-    getDistributionRequestsByBranchManager
+    getDistributionRequestsByBranchManager,
+    deactiveSubInventory
 } = require('../repos/distribution.request.repo');
 
 const {
