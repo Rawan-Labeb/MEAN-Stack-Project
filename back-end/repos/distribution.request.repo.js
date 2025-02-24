@@ -118,3 +118,15 @@ module.exports.getDistributionRequestsByStatus = async (requestStatus) => {
         throw new Error("Could not get distribution requests by status");
     }
 };
+
+
+module.exports.getDistributionRequestsByBranchManager = async (branchManagerId) => {
+    try {
+        const distributionRequests = await DistributionRequest.find({ branchManager: branchManagerId })
+            .populate('mainInventory branchManager')
+            .exec();
+        return distributionRequests;
+    } catch (error) {
+        throw new Error("Could not get distribution requests by branch manager");
+    }
+};

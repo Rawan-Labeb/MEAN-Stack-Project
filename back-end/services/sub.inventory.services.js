@@ -9,7 +9,9 @@ const {
     deactiveSubInventory,
     deleteSubInventory,
     decreaseSubInventoryQuantity,
-    increaseSubInventoryQuantity
+    increaseSubInventoryQuantity,
+    getDeactiveSubInventoriesByBranchId,
+    getActiveSubInventoriesByBranchId
     
 } = require("./../repos/sub.inventory.repo");
 
@@ -183,6 +185,44 @@ module.exports.getDeactiveSubInventoriesByBranchName = async (branchName) => {
         return {success:false, message: error.message};
     }
 }
+
+module.exports.getDeactiveSubInventoriesByBranchId = async (branchId) => {
+    try
+    {
+        const chk = await validationONBranchId(branchId);
+        if (!chk.valid)
+            return {success: false, message: chk.message};
+
+        const subInventories = await getDeactiveSubInventoriesByBranchId(chk.message._id);
+        
+        return {success: true, message: subInventories};
+
+    }catch (error)
+    {
+        return {success:false, message: error.message};
+    }
+}
+
+module.exports.getActiveSubInventoriesByBranchId = async (branchId) => {
+    try
+    {
+        const chk = await validationONBranchId(branchId);
+        if (!chk.valid)
+            return {success: false, message: chk.message};
+
+        const subInventories = await getActiveSubInventoriesByBranchId(chk.message._id);
+        
+        return {success: true, message: subInventories};
+
+    }catch (error)
+    {
+        return {success:false, message: error.message};
+    }
+}
+
+
+
+
 
 
 module.exports.activeSubInventory = async (subInventoryId) => {
