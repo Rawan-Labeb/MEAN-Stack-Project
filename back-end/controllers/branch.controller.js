@@ -3,8 +3,12 @@ const express=require('express')
 const mongoose = require("mongoose");
 const {validationResult}=require("express-validator")
 
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
+
 const router=express.Router()
-router.get('/branches', async (req, res, next) => {
+router.get('/branches', authenticaiton, authorize("manager"), async (req, res, next) => {
   try {
       const branches = await service.getAllBranches();
       if (branches)
@@ -16,7 +20,7 @@ router.get('/branches', async (req, res, next) => {
   }
 });
 
-router.get('/branches/:id', async (req, res, next) => {
+router.get('/branches/:id', authenticaiton, authorize("cashier"), async (req, res, next) => {
     try {
         const branchId = req.params.id;
 
@@ -33,7 +37,7 @@ router.get('/branches/:id', async (req, res, next) => {
     }
 });
 
-router.get('/branches/get/active', async (req, res, next) => {
+router.get('/branches/get/active', authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const branches = await service.getBranchesByActive();
         res.status(200).json(branches);
@@ -41,7 +45,7 @@ router.get('/branches/get/active', async (req, res, next) => {
         next(error);
     }
 });
-router.get('/branchesByType/:type', async (req, res, next) => {
+router.get('/branchesByType/:type', authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const branches = await service.getBranchesByType(req.params.type);
         res.status(200).json(branches);
@@ -59,7 +63,7 @@ router.get('/branchByName/:name', async (req, res, next) => {
     }
 });
 
-router.post('/branches',async (req, res, next) => {
+router.post('/branches', authenticaiton, authorize("manager"),  async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -76,7 +80,7 @@ router.post('/branches',async (req, res, next) => {
     }
   });
 
-router.put('/branches/:id', async (req, res, next) => {
+router.put('/branches/:id',authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -95,7 +99,7 @@ router.put('/branches/:id', async (req, res, next) => {
     }
   });
 
-   router.put('/branches/toggle/:id', async (req, res, next) => {
+   router.put('/branches/toggle/:id', authenticaiton, authorize("manager"), async (req, res, next) => {
       try {
           const branchId = req.params.id;
           const updatedBranch = await service.updateBranchActive(branchId);
@@ -105,7 +109,7 @@ router.put('/branches/:id', async (req, res, next) => {
       }
   });
   
-router.delete('/branches/:id', async (req, res, next) => {
+router.delete('/branches/:id', authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
       const branchId = req.params.id;
 

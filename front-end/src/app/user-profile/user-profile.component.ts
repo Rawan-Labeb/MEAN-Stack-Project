@@ -12,10 +12,14 @@ import { Order } from '../_models/order.module';
 import { OrderService } from '../_services/order.service';
 import { UploadService } from '../_services/upload.service';
 import { HttpClient } from '@angular/common/http';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import Swal from 'sweetalert2';
+import { ContactService } from '../_services/contact.service';
+import { Complaint } from '../_models/contact.model';
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule, CommonModule, JsonPipe],
+  imports: [ReactiveFormsModule, CommonModule, JsonPipe, RouterLink, RouterOutlet],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -25,7 +29,6 @@ export class UserProfileComponent implements OnInit
   token:any;
   userData:any;
   id:any;
-  // address 
   governorates: any[] = [];
   cities: any[] = [];
 
@@ -39,9 +42,7 @@ export class UserProfileComponent implements OnInit
     private authSer: AuthServiceService,
     private cookieServices:CookieService,
     private locationSer:LocationServicesService,
-    private orderSer:OrderService,
     private uploadSer:UploadService,
-    private http:HttpClient
   ) {
 
     this.userProfileForm = new FormGroup({
@@ -62,7 +63,13 @@ export class UserProfileComponent implements OnInit
 
   ngOnInit(): void {
     // Get user data
-    this.token = this.decodeUserToken(this.getToken());
+    this.decodeUserToken(this.getToken()).subscribe({
+      next: (data:any) => {
+        this.token = data;
+        console.log(data);
+    }
+  });
+
     if (this.token && this.token.email) {
       this.authSer.getUserDataByEmail(this.token.email).subscribe({
         next: (data) => {
@@ -75,7 +82,8 @@ export class UserProfileComponent implements OnInit
             this.fillFormWithUserData();
             
             // Now it's safe to call loadUserOrders
-            this.loadUserOrders();
+            // this.loadUserOrders();
+            // this.loadUserComplaints();
           }
         },
         error: (err) => console.error('Error fetching user data', err)
@@ -122,20 +130,6 @@ export class UserProfileComponent implements OnInit
       this.userProfileForm.patchValue({
         cityName: selectedCity ? selectedCity.city_name_en : ''
       });
-    });
-  }
-  
-  // Load orders
-  loadUserOrders() {
-    this.orderSer.getOrdersByCustomerId(this.id).subscribe({
-      next: (orders) => {
-        this.userOrder = orders;
-        console.log(orders);
-        console.log(this.userOrder);
-      },
-      error: (err) => {
-        console.error('Error fetching orders', err);
-      }
     });
   }
   
@@ -311,9 +305,6 @@ onSubmit() {
       }
     });
   }
-
-
-
 
 
 

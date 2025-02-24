@@ -7,6 +7,7 @@ const {
     updateDistributionRequestStatusAndMessage,
     deleteDistributionRequest,
     getDistributionRequestsByStatus,
+    getDistributionRequestsByBranchManager,
     deactiveSubInventory
 } = require('../repos/distribution.request.repo');
 
@@ -167,6 +168,20 @@ module.exports.updateDistributionRequestStatusAndMessage = async (id, status, me
     }
 };
 
+
+module.exports.getDistributionRequestsByBranchManager = async (branchManagerId) => {
+    try {
+        const chkUser = await validateUserId(branchManagerId);
+        if (!chkUser.valid)
+            return {success: false, message: chkUser.message};
+        if (chkUser.message.role !== "clerk")
+            return {success: false, message: "Only branch manager can get distribution requests"};
+        const distReqs = await getDistributionRequestsByBranchManager(branchManagerId);
+        return {success: true, message: distReqs};
+    } catch (error) {
+        return {success: false, message: error.message};
+    }
+};
 
 
 
