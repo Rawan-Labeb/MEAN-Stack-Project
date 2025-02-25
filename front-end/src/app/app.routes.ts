@@ -39,7 +39,17 @@ export const routes: Routes = [
   // {path:"login",component:LoginComponent},
   // {path:"register",component:RegisterComponent},
   // {path:"userprofile",component:UserProfileComponent},
-  {path:"sellerdashboard",component:SellerDashboardComponent},
+  {
+    path: "sellerdashboard",
+    component: SellerDashboardComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./seller-dashboard/seller-dashboard.routes')
+          .then(m => m.SELLER_DASHBOARD_ROUTES)
+      }
+    ]
+  },
   
   {path:"**",component:NotFoundComponent},
   {

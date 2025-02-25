@@ -97,6 +97,8 @@ export class SubInventoryService {
         return this.http.get<SubInventory[]>(`${this.apiUrl}/getDeactiveSubInventoriesByBranchId/${id}`);
       }
 
-      
-      
+      getActiveSubInventoriesByBranchId(id: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/getActiveSubInventoriesByBranchId/${id}`);
+      }
+
 }

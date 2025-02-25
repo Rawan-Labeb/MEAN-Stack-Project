@@ -30,7 +30,7 @@ export class LoginComponent
       email:new FormControl("", [Validators.required, Validators.email]),
       password: new FormControl("", [
         Validators.required, 
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
+        Validators.pattern(/^(?=.[A-Z])(?=.[a-z])(?=.\d)(?=.[@$!%?&#])[A-Za-z\d@$!%?&#]{8,}$/)
       ])      
       })
       this.loginForm = new Login(this.validate("email")?.value, this.validate("password")?.value, "");
@@ -88,9 +88,8 @@ export class LoginComponent
   }
   
 
-  validate (inpupt:string)
-  {
-    return this.loginFrom.get(`${inpupt}`)
+  validate(input: string) {
+    return this.loginFrom.get(input);
   }
 
 

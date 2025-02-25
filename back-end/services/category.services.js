@@ -91,4 +91,13 @@ module.exports.updateCategoryActive = async (categoryId) => {
       throw new Error("Error deleting category by ID: " + error.message);
     }
   };
+
+module.exports.deleteAllCategories = async () => {
+  try {
+    await repo.deleteAllCategories();
+    return { success: true, message: "All categories deleted successfully" };
+  } catch (error) {
+    throw new Error("Error deleting all categories: " + error.message);
+  }
+};
   

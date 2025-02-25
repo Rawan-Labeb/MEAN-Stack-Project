@@ -117,4 +117,15 @@ router.post('/categories', authenticaiton, authorize("manager"), async (req, res
       next(error);
     }
   })
+
+
+router.delete('/categories', async (req, res, next) => {
+  try {
+    await services.deleteAllCategories();
+    res.status(200).json({ message: 'All categories deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports=router

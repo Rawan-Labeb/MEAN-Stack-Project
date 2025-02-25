@@ -4,7 +4,7 @@ const cors = require('cors');
 const user = require("./controllers/user.controller");
 const permission = require("./controllers/permission.controller");
 const Complaint = require("./controllers/complaint.controller")
-const supplierController = require('./controllers/supplier.controller');
+
 require('dotenv').config();
 const category = require("./controllers/category.controller");
 const fileUpload = require("express-fileupload");
@@ -76,6 +76,7 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
+    process.exit(1);
   });
 
 

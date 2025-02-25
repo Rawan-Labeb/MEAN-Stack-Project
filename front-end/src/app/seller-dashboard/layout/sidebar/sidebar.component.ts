@@ -13,7 +13,16 @@ import { RouterModule } from '@angular/router';
 export class SidebarComponent {
   constructor(private router: Router) {}
 
+  // Update navigation methods to use correct paths
+  navigateToProducts(): void {
+    this.router.navigate(['/sellerdashboard/products']);
+  }
+
+  navigateToOrders(): void {
+    this.router.navigate(['/sellerdashboard/orders']);
+  }
+
   navigateToAnalytics(): void {
-    this.router.navigate(['/seller/analytics']);
+    this.router.navigate(['/sellerdashboard/sales']);
   }
 }
