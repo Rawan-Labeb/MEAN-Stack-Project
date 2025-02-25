@@ -1,20 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  id: string;
-  date: Date;
-  customerName: string;
-  total: number;
-  status: 'pending' | 'shipped' | 'delivered';
-  items: OrderItem[];
-}
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Order } from '../../models/order.model';
 
 @Component({
   selector: 'app-order-details',
@@ -24,5 +11,7 @@ interface Order {
   styleUrls: ['./order-details.component.css']
 })
 export class OrderDetailsComponent {
-  @Input() order: Order;
+  @Input() order!: Order;
+
+  constructor(public activeModal: NgbActiveModal) {}
 }

@@ -1,22 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { OrderService } from '../../services/order.service';
+import { Order } from '../../models/order.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { OrderDetailsComponent } from '../order-details/order-details.component';
 import Swal from 'sweetalert2';
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  id: string;
-  date: Date;
-  customerName: string;
-  total: number;
-  status: 'pending' | 'shipped' | 'delivered';
-  items: OrderItem[];
-}
+import { AuthServiceService } from '../../../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
+import { switchMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-order-list',
@@ -25,30 +17,63 @@ interface Order {
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.css']
 })
-export class OrderListComponent {
-  orders: Order[] = [
-    {
-      id: '1',
-      date: new Date(),
-      customerName: 'John Doe',
-      total: 299.99,
-      status: 'pending',
-      items: [{ name: 'Product 1', quantity: 2, price: 149.99 }]
-    },
-    {
-      id: '2',
-      date: new Date(),
-      customerName: 'Jane Smith',
-      total: 499.99,
-      status: 'shipped',
-      items: [{ name: 'Product 2', quantity: 1, price: 499.99 }]
+export class OrderListComponent implements OnInit {
+  orders: any[] = [];
+  filteredOrders: Order[] = [];
+  loading = false;
+  error: string | null = null;
+  statusFilter = 'all';
+
+  readonly ORDER_STATUSES = ['pending', 'shipped', 'completed', 'cancelled', 'returned'];
+
+  constructor(
+    private orderService: OrderService,
+    private modalService: NgbModal,
+    private authService: AuthServiceService,
+    private cookieService: CookieService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadSellerOrders();
+  }
+
+  private loadSellerOrders(): void {
+    this.loading = true;
+    const token = this.cookieService.get('token');
+    
+    if (!token) {
+      this.error = 'No authentication token found';
+      this.loading = false;
+      return;
     }
-  ];
 
-  statusFilter: 'all' | 'pending' | 'shipped' | 'delivered' = 'all';
-  filteredOrders: Order[] = this.orders;
+    this.authService.decodeToken(token).pipe(
+      switchMap(decodedToken => {
+        if (!decodedToken) {
+          throw new Error('Invalid token');
+        }
+        console.log('Fetching orders for seller:', decodedToken.sub);
+        return this.orderService.getSellerOrders();
+      })
+    ).subscribe({
+      next: (filteredOrders) => {
+        console.log('Received orders:', filteredOrders);
+        this.orders = filteredOrders;
+        this.filteredOrders = filteredOrders; // Initialize filtered orders
+        this.applyFilters(); // Apply any active filters
+      },
+      error: (error) => {
+        this.error = 'Failed to load orders';
+        console.error('Detailed error:', error);
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
+  }
 
-  filterOrders(): void {
+  applyFilters(): void {
     if (this.statusFilter === 'all') {
       this.filteredOrders = this.orders;
     } else {
@@ -56,39 +81,52 @@ export class OrderListComponent {
     }
   }
 
-  viewDetails(order: Order): void {
+  getStatusButtonClass(status: string): string {
+    const classes = {
+      pending: 'btn-warning',
+      shipped: 'btn-info',
+      completed: 'btn-success',
+      cancelled: 'btn-danger',
+      returned: 'btn-secondary'
+    };
+    return classes[status as keyof typeof classes] || 'btn-light';
+  }
+
+  changeOrderStatus(order: Order, newStatus: string): void {
+    if (order.status === newStatus) return;
+
     Swal.fire({
-      title: `Order #${order.id}`,
-      html: this.generateOrderDetailsHtml(order),
-      width: '500px'
+      title: 'Change Order Status',
+      text: `Are you sure you want to change the status to ${newStatus}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, change it!',
+      cancelButtonText: 'No, cancel!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.orderService.changeOrderStatus(order._id, newStatus).subscribe({
+          next: (updatedOrder) => {
+            const index = this.orders.findIndex(o => o._id === order._id);
+            if (index !== -1) {
+              this.orders[index] = updatedOrder;
+              this.applyFilters();
+            }
+            Swal.fire('Updated!', 'Order status has been updated.', 'success');
+          },
+          error: (error) => {
+            console.error('Error updating status:', error);
+            Swal.fire('Error!', 'Failed to update order status.', 'error');
+          }
+        });
+      }
     });
   }
 
-  private generateOrderDetailsHtml(order: Order): string {
-    return `
-      <div class="text-left">
-        <p><strong>Customer:</strong> ${order.customerName}</p>
-        <p><strong>Date:</strong> ${order.date.toLocaleDateString()}</p>
-        <p><strong>Total:</strong> $${order.total}</p>
-        <p><strong>Status:</strong> ${order.status}</p>
-        <hr>
-        <h6>Items:</h6>
-        ${order.items.map(item => `
-          <div class="d-flex justify-content-between">
-            <span>${item.name} x${item.quantity}</span>
-            <span>$${item.price}</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'pending': return 'bg-warning';
-      case 'shipped': return 'bg-info';
-      case 'delivered': return 'bg-success';
-      default: return 'bg-secondary';
-    }
+  viewDetails(order: Order): void {
+    const modalRef = this.modalService.open(OrderDetailsComponent, {
+      size: 'lg',
+      centered: true
+    });
+    modalRef.componentInstance.order = order;
   }
 }

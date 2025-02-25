@@ -1,136 +1,110 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Product, ProductFormData } from '../../models/product.model';
-import { Category } from '../../models/product.model';
-import { CategoryService } from '../../services/category.service';
 import { ProductService } from '../../services/product.service';
-import { firstValueFrom } from 'rxjs';
+import { CategoryService } from '../../services/category.service';
+import { SellerUploadComponent } from '../../components/seller-upload/seller-upload.component';
+import { Product, Category } from '../../models/product.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-edit-product',
-  templateUrl: './edit-product.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, SellerUploadComponent],
+  templateUrl: './edit-product.component.html'
 })
-export class EditProductComponent implements OnInit, OnChanges {
+export class EditProductComponent implements OnInit {
   @Input() show = false;
-  @Input() product?: Product;
-  @Output() closeModal = new EventEmitter<void>();
-  @Output() productUpdated = new EventEmitter<void>();
+  @Input() product!: Product;
+  @Output() close = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<void>();
 
   categories: Category[] = [];
-  selectedFiles: File[] = [];
-  existingImages: string[] = [];
   loading = false;
-  productData: ProductFormData = {
-    name: '',
-    price: 0,
-    quantity: 0,
-    description: '',
-    isActive: true,
-    supplierId: '679bf428745c9d962586960e',
-    categoryId: '679bf428745c9d962586960c',
-    sellerId: '679bd316017427c66ece2617'
-  };
+  productCopy!: Product;
 
   constructor(
-    private categoryService: CategoryService,
-    private productService: ProductService
+    private productService: ProductService,
+    private categoryService: CategoryService
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.loadCategories();
-  }
-
-  ngOnChanges(): void {
     if (this.product) {
-      // Set form data without images
-      this.productData = {
-        name: this.product.name,
-        price: this.product.price,
-        quantity: this.product.quantity,
-        categoryId: this.product.categoryId,
-        description: this.product.description,
-        isActive: this.product.isActive,
-        supplierId: this.product.supplierId,
-        sellerId: this.product.sellerId
-      };
-      
-      // Handle images separately
-      this.existingImages = this.product.images || [];
+      this.productCopy = { ...this.product };
     }
   }
 
-  loadCategories(): void {
-    this.categoryService.getCategories().subscribe({
-      next: (data) => {
-        this.categories = data;
+  private loadCategories() {
+    this.categoryService.getActiveCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
       },
-      error: (error) => console.error('Error loading categories:', error)
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        Swal.fire('Error', 'Failed to load categories', 'error');
+      }
     });
   }
 
-  onFileChange(event: Event): void {
-    const element = event.target as HTMLInputElement;
-    if (element.files) {
-      this.selectedFiles = Array.from(element.files);
-    }
+  onImagesUploaded(uploadedUrls: string[]): void {
+    this.productCopy.images = uploadedUrls;
   }
 
-  async onSubmit(): Promise<void> {
-    if (!this.product?._id) return;
-    
-    try {
-      this.loading = true;
-      
-      // Validate data before update
-      if (this.productData.price < 0 || this.productData.quantity < 0) {
-        throw new Error('Price and quantity must be positive numbers');
+  onSubmit(): void {
+    if (!this.validateForm()) return;
+
+    this.loading = true;
+    const updateData = {
+      name: this.productCopy.name,
+      description: this.productCopy.description,
+      price: this.productCopy.price,
+      quantity: this.productCopy.quantity,
+      categoryId: typeof this.productCopy.categoryId === 'string' 
+        ? this.productCopy.categoryId 
+        : this.productCopy.categoryId._id,
+      sellerId: this.productCopy.sellerId,
+      images: this.productCopy.images,
+      isActive: this.productCopy.isActive
+    };
+
+    this.productService.updateProduct(this.product._id, updateData).subscribe({
+      next: () => {
+        Swal.fire('Success', 'Product updated successfully', 'success');
+        this.saved.emit();
+        this.close.emit();
+      },
+      error: (error) => {
+        console.error('Error updating product:', error);
+        Swal.fire('Error', 'Failed to update product', 'error');
+      },
+      complete: () => {
+        this.loading = false;
       }
-
-      // Create update object
-      const updateData = {
-        name: this.productData.name.trim(),
-        price: this.productData.price,
-        quantity: this.productData.quantity,
-        description: this.productData.description?.trim(),
-        isActive: this.productData.isActive,
-        supplierId: this.productData.supplierId
-      };
-
-      const updatedProduct = await firstValueFrom(
-        this.productService.updateProduct(this.product._id, updateData)
-      );
-      
-      console.log('Product updated successfully:', updatedProduct);
-      this.productUpdated.emit();
-      this.closeModal.emit();
-    } catch (error) {
-      console.error('Error updating product:', error);
-      // Here you could add a notification service to show error messages
-    } finally {
-      this.loading = false;
-    }
+    });
   }
 
-  resetForm(): void {
-    if (this.product) {
-      this.productData = {
-        name: this.product.name,
-        price: this.product.price,
-        quantity: this.product.quantity,
-        categoryId: this.product.categoryId,
-        description: this.product.description || '',
-        isActive: this.product.isActive,
-        supplierId: this.product.supplierId,
-        sellerId: this.product.sellerId
-      };
+  private validateForm(): boolean {
+    if (!this.productCopy.name?.trim()) {
+      Swal.fire('Error', 'Product name is required', 'error');
+      return false;
     }
+    if (!this.productCopy.categoryId) {
+      Swal.fire('Error', 'Please select a category', 'error');
+      return false;
+    }
+    if (this.productCopy.price <= 0) {
+      Swal.fire('Error', 'Price must be greater than 0', 'error');
+      return false;
+    }
+    if (this.productCopy.quantity < 0) {
+      Swal.fire('Error', 'Quantity cannot be negative', 'error');
+      return false;
+    }
+    return true;
   }
 
   onClose(): void {
-    this.selectedFiles = [];
-    this.closeModal.emit();
+    this.close.emit();
   }
 }
