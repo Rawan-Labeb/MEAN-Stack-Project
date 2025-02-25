@@ -7,6 +7,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthServiceService } from '../_services/auth-service.service';
 import { SubInventoryService } from '../_services/sub-inventory.service';
 import { CategoryService } from '../_services/category.service';
+import {  HostListener } from '@angular/core';
 
 
 interface Perfume {
@@ -46,6 +47,18 @@ interface BlogPost {
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit{
+  showBackToTop: boolean = false;
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll() {
+    // Show the button if the user has scrolled more than 300px
+    this.showBackToTop = window.pageYOffset > 300;
+  }
+
+  scrollToTop(): void {
+    // Smoothly scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   constructor(
     private router: Router,
     public subInventorySer: SubInventoryService,
@@ -56,9 +69,10 @@ export class HomeComponent implements OnInit{
     
 
   ) {}
+
+  token:any=null ;
   productRelatedtoBranch:any[]=[];
   products:any[] = [];
-   token:any=null ;
    loading: boolean = true; 
    bestSales: any[] = []; 
    newArrivalsD: any[] = []; 
@@ -184,6 +198,18 @@ export class HomeComponent implements OnInit{
       }));
   
       console.log(this.products); 
+      // Filter and sort for bestSales (top 4 by noOfSale)
+      this.bestSales = this.products
+      .sort((a, b) => b.noOfSale - a.noOfSale) 
+      .slice(0, 4); 
+
+      // Filter and sort for newArrivals (top 4 by subInventoryDate)
+      this.newArrivalsD = this.products
+        .sort((a, b) => new Date(b.subInventoryDate).getTime() - new Date(a.subInventoryDate).getTime()) 
+        .slice(0, 4);
+        
+        console.log('Best Sales:', this.bestSales);
+        console.log('New Arrivals:', this.newArrivalsD);
       this.loading = false;
     } catch (error) {
       console.error('Failed to retrieve products or categories', error);
@@ -267,40 +293,40 @@ export class HomeComponent implements OnInit{
   
 
   // Static new arrivals data
-  newArrivals: Perfume[] = [
-    {
-      id: 4,
-      name: 'Spring Essence',
-      price: 59.99,
-      image: '',
-      description: 'A fresh and floral scent perfect for spring.',
-      rating: 5
-    },
-    {
-      id: 5,
-      name: 'Night Mist',
-      price: 99.99,
-      image: '',
-      description: 'A luxurious fragrance for evening wear.',
-      rating: 5
-    },
-    {
-      id: 5,
-      name: 'Night Mist',
-      price: 99.99,
-      image: '',
-      description: 'A luxurious fragrance for evening wear.',
-      rating: 5
-    },
-    {
-      id: 5,
-      name: 'Night Mist',
-      price: 99.99,
-      image: '',
-      description: 'A luxurious fragrance for evening wear.',
-      rating: 5
-    }
-  ];
+  // newArrivals: Perfume[] = [
+  //   {
+  //     id: 4,
+  //     name: 'Spring Essence',
+  //     price: 59.99,
+  //     image: '',
+  //     description: 'A fresh and floral scent perfect for spring.',
+  //     rating: 5
+  //   },
+  //   {
+  //     id: 5,
+  //     name: 'Night Mist',
+  //     price: 99.99,
+  //     image: '',
+  //     description: 'A luxurious fragrance for evening wear.',
+  //     rating: 5
+  //   },
+  //   {
+  //     id: 5,
+  //     name: 'Night Mist',
+  //     price: 99.99,
+  //     image: '',
+  //     description: 'A luxurious fragrance for evening wear.',
+  //     rating: 5
+  //   },
+  //   {
+  //     id: 5,
+  //     name: 'Night Mist',
+  //     price: 99.99,
+  //     image: '',
+  //     description: 'A luxurious fragrance for evening wear.',
+  //     rating: 5
+  //   }
+  // ];
 
   // Static blog post data
   blogPosts: BlogPost[] = [
@@ -322,6 +348,9 @@ export class HomeComponent implements OnInit{
   Array = Array;
   goBackToCatalog(): void {
     this.router.navigate(['/catalog']);
+  }
+  goBackToDetails(id:any): void {
+    this.router.navigate(['/catalog/details',id]);
   }
   goBackToCategory(category:string): void {
     this.router.navigate(['/catalog'], { queryParams: { category } });
