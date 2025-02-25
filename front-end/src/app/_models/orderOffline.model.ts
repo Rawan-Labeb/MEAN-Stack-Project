@@ -1,8 +1,8 @@
-export interface OfflineOrder {
+export interface OrderOffline {
     _id: string;
     items: OrderItem[];
     totalPrice: number;
-    date?: string;
+    date:Date;
     branch: Branch;
     status: 'completed' | 'canceled';
   }
@@ -10,28 +10,16 @@ export interface OfflineOrder {
   export interface OrderItem {
     _id: string;
     subInventoryId: SubInventory;
+    productDetails: {_id:string,name:string,price:number,prevPrice:number,images:string[],noOfSale:number,sellerId:{_id:string,firstName:string,lastName:string},categoryId:{_id:string,name:string}}
     price: number;
     quantity: number;
   }
   
   export interface SubInventory {
-    _id: string;
-    mainInventory: string;
     product: string;
-    branch: string;
-    quantity: number;
-    numberOfSales: number;
-    active: boolean;
-    lastUpdated: string;
   }
   
   export interface Branch {
     _id: string;
     branchName: string;
-    location: string;
-    contactNumber: string;
-    type: 'offline' | 'online';
-    isActive: boolean;
-    createdAt?: string;
-    updatedAt?: string;
   }

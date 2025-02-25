@@ -165,6 +165,61 @@ export class ProductsComponent implements OnInit, OnDestroy {
       }
     });
   }  
+
+  createProdReq(product: string, seller: string): void {
+    Swal.fire({
+      title: 'Create Product Request',
+      input: 'number',
+      inputLabel: 'Enter the requested quantity',
+      inputAttributes: {
+        min: '1',
+        step: '1'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Request',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary',
+      },
+      preConfirm: (quantity) => {
+        if (!quantity || quantity <= 0) {
+          Swal.showValidationMessage('Please enter a valid quantity');
+        }
+        return quantity;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const quantityRequested = Number(result.value);
+        this.productService.createProdReq(product, seller, "67ba0e63dc1b0f8d419f6d9e", quantityRequested).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Success!',
+              text: `Product request for ${quantityRequested} units has been submitted.`,
+              icon: 'success',
+              confirmButtonText: 'OK',
+              customClass: {
+                confirmButton: 'btn btn-success'
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error creating product request:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: error?.error?.message || 'Failed to submit product request.',
+              icon: 'error',
+              confirmButtonText: 'OK',
+              customClass: {
+                confirmButton: 'btn btn-danger'
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+  
   
   activeProduct(id: string): void {
         this.productService.activeProduct(id,this.productData).subscribe({

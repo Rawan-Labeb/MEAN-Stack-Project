@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable,Subject } from 'rxjs';
 import { Order } from '../_models/order.module';
 import { Product } from '../_models/product.model';
 
@@ -10,7 +10,7 @@ import { Product } from '../_models/product.model';
 export class OrderService {
   private apiUrl = 'http://localhost:5000/order';
     private productApiUrl = 'http://localhost:5000/product';
-
+  private orderUpdated = new Subject<Order>();
 
   constructor(private http: HttpClient) {} // Update with your actual backend API URL
 
@@ -60,4 +60,7 @@ export class OrderService {
   deleteProductFromOrder(orderId: string, productId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${orderId}/product/${productId}`);
   }
+        onOrderUpdate(): Observable<Order> {
+            return this.orderUpdated.asObservable();
+        }
 }

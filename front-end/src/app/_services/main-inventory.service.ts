@@ -13,8 +13,15 @@ export class MainInventoryService {
     constructor(private http: HttpClient) { }
   
     getAllMainInventory(): Observable<MainInventory[]> {
-      return this.http.get<MainInventory[]>(`${this.apiUrl}/getAllMainInventory`);
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer my-token` // ✅ استبدلي `my-token` بالتوكن الفعلي
+      });
+    
+      return this.http.get<MainInventory[]>(`${this.apiUrl}/getAllMainInventory`, { headers }).pipe(
+        tap(response => console.log('Response:', response)) // ✅ يتم الطباعة عند تنفيذ الـ subscribe
+      );
     }
+    
 
     getMainInventoryById(id: string): Observable<MainInventory> {
       return this.http.get<MainInventory>(`${this.apiUrl}/getMainInventoryById/${id}`);

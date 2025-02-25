@@ -13,13 +13,14 @@ import { NotFoundComponent } from './not-found/not-found.component';
 // import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
+import { canLoginSuperAdminGuard } from './_guards/can-login-super-admin.guard';
 
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
   { path: 'cart', component: CartComponent },
   { path: 'checkout', component: CheckoutComponent },
-  {path:"admindashboard", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
+  {path:"admindashboard", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes),canActivate: [canLoginSuperAdminGuard]},
   {path: "user", loadChildren: ()=> import("./authentication/user.routes").then(route => route.userRoutes)},
   {path:"home",component:HomeComponent},
   {path:"",component:HomeComponent},

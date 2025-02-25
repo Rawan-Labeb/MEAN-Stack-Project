@@ -47,4 +47,10 @@ export class SidenavComponent implements OnInit {
     event.stopPropagation();
     branch.showSubSubMenu = !branch.showSubSubMenu;
   }
+  showMenu = false;
+
+toggleOnlineBranch() {
+  this.showMenu = !this.showMenu;
+}
+
 }

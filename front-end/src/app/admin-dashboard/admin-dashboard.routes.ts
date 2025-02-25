@@ -13,6 +13,8 @@ import { CategoryComponent } from './pages/category/category.component';
 import { MainInventoryComponent } from './pages/main-inventory/main-inventory.component';
 import { BranchComponent } from './pages/branch/branch.component';
 import { SubInventoryComponent } from './pages/sub-inventory/sub-inventory.component';
+import { OfflineOrderComponent } from './pages/offline-order/offline-order.component';
+import { DistReqComponent } from './pages/dist-req/dist-req.component';
 //import { ReviewComponent } from './pages/review/review.component';
 
 
@@ -33,6 +35,8 @@ export const adminDashboardRoutes: Routes = [
         { path: 'mainInventories', component: MainInventoryComponent },
         { path: 'branches', component: BranchComponent },
         { path: 'subInventory/:branchName', component: SubInventoryComponent },
+        { path: 'orders/:_id', component: OfflineOrderComponent },
+        { path: 'distReq', component: DistReqComponent },
 
     ]},  
 ];

@@ -11,6 +11,7 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SubInventoryService } from 'src/app/_services/sub-inventory.service';
 import { BranchService } from 'src/app/_services/branch.service';
+import { ProductService } from 'src/app/_services/product.service';
 
 @Component({
   selector: 'app-main-inventory',
@@ -34,7 +35,7 @@ export class MainInventoryComponent implements OnInit, OnDestroy{
       mainInventoryData: MainInventory = this.getInitialMainInventoryData();
       constructor(private mainInventoryService: MainInventoryService ,
          private cdr: ChangeDetectorRef,private subInventoryService:SubInventoryService,
-        private branchService:BranchService) {}
+        private branchService:BranchService,private productService:ProductService) {}
     
       ngOnInit(): void {
         this.loadMainInventories();
@@ -70,6 +71,18 @@ export class MainInventoryComponent implements OnInit, OnDestroy{
           const data = await firstValueFrom(this.mainInventoryService.getAllMainInventory());
           this.mainInventories = [...data]
           this.filteredMainInventories = [...this.mainInventories];
+
+          for (const item of this.mainInventories) {
+            if (item.product && item.product._id) {
+              this.productService.getProductById(item.product._id).subscribe({
+                next: (product:any) => {
+                  item.product = product;
+                  this.cdr.detectChanges();
+                },
+                error: (error) => console.error('❌ Error fetching product:', error)
+              });
+            }
+          }
       
           this.applyFilters();
           this.cdr.detectChanges();
@@ -195,7 +208,7 @@ export class MainInventoryComponent implements OnInit, OnDestroy{
     
         filtered.sort((a, b) => {
           const direction = this.sortDirection === 'asc' ? 1 : -1;
-          return String(a[this.sortColumn]).localeCompare(String(b[this.sortColumn])) * direction;
+          return a.product.name.localeCompare(b.product.name) * direction;
         });
     
         this.filteredMainInventories = [...filtered];

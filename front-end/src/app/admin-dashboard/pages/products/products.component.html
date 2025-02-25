@@ -163,6 +163,10 @@
                           <mat-icon>inventory_2</mat-icon>
                           MainInventory
                         </button>
+                        <button mat-menu-item (click)="createProdReq(product._id,product.sellerId._id)">
+                          <mat-icon>product</mat-icon>
+                          prodReq
+                        </button>
                       </mat-menu>
                     </td>
                   </tr>
