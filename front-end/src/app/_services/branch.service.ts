@@ -4,14 +4,27 @@ import { Observable ,Subject} from 'rxjs';
 import { Branch } from '../_models/branch.model';
 import { tap} from 'rxjs/operators';
 
+import { CookieService } from 'ngx-cookie-service'; 
 @Injectable({
   providedIn: 'root'
 })
 export class BranchService {
   private apiUrl = 'http://localhost:5000/branches';
   private branchUpdated = new Subject<Branch>();
-    constructor(private http: HttpClient) { }
-  
+
+  constructor(private http: HttpClient, private cookieService: CookieService) {}
+
+  private getAuthToken(): string {
+    return this.cookieService.get('token'); 
+  }
+
+  private getHeaders() {
+    const token = this.getAuthToken();
+    console.log('Token in Headers:', token); 
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }  
     getAllBranches(): Observable<Branch[]> {
       return this.http.get<Branch[]>(this.apiUrl);
     }
@@ -20,11 +33,11 @@ export class BranchService {
     }
 
     getBranchById(id: string): Observable<Branch> {
-      return this.http.get<Branch>(`${this.apiUrl}/${id}`);
+      return this.http.get<Branch>(`${this.apiUrl}/${id}`,{ headers: this.getHeaders() });
     }
 
     getBranchByName(name: string): Observable<Branch> {
-      return this.http.get<Branch>(`${this.apiUrl}/branchByName/${name}`);
+      return this.http.get<Branch>(`${this.apiUrl}/branchByName/${name}`,{ headers: this.getHeaders() });
     }
 
     getBranchesByActive(): Observable<Branch[]> {

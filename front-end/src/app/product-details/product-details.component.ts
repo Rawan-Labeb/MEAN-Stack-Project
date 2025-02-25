@@ -8,6 +8,8 @@ import { CategoryService } from '../_services/category.service';
 import { CartService } from '../cart/service/cart.service';
 import { AuthServiceService } from '../_services/auth-service.service';
 import { CookieService } from 'ngx-cookie-service';
+import Swal from 'sweetalert2';
+
 
 interface Perfume {
   id: number;
@@ -243,44 +245,105 @@ decreaseQuantity(): void {
 }
   
   // Add the product to the cart
+// addToCart(): void {
+//   if (this.cookieSer.check("token"))
+//   {
+//     console.log(this.cookieSer.get("token"))
+//     let token = this.cookieSer.get("token");
+//     this.authSer.decodeToken(token).subscribe({
+//       next: (claims:any) => {
+//         this.cartSer.addToCart(claims.sub, this.product._id, this.quantity).subscribe({
+//           next: (data) => {
+//             alert('Added to cart successfully!');
+//           },
+//           error: (err) => {
+//             console.error('Failed to add to cart', err);
+//           }     
+//       })
+//     }
+//   })
+//   }
+//   else  {
+//     this.cartSer.addToCart("", this.product._id, this.quantity).subscribe({
+//       next: (data) => {
+//         alert('Added to cart successfully!');
+//       },
+//       error: (err) => {
+//         console.error('Failed to add to cart', err);
+//       }     
+//   })
+
+//   }
+  
+//   // this.cartSer.addToCart()
+
+  
+//   // Show a more detailed alert message
+//   // const totalCost = this.quantity * this.perfume.price;
+//   // alert(`"${this.perfume.name}" (Quantity: ${this.quantity}, Total: $${totalCost.toFixed(2)}) has been added to your cart!`);
+  
+// }
+
+
 addToCart(): void {
-  if (this.cookieSer.check("token"))
-  {
-    console.log(this.cookieSer.get("token"))
+  if (this.cookieSer.check("token")) {
+    console.log(this.cookieSer.get("token"));
     let token = this.cookieSer.get("token");
     this.authSer.decodeToken(token).subscribe({
-      next: (claims:any) => {
+      next: (claims: any) => {
         this.cartSer.addToCart(claims.sub, this.product._id, this.quantity).subscribe({
           next: (data) => {
-            alert('Added to cart successfully!');
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'Added to cart successfully!',
+              confirmButtonText: 'OK'
+            });
           },
           error: (err) => {
             console.error('Failed to add to cart', err);
-          }     
-      })
-    }
-  })
-  }
-  else  {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Failed to add to cart',
+              confirmButtonText: 'OK'
+            });
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed to decode token', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to decode token',
+          confirmButtonText: 'OK'
+        });
+      }
+    });
+  } else {
     this.cartSer.addToCart("", this.product._id, this.quantity).subscribe({
       next: (data) => {
-        alert('Added to cart successfully!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Added to cart successfully!',
+          confirmButtonText: 'OK'
+        });
       },
       error: (err) => {
         console.error('Failed to add to cart', err);
-      }     
-  })
-
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to add to cart',
+          confirmButtonText: 'OK'
+        });
+      }
+    });
   }
-  
-  // this.cartSer.addToCart()
-
-  
-  // Show a more detailed alert message
-  // const totalCost = this.quantity * this.perfume.price;
-  // alert(`"${this.perfume.name}" (Quantity: ${this.quantity}, Total: $${totalCost.toFixed(2)}) has been added to your cart!`);
-  
 }
+
 
 goBackToCatalog(): void {
   this.router.navigate(['/catalog']);

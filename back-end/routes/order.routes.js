@@ -17,6 +17,10 @@ const {
 
 const router = express.Router();
 
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
+
 //create new order from cart by user id (user data) in body (ONLINE PAYMENT)
 router.post('/create-order-from-cart', createOrderFromCart); 
 
@@ -36,7 +40,7 @@ router.put('/update-to-paid/:id', updateOrderToPaid);
 router.put('/update-to-delivered/:id', updateOrderToDelivered);
 
 //checkout
-router.post('/checkout', checkOut);
+router.post('/checkout',authenticaiton, authorize("customer"), checkOut);
 
 //update order status by id
 router.put('/update-status/:id', updateOrderStatus);

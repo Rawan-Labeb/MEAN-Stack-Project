@@ -13,7 +13,9 @@ const {getAllUsers,
     changePassword
 } = require ("./../services/user.service")
 
-const authorize = require("./../middlewares/authorization.middleware")
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
 
 
 const {main} = require("./../services/forgetPassword.service")
@@ -28,7 +30,7 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
 // get all users
-router.get("/getAllUsers", async (req, res, next) => {
+router.get("/getAllUsers", authenticaiton, authorize("manager"), async (req, res, next) => {
     const users = await getAllUsers();
     if (users.success)
         return res.json(users.message);
@@ -37,7 +39,7 @@ router.get("/getAllUsers", async (req, res, next) => {
 })
 
 
-router.get("/getUserById/:id", async (req, res, next) => {
+router.get("/getUserById/:id", authenticaiton, authorize("customer"), async (req, res, next) => {
     try {
         // console.log(req.params.id)
         const user = await getUserById(req.params.id);
@@ -51,7 +53,7 @@ router.get("/getUserById/:id", async (req, res, next) => {
     }
 });
 
-router.get("/getUserByEmail/:email", async (req, res, next) => {
+router.get("/getUserByEmail/:email", authenticaiton, authorize("customer"), async (req, res, next) => {
     try {
         const user = await getUserByEmail(req.params.email);
         if (user.success)
@@ -80,7 +82,7 @@ router.post("/register", async (req, res, next) => {
 
 
 
-router.put("/updateUser/:id", async (req, res, next) => {
+router.put("/updateUser/:id", authenticaiton, authorize("customer"), async (req, res, next) => {
     try {
         const updatedUser = await updateUser(req.params.id, req.body);
         console.log(updatedUser)
@@ -94,7 +96,7 @@ router.put("/updateUser/:id", async (req, res, next) => {
 });
 
 
-router.put("/deactivateUser/:id", async (req, res, next) => {
+router.put("/deactivateUser/:id",authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const deactivatedUser = await deactivateUser(req.params.id);
         console.log(deactivatedUser)
@@ -108,7 +110,7 @@ router.put("/deactivateUser/:id", async (req, res, next) => {
 });
 
 
-router.put("/activateUser/:id", async (req, res, next) => {
+router.put("/activateUser/:id",authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const activatedUser = await activateUser(req.params.id);
         if (activatedUser.success)
@@ -120,7 +122,7 @@ router.put("/activateUser/:id", async (req, res, next) => {
     }
 });
 
-router.delete("/deleteUser/:id", async (req, res, next) => {
+router.delete("/deleteUser/:id",authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const deletedUser = await deleteUser(req.params.id);
         if (deletedUser.success)
@@ -133,7 +135,7 @@ router.delete("/deleteUser/:id", async (req, res, next) => {
 });
 
 
-router.put("/changeUserRole/:id", async (req, res, next) => {
+router.put("/changeUserRole/:id",authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const updatedUserRole = await changeUserRole(req.params.id, req.body.role);
         if (updatedUserRole.success)
@@ -160,7 +162,7 @@ router.post("/login", async (req, res, next) => {
 });
 
 
-router.get("/getUsersBasedOnRole/:role", async (req,res) => {
+router.get("/getUsersBasedOnRole/:role", authenticaiton, authorize("manager"), async (req,res) => {
     try{
         const result = await getUsersByRole(req.params.role);
         console.log(result)
@@ -207,9 +209,6 @@ router.post('/resetPassword', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
-
-
 
 
 
