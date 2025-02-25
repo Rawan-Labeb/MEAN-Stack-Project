@@ -7,6 +7,9 @@ const {
     updateProductRequestStatusAndMessage
 } = require("./../services/product.reqest.services");
 
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
 const router = require("express").Router();
 const express = require("express");
 router.use(express.json()); 
@@ -14,7 +17,7 @@ router.use(express.urlencoded({ extended: true }));
 
 
 
-router.post("/createProdReq", async (req, res) => {
+router.post("/createProdReq", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await createProductRequest(req.body);
         if (result.success) {
@@ -27,7 +30,7 @@ router.post("/createProdReq", async (req, res) => {
     }
 });
 
-router.get("/getAllProdReq", async (req, res) => {
+router.get("/getAllProdReq", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await getAllProductRequests();
         if (result.success) {
@@ -41,7 +44,7 @@ router.get("/getAllProdReq", async (req, res) => {
     }
 });
 
-router.get("/getProdReqById/:id", async (req, res) => {
+router.get("/getProdReqById/:id", authenticaiton, authorize("seller"), async (req, res) => {
     try {
         const result = await getProductRequestById(req.params.id);
         if (result.success) {
@@ -56,7 +59,7 @@ router.get("/getProdReqById/:id", async (req, res) => {
 });
 
 
-router.get("/getProdReqForSeller/:sellerId", async (req, res) => {
+router.get("/getProdReqForSeller/:sellerId", authenticaiton, authorize("seller"), async (req, res) => {
     try {
         const result = await getProductRequestsForSeller(req.params.sellerId);
         if (result.success) {
@@ -71,7 +74,7 @@ router.get("/getProdReqForSeller/:sellerId", async (req, res) => {
 });
 
 
-router.delete("/deleteProdReq/:id", async (req, res) => {
+router.delete("/deleteProdReq/:id",authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await deleteProductRequest(req.params.id);
         if (result.success) {
@@ -87,7 +90,7 @@ router.delete("/deleteProdReq/:id", async (req, res) => {
 
 
 
-router.post("/updateProdReqStatusAndMsg/:id", async (req, res) => {
+router.post("/updateProdReqStatusAndMsg/:id", authenticaiton, authorize("seller"), async (req, res) => {
     try {
         const result = await updateProductRequestStatusAndMessage(req.params.id, req.body.status, req.body.message);
         if (result.success) {

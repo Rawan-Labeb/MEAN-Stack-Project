@@ -7,6 +7,10 @@ const {
     getPermissionsByResourceName
 } = require("./../services/permission.services")
 
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
+
 const router = require("express").Router();
 const express = require("express");
 
@@ -14,7 +18,7 @@ const express = require("express");
 router.use(express.json()); 
 router.use(express.urlencoded({ extended: true }));
 
-router.get("/getAllPermissions", async (req, res) => {
+router.get("/getAllPermissions", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await getAllPermissions();
         if (result.success) {
@@ -27,7 +31,7 @@ router.get("/getAllPermissions", async (req, res) => {
     }
 });
 
-router.get("/getById/:id", async (req, res) => {
+router.get("/getById/:id", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await getPermissionByIdd(req.params.id);
         if (result.success) {
@@ -40,7 +44,7 @@ router.get("/getById/:id", async (req, res) => {
     }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await createPermission(req.body);
         if (result.success) {
@@ -53,7 +57,7 @@ router.post("/add", async (req, res) => {
     }
 });
 
-router.put("/edit/:id", async (req, res) => {
+router.put("/edit/:id", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await updatePermission(req.params.id, req.body);
         if (result.success) {
@@ -66,7 +70,7 @@ router.put("/edit/:id", async (req, res) => {
     }
 });
 
-router.delete("/DeleteById/:id", async (req, res) => {
+router.delete("/DeleteById/:id", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await deletePermission(req.params.id);
         if (result.success) {
@@ -79,7 +83,7 @@ router.delete("/DeleteById/:id", async (req, res) => {
     }
 });
 
-router.get("/getByResource/:resourceName", async (req, res) => {
+router.get("/getByResource/:resourceName", authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await getPermissionsByResourceName(req.params.resourceName);
         if (result.success) {

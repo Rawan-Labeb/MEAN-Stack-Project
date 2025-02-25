@@ -68,3 +68,58 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+/* Make sure body and html fill the viewport */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  /* Full-height clickable sections */
+  .full-page-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full screen height */
+    text-decoration: none;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  /* Complaints Section */
+  .complaints {
+    background-image: url('./../../../assets/complaint/complaint.jpg');
+  }
+  
+  /* Orders Section */
+  .orders {
+    background-image: url('./../../../assets/orders/orders.jpg');
+  }
+  
+  /* Dark overlay for better text readability */
+  .overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Text Styling */
+  .text {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  /* Hover effect */
+  .full-page-link:hover {
+    transform: scale(1.02);
+  }
+  

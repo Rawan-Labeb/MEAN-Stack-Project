@@ -24,7 +24,11 @@ export class SubInventoryService {
       getDeactiveSubInventoriesByBranchName(branchName: string): Observable<SubInventory[]> {
         return this.http.get<SubInventory[]>(`${this.apiUrl}/getDeactiveSubInventoriesByBranchName/${branchName}`);
       }
-  
+
+
+
+
+
       getSubInventoryById(id: string): Observable<SubInventory> {
         return this.http.get<SubInventory>(`${this.apiUrl}/getSubInventoryById/${id}`);
       }
@@ -84,5 +88,12 @@ export class SubInventoryService {
         }
         onSubInventoryUpdate(): Observable<SubInventory> {
             return this.subInventoryUpdated.asObservable();
-        }
+      }
+
+      getDeactiveSubInventoriesByBranchId(id: string): Observable<SubInventory[]> {
+        return this.http.get<SubInventory[]>(`${this.apiUrl}/getDeactiveSubInventoriesByBranchId/${id}`);
+      }
+
+      
+      
 }

@@ -139,7 +139,7 @@ module.exports.deactiveProduct = async (id) => {
 }
 
 module.exports.deleteProduct = async (id) => {
-    try
+    try 
     {
         const chkId = await validateProdId(id);
         if (!chkId.valid)

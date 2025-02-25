@@ -7,14 +7,15 @@ const {
 } = require("./../services/product.review.services");
 
 
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
 const router = require("express").Router();
 const express = require("express");
 router.use(express.json()); 
 router.use(express.urlencoded({ extended: true }));
 
-
-
-router.post("/createReview", async (req, res) => {
+router.post("/createReview",authenticaiton, authorize("customer"), async (req, res) => {
     try {
         const result = await createReview(req.body);
         if (result.success) {
@@ -44,7 +45,7 @@ router.get("/getReviewsByProduct/:productId", async (req, res) => {
 );
 
 
-router.delete("/deleteReview/:reviewId", async (req, res) => {
+router.delete("/deleteReview/:reviewId",authenticaiton, authorize("cashier"), async (req, res) => {
     try {
         const reviewId = req.params.reviewId;
         const result = await deleteReview(reviewId);

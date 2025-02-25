@@ -80,6 +80,10 @@ module.exports.createOfflineOrder = async (orderDetails) => {
       subInventory.quantity -= item.quantity;
       subInventory.numberOfSales += item.quantity;
       await subInventory.save({ session });
+
+      // Increase the number of sales for the product
+      product.noOfSale += item.quantity;
+      await product.save({ session });
     }
 
     // Assign the computed total price to the order details
@@ -109,13 +113,19 @@ module.exports.cancelOfflineOrder = async (orderId) => {
     // Retrieve the existing offline order
     const existingOrder = await OfflineOrder.findById(orderId).session(session);
     
-    // Revert the changes made to the sub-inventories
+    // Revert the changes made to the sub-inventories and products
     for (const item of existingOrder.items) {
       const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
       if (subInventory) {
         subInventory.quantity += item.quantity;
         subInventory.numberOfSales -= item.quantity;
         await subInventory.save({ session });
+
+        const product = await Product.findById(subInventory.product).session(session);
+        if (product) {
+          product.noOfSale -= item.quantity;
+          await product.save({ session });
+        }
       }
     }
 
@@ -133,3 +143,5 @@ module.exports.cancelOfflineOrder = async (orderId) => {
     throw new Error("Could not cancel offline order: " + error.message);
   }
 };
+
+
