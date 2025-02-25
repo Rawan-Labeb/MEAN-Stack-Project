@@ -74,6 +74,7 @@
             <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow-sm" aria-labelledby="userDropdown">
               <li *ngIf="userRole"><a class="dropdown-item" routerLink="/user/userprofile"><i class="bi bi-person me-2"></i> User Profile</a></li>
               <li *ngIf="userRole === 'admin'"><a class="dropdown-item" routerLink="/admindashboard"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</a></li>
+              <li *ngIf="userRole === 'Casheir'"><a class="dropdown-item" routerLink="/casheir"><i class="bi bi-clock-history me-2"></i> History</a></li>
               <li *ngIf="userRole === 'seller'" ><a class="dropdown-item" routerLink="/sellerdashboard"><i class="bi bi-speedometer2 me-2"></i> Seller Dashboard</a></li>
               <li *ngIf="userRole === 'customer'"><a class="dropdown-item" routerLink="/userprofile"><i class="bi bi-clock-history me-2"></i> History</a></li>
               <li><hr class="dropdown-divider"></li>
@@ -96,6 +97,23 @@
               <i class="bi bi-cart fs-4 me-2"></i> Cart <span class="badge bg-primary rounded-pill ms-2">{{ getCartItemCount() }}</span>
             </button>
           </li>
+
+
+
+          <!-- <li class="nav-item ms-3">
+            <button 
+              class="btn btn-outline-primary rounded-pill px-3 py-2 d-flex align-items-center" 
+              type="button" 
+              data-bs-toggle="offcanvas" 
+              data-bs-target="#cartOffcanvas" 
+              aria-controls="cartOffcanvas"
+              (click)="loadCart()"  
+            >
+              <i class="bi bi-cart fs-4 me-2"></i> Cart 
+              <span class="badge bg-primary rounded-pill ms-2">{{ getCartItemCount() }}</span>
+            </button>
+          </li> -->
+          
         </ul>
       </div>
     </div>
@@ -138,6 +156,7 @@
 
       <!-- Product Details -->
       <div class="flex-grow-1 me-3">
+        <!-- <span class="fw-bold">{{ item.product.name }}</span><br> -->
         <span class="fw-bold">{{ item.name }}</span><br>
         <small class="text-muted">${{ item.price.toFixed(2) }}</small>
       </div>

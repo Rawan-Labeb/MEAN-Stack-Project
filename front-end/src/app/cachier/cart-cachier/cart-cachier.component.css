@@ -1,6 +1,6 @@
 body{
-    background: #ddd;
-    min-height: 80vh;
+    background: white;
+    min-height: 100vh;
     vertical-align: middle;
     display: flex;
     font-family: sans-serif;
@@ -9,46 +9,13 @@ body{
     padding: 0 ;
 
 }
-* {
-    box-sizing: border-box;
-}
-.background-container {
-    position: absolute;
-    top: 0;
-    left: 0;
+.container{
+    margin: 50px auto;
+    margin-bottom: 300px;
     width: 100%;
-    height: 100vh;
-    background-image: url("./../cart/cartCover.avif");
+    height: 400px;
     background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -1; 
 }
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
-    z-index: 1; 
-}
-
-
-.content {
-    position: relative;
-    z-index: 1; 
-    padding: 20px;
-    color: white; 
-}
-
-
-.container-fluid {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
 .title{
     margin-bottom: 5vh;
 }
@@ -71,8 +38,8 @@ body{
 .cart{
     background-color: white;
     padding: 4vh 5vh;
-    border-bottom-right-radius: 1rem;
-    border-top-right-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+    border-top-left-radius: 1rem;
 
 }
 @media(max-width:767px){
@@ -84,8 +51,8 @@ body{
 }
 .summary{
     background-color: #00003f;
-    border-bottom-left-radius: 1rem;
-    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
     padding: 4vh;
     color: rgb(255, 255, 255);
 }
@@ -186,15 +153,17 @@ a:hover{
     background-repeat: no-repeat;
     background-position-x: 95%;
     background-position-y: center;
-}
+}/* تخصيص حجم الأزرار بشكل أصغر */
+/* تخصيص حجم الأزرار بشكل أكبر قليلاً */
 .btn-sm, .quantity-btn {
-    font-size: 30px;     
-    padding: 6px 42px;    
+    font-size: 30px;      /* تكبير حجم الخط قليلاً */
+    padding: 6px 42px;     /* تكبير الحواف */
     margin: 3px 8px ;
-    height: auto;         
-    width: auto;          
+    height: auto;         /* الحفاظ على الارتفاع المناسب */
+    width: auto;          /* الحفاظ على العرض المناسب */
 }
 
+/* تخصيص زر الإزالة ليكون لونه أحمر */
 .btn-danger {
     background-color: #dc3545;
     border-color: #dc3545;
@@ -206,32 +175,36 @@ a:hover{
     border-color: #bd2130;
 }
 
+/* تخصيص زر الإزالة في حالة .close */
 .close {
-    font-size: 24px;  
+    font-size: 24px;  /* تكبير حجم الخط قليلاً */
     color: #dc3545;
     background-color: transparent; 
     border: none;
-    font-weight: bold;  
+    font-weight: bold;  /* تحديد اللون الأحمر */
 }
 table.table-bordered.table-hover {
     border-color: #ddd;
     border-radius: 2rem;
-    width: 100%; 
-    overflow-x: auto; 
+    width: 100%; /* التأكد من أن الجدول يستخدم العرض الكامل */
+    overflow-x: auto; /* السماح بالتمرير الأفقي في الشاشات الصغيرة */
 }
 
 @media (max-width: 767px) {
+    /* تخصيص الجدول ليتناسب مع الشاشات الصغيرة */
     table.table-bordered.table-hover th,
     table.table-bordered.table-hover td {
         padding: 1vh;
         font-size: 0.8rem;
     }
     
+    /* جعل الأعمدة تصطف بشكل عمودي في الشاشات الصغيرة */
     .summary {
         padding: 2vh 3vh;
     }
 }
 
+/* تخصيص select داخل الـ summary */
 select.form-select.form-select-sm {
     background-color: rgb(247, 247, 247);
     border: 1px solid rgba(60, 58, 54, 0.682);
@@ -246,6 +219,7 @@ select.form-select.form-select-sm:hover {
     background-color: #e0e0e0;
 }
 
+/* تخصيص input داخل الـ summary */
 input.form-control.form-control-sm {
     background-color: rgb(247, 247, 247);
     border: 1px solid rgba(0, 0, 0, 0.137);
@@ -260,6 +234,7 @@ input.form-control.form-control-sm:focus {
     border-color: #00003f;
 }
 
+/* تخصيص زر الإزالة */
 .close {
     font-size: 24px;
     color: #dc3545;
@@ -272,6 +247,7 @@ input.form-control.form-control-sm:focus {
     color: #c82333;
 }
 
+/* تخصيص زر Quantity */
 .quantity-btn {
     background-color: #00003f;
     font-size: 30px;
@@ -288,6 +264,7 @@ input.form-control.form-control-sm:focus {
     border: 1px solid #00003f;
 }
 
+/* تخصيص زر Checkout */
 .checkout {
     background-color: #f0f0ff;
     color: #00003f;
@@ -298,3 +275,53 @@ input.form-control.form-control-sm:focus {
     border: 1px solid #f0f0ff;
     color: #f0f0ff;
 }
+.position-relative {
+    position: relative;
+  }
+  
+  .fixed-bottom-cart {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width:20%;
+    background-color: 00003f;
+    padding: 10px;
+    margin: 20px;
+    text-align: center;
+    border-top: 1px solid #ddd;
+  }
+  @media (max-width: 768px) {
+    .back {
+     display: none;
+
+    }
+    .back-to-shop{
+        background-color: transparent;
+        border: none;
+    }
+    .back-to-shop a{
+        font-size: 30px;
+    }
+}
+.sidebar-header {
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    height: 60px;
+  }
+  .back-button {
+    background-color: white;
+    color: #00003f;
+    transition: all 0.3s ease;
+    width: 100px;
+    height: 40px;
+    margin-top: -8px;
+  }
+  
+  .back-button:hover {
+    background-color: #00003f;
+    color:white ;
+    border: 1px solid white;
+  }
+  
