@@ -4,59 +4,69 @@ import { ProductService } from '../_services/product.service';
 import { OfflineOrderService } from '../_services/OfflineOrder.service'; 
 import { Order } from '../_models/order.module';
 import { OfflineOrder } from '../_models/offlineOrder.model'; 
-import { Branch } from '../_models/branch.model'; 
-import { SubInventory } from '../_models/sub-inventory.model'; 
+import { RouterLink,Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { OrderDetailsComponent } from './order-details/order-details.component';
-import { FooterComponent } from '../footer/footer.component';
-import { HeaderComponent } from '../header/header.component';
-import { CookieService } from 'ngx-cookie-service'; 
+import { UserRoleService } from '../_services/user-role.service';
+import { CookieService } from 'ngx-cookie-service';
+import { jwtDecode } from 'jwt-decode';
+
 
 @Component({
   selector: 'app-cachier',
   templateUrl: './cachier.component.html',
   styleUrls: ['./cachier.component.css'],
   standalone: true,
-  imports: [CommonModule, OrderDetailsComponent,FooterComponent,HeaderComponent]
+  imports: [CommonModule, OrderDetailsComponent,RouterLink]
 })
 export class CachierComponent implements OnInit {
-  orders: Order[] = [];
+  
+  setCashierRole() {
+    this.userRoleService.setUserRole('cashier');
+  }  orders: Order[] = [];
   offlineOrders: OfflineOrder[] = []; 
   filteredOrders: Order[] = [];
   filteredOfflineOrders: OfflineOrder[] = []; 
   selectedOrder: Order | null = null;
   selectedOfflineOrder: OfflineOrder | null = null; 
   showCancelledOrders: boolean = false;
-  branchId: string = '67b129216e1b912065196f93'; 
-  // userId: string = ''; 
-  // branchId: string = ''; 
+  branchId: string = ''; 
+   userId: string = ''; 
 
   constructor(
     private orderService: OrderService,
     private productService: ProductService,
     private offlineOrderService: OfflineOrderService ,
-    private cookieService: CookieService 
+    private cookieService: CookieService ,
+    private userRoleService: UserRoleService,
+    private router: Router
 
   ) {}
 
   ngOnInit(): void {
-    this.getOfflineOrders(); 
+      this.getUserDataFromToken();  
+      this.getOfflineOrders();   
   }
 
   getUserDataFromToken(): void {
-    const token = this.cookieService.get('authToken'); 
+    const token = this.cookieService.get('token'); 
     if (token) {
       try {
-        const payload = JSON.parse(atob(token.split('.')[1])); 
-        // this.userId = payload.sub; 
-        // this.branchId = payload.branchId || '67b129216e1b912065196f93'; 
+        const decodedToken: any = jwtDecode(token); 
+        this.userId = decodedToken.sub; // 
+        this.branchId = decodedToken.branchId || 'defaultBranchId'; 
+  
+        console.log('User ID:', this.userId);
+        console.log('Branch ID:', this.branchId);
       } catch (error) {
         console.error('Error decoding token:', error);
       }
+    } else {
+      console.log('No token found');
     }
   }
-
+  
   getOfflineOrders(): void {
     this.offlineOrderService.getOfflineOrdersByBranchId(this.branchId).subscribe(
       (orders: OfflineOrder[]) => {
@@ -132,7 +142,6 @@ export class CachierComponent implements OnInit {
                 <thead>
                   <tr>
                     <th>Product ID</th>
-                    <th>Product</th>
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Subtotal</th>
@@ -142,7 +151,6 @@ export class CachierComponent implements OnInit {
                   ${offlineOrder.items.map((item, index) => `
                     <tr>
                       <td>${item._id}</td>
-                      <td>${subInventories[index]?.product || 'N/A'}</td>
                       <td>${item.price}</td>
                       <td>${item.quantity}</td>
                       <td>${(item.price * item.quantity).toFixed(2)}</td>

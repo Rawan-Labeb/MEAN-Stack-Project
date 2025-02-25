@@ -5,7 +5,7 @@ export interface OfflineOrder {
     items: OfflineOrderItem[];
     totalPrice: number;
     date?: string;
-    // branchId: string;
+     branchId: string;
     branch?: Branch;
     status: "completed" | "canceled";
   }

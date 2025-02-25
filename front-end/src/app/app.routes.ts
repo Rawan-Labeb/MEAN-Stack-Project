@@ -13,12 +13,20 @@ import { NotFoundComponent } from './not-found/not-found.component';
 // import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
+import { CachierComponent } from './cachier/cachier.component';
+import { CartCachierComponent } from './cachier/cart-cachier/cart-cachier.component';
+import { CartCheckoutGuard } from './cart/_guards/cart-checkout.guard';
+import { CashierGuard } from './cachier/_guard/cashier.guard'
+
+
 
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
-  { path: 'cart', component: CartComponent },
-  { path: 'checkout', component: CheckoutComponent },
+  { path: 'cart', component: CartComponent, canActivate: [CartCheckoutGuard] },
+  { path: 'checkout', component: CheckoutComponent, canActivate: [CartCheckoutGuard] },
+  { path: 'cashier', component: CachierComponent, canActivate: [CashierGuard] },
+  { path: 'cartCashier', component: CartCachierComponent, canActivate: [CashierGuard] },
   {path:"admindashboard", loadChildren:()=>import("./admin-dashboard/admin-dashboard.routes").then(s=>s.adminDashboardRoutes)},
   {path: "user", loadChildren: ()=> import("./authentication/user.routes").then(route => route.userRoutes)},
   {path:"home",component:HomeComponent},
@@ -37,11 +45,7 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent
   },
-  // {
-  //   path: '',
-  //   redirectTo: 'cart',
-  //   pathMatch: 'full'
-  // },
+
   // { path: '', redirectTo: 'seller', pathMatch: 'full' },
   
 ];
