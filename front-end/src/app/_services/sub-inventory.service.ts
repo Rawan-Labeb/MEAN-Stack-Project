@@ -26,6 +26,9 @@ export class SubInventoryService {
       }
 
 
+      getActiveSubInventoriesByBranchId(id: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/getActiveSubInventoriesByBranchId/${id}`);
+      }
 
 
 
