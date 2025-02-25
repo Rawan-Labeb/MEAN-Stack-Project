@@ -22,7 +22,7 @@ body{
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    z-index: -1; /* خلف كل العناصر الأخرى */
+    z-index: -1; 
 }
 
 .overlay {
@@ -31,8 +31,8 @@ body{
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* طبقة سودة مع شفافية 50% */
-    z-index: 1; /* طبقة فوق الصورة */
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 1; 
 }
 
 
@@ -168,15 +168,7 @@ input:focus::-webkit-input-placeholder
     padding: 1vh;
     border-radius: 5px;
 }
-.btn:focus{
-    box-shadow: none;
-    outline: none;
-    box-shadow: none;
-    color: white;
-    -webkit-box-shadow: none;
-    -webkit-user-select: none;
-    transition: none; 
-}
+
 .btn:hover{
     background-color:rgba(255, 255, 255, 0.555);
     color: #00003f;
@@ -194,17 +186,15 @@ a:hover{
     background-repeat: no-repeat;
     background-position-x: 95%;
     background-position-y: center;
-}/* تخصيص حجم الأزرار بشكل أصغر */
-/* تخصيص حجم الأزرار بشكل أكبر قليلاً */
+}
 .btn-sm, .quantity-btn {
-    font-size: 30px;      /* تكبير حجم الخط قليلاً */
-    padding: 6px 42px;     /* تكبير الحواف */
+    font-size: 30px;     
+    padding: 6px 42px;    
     margin: 3px 8px ;
-    height: auto;         /* الحفاظ على الارتفاع المناسب */
-    width: auto;          /* الحفاظ على العرض المناسب */
+    height: auto;         
+    width: auto;          
 }
 
-/* تخصيص زر الإزالة ليكون لونه أحمر */
 .btn-danger {
     background-color: #dc3545;
     border-color: #dc3545;
@@ -216,36 +206,32 @@ a:hover{
     border-color: #bd2130;
 }
 
-/* تخصيص زر الإزالة في حالة .close */
 .close {
-    font-size: 24px;  /* تكبير حجم الخط قليلاً */
+    font-size: 24px;  
     color: #dc3545;
     background-color: transparent; 
     border: none;
-    font-weight: bold;  /* تحديد اللون الأحمر */
+    font-weight: bold;  
 }
 table.table-bordered.table-hover {
     border-color: #ddd;
     border-radius: 2rem;
-    width: 100%; /* التأكد من أن الجدول يستخدم العرض الكامل */
-    overflow-x: auto; /* السماح بالتمرير الأفقي في الشاشات الصغيرة */
+    width: 100%; 
+    overflow-x: auto; 
 }
 
 @media (max-width: 767px) {
-    /* تخصيص الجدول ليتناسب مع الشاشات الصغيرة */
     table.table-bordered.table-hover th,
     table.table-bordered.table-hover td {
         padding: 1vh;
         font-size: 0.8rem;
     }
     
-    /* جعل الأعمدة تصطف بشكل عمودي في الشاشات الصغيرة */
     .summary {
         padding: 2vh 3vh;
     }
 }
 
-/* تخصيص select داخل الـ summary */
 select.form-select.form-select-sm {
     background-color: rgb(247, 247, 247);
     border: 1px solid rgba(60, 58, 54, 0.682);
@@ -260,7 +246,6 @@ select.form-select.form-select-sm:hover {
     background-color: #e0e0e0;
 }
 
-/* تخصيص input داخل الـ summary */
 input.form-control.form-control-sm {
     background-color: rgb(247, 247, 247);
     border: 1px solid rgba(0, 0, 0, 0.137);
@@ -275,7 +260,6 @@ input.form-control.form-control-sm:focus {
     border-color: #00003f;
 }
 
-/* تخصيص زر الإزالة */
 .close {
     font-size: 24px;
     color: #dc3545;
@@ -288,7 +272,6 @@ input.form-control.form-control-sm:focus {
     color: #c82333;
 }
 
-/* تخصيص زر Quantity */
 .quantity-btn {
     background-color: #00003f;
     font-size: 30px;
@@ -305,7 +288,6 @@ input.form-control.form-control-sm:focus {
     border: 1px solid #00003f;
 }
 
-/* تخصيص زر Checkout */
 .checkout {
     background-color: #f0f0ff;
     color: #00003f;

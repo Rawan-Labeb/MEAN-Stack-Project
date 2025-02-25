@@ -169,14 +169,15 @@ export class CheckoutComponent implements OnInit {
     this.checkoutService.createOrder(orderData).subscribe({
       next: (res: any) => {
         console.log('Order created successfully', res);
-        this.cartService.clearCart(this.userId).subscribe(() => {
-          Swal.fire('Success', 'Order placed successfully!', 'success').then(() => this.router.navigate(['/']));
-        });
+        if (this.paymentMethod === 'Cash' || this.paymentMethod === 'Card') {
+          this.cartService.clearCart(this.userId).subscribe(() => {
+            Swal.fire('Success', 'Order placed successfully!', 'success').then(() => this.router.navigate(['/']));
+          });
+        }
       },
       error: (err: any) => {
         console.error('Error creating order', err);
         
-        // التحقق إذا كان الخطأ بسبب البريد الإلكتروني
         if (err.status === 400 && err.error && err.error.error === 'Invalid email address') {
           Swal.fire('Invalid Email', 'Please provide a valid email address', 'error');
         } else {

@@ -97,6 +97,23 @@
               <i class="bi bi-cart fs-4 me-2"></i> Cart <span class="badge bg-primary rounded-pill ms-2">{{ getCartItemCount() }}</span>
             </button>
           </li>
+
+
+
+          <!-- <li class="nav-item ms-3">
+            <button 
+              class="btn btn-outline-primary rounded-pill px-3 py-2 d-flex align-items-center" 
+              type="button" 
+              data-bs-toggle="offcanvas" 
+              data-bs-target="#cartOffcanvas" 
+              aria-controls="cartOffcanvas"
+              (click)="loadCart()"  
+            >
+              <i class="bi bi-cart fs-4 me-2"></i> Cart 
+              <span class="badge bg-primary rounded-pill ms-2">{{ getCartItemCount() }}</span>
+            </button>
+          </li> -->
+          
         </ul>
       </div>
     </div>
@@ -139,6 +156,7 @@
 
       <!-- Product Details -->
       <div class="flex-grow-1 me-3">
+        <!-- <span class="fw-bold">{{ item.product.name }}</span><br> -->
         <span class="fw-bold">{{ item.name }}</span><br>
         <small class="text-muted">${{ item.price.toFixed(2) }}</small>
       </div>

@@ -246,12 +246,12 @@ addItemToCart(item: any): void {
     }
     this.router.navigate(['/checkout']);
 
-    this.cartService.clearCart(this.userId!).subscribe(() => {
-      this.cartItems = [];
-      if (!this.userId) {
-        localStorage.removeItem('guestCart'); 
-      }
-    });
+    // this.cartService.clearCart(this.userId!).subscribe(() => {
+    //   this.cartItems = [];
+    //   if (!this.userId) {
+    //     localStorage.removeItem('guestCart'); 
+    //   }
+    // });
   }
 
   updateCartRegisteredCustomerProductNum(): void {

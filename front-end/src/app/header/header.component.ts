@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServiceService } from '../_services/auth-service.service';
 import { Observable, of } from 'rxjs';
+// >>>>>>>>> import { CartService } from '../cart/service/cart.service';
 
 @Component({
   selector: 'app-header',
@@ -15,10 +16,14 @@ export class HeaderComponent implements OnInit {
   userRole:string|null=null;//='customer';
   isauthenticated:boolean=false;
 
+  //>>>>>>>>> cartItems: any[] = []; 
+
+
   constructor(
     public cookieSer:CookieService,
     public router:Router,
-    private authSer:AuthServiceService
+    private authSer:AuthServiceService,
+ //>>>>>>>>>>   private cartService: CartService
   )
   {
 
@@ -29,11 +34,15 @@ export class HeaderComponent implements OnInit {
 
       
   ngOnInit(): void {
+
     const token = this.getToken();
     if (!token) {
       console.error('No token found');
       return;
+      
     }
+    
+   
   
     this.decodeUserToken(token).subscribe({
       next: (data: any) => {
@@ -53,10 +62,35 @@ export class HeaderComponent implements OnInit {
         } else {
           console.error('Invalid or missing email in token');
         }
+        // >>>>>>>>this.loadCart();
       },
+      
       error: (err: any) => console.error('Error decoding token', err)
     });
   }
+  // >>>>>>> loadCart(): void {
+  //   const userId = this.cookieSer.get('userId'); 
+  //   if (!userId) return;
+  
+  //   this.cartService.getCart(userId).subscribe(res => {
+  //     console.log('Cart Data:', res);
+  //     this.cartItems = res.items.map((item: any) => ({
+  //       subInventory: item.subInventory._id,
+  //       branch: item.branch,
+  //       image: item.image,
+  //       quantity: item.quantity,
+  //       price: item.price,
+  //       product: item.subInventory.product, 
+  //       subInventoryQuantity: item.subInventory.quantity,
+  //       _id: item._id
+  //     }));
+  //     console.log('Updated Cart Items:', this.cartItems);
+  //   }, error => {
+  //     console.error('Error loading cart:', error);
+  //   });
+  // }
+  
+  
   fetchUserDataByEmail(): void {
     if (!this.userEmail) {
       console.error('No email available to fetch user data');
