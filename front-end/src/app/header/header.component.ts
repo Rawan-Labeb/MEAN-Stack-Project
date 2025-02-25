@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServiceService } from '../_services/auth-service.service';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -10,7 +11,10 @@ import { AuthServiceService } from '../_services/auth-service.service';
   imports: [CommonModule,RouterLink],
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  userRole:string|null=null;//='customer';
+  isauthenticated:boolean=false;
+
   constructor(
     public cookieSer:CookieService,
     public router:Router,
@@ -19,7 +23,63 @@ export class HeaderComponent {
   {
 
   }
-  userRole:string|null=null;//='customer';
+  token:any;
+  userEmail:any;
+  userData: any = null; 
+
+      
+  ngOnInit(): void {
+    const token = this.getToken();
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+  
+    this.decodeUserToken(token).subscribe({
+      next: (data: any) => {
+        if (data && data.role) {
+          this.userRole = data.role;
+          console.log('User Role:', this.userRole);
+        } else {
+          console.error('Invalid or missing role in token');
+        }
+  
+        if (data && data.email) {
+          this.userEmail = data.email;
+          console.log('User Email:', this.userEmail);
+  
+          // Fetch additional user data by email
+          this.fetchUserDataByEmail();
+        } else {
+          console.error('Invalid or missing email in token');
+        }
+      },
+      error: (err: any) => console.error('Error decoding token', err)
+    });
+  }
+  fetchUserDataByEmail(): void {
+    if (!this.userEmail) {
+      console.error('No email available to fetch user data');
+      return;
+    }
+  
+    this.authSer.getUserDataByEmail(this.userEmail).subscribe({
+      next: (userData: any) => {
+        if (userData && userData.firstName) {
+          this.userFirstName = userData.firstName;
+          console.log('User First Name:', this.userFirstName);
+          // Example: Store user data in a property
+          this.userData = userData; // Assuming you have a `userData` property
+        } else {
+          console.error('First name is missing or invalid');
+        }
+      },
+      error: (err: any) => console.error('Error fetching user data', err)
+    });
+  }
+  userFirstName:any;
+
+  
   // Mock cart items (replace with actual cart logic)
   cartItems = [
     { id: 1, name: 'Eternity Perfume', price: 79.99 ,image: '',
@@ -46,11 +106,6 @@ export class HeaderComponent {
   }
 
 
-  LogOut()
-  {
-    this.authSer.logout();
-    this.router.navigateByUrl("");
-  }
   increaseQuantity(item: any): void {
     if (item.quantity < 10) {
       item.quantity++;
@@ -71,4 +126,39 @@ export class HeaderComponent {
   calculateTotal(): number {
     return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   }
+  getToken(): string {
+    return this.cookieSer.get('token'); 
+  }
+  // decodeUserToken(token: string): Observable<any> {
+  //   try {
+  //     const decoded = this.authSer.decodeToken(token);
+  //     console.log('Decoded Token:', decoded); 
+  //     return decoded;
+  //   } catch (error) {
+  //     console.error('Invalid token', error);
+  //     return of (null);
+  //   }
+  // }
+  decodeUserToken(token: string): Observable<any> {
+    try {
+      const decoded = this.authSer.decodeToken(token);
+      console.log('Decoded Token:', decoded);
+      return of(decoded); 
+    } catch (error) {
+      console.error('Invalid token', error);
+      return of(null); 
+    }
+  }
+  LogOut(): void {
+    this.authSer.logout();
+    this.router.navigateByUrl('');
+    this.isauthenticated = false;
+  
+    // Reset user-related properties
+    this.userRole = null;
+    this.userEmail = null;
+    this.userData = null;
+  }
+
+  
 }
