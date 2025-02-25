@@ -76,6 +76,33 @@ module.exports.createSubInventory = async (data) => {
 
 
 
+module.exports.getActiveSubInventoriesByBranchId = async (branchId) => {
+  try {
+    const subInventories = await SubInventory.find({ branch: branchId, active: true })
+      .populate('mainInventory product branch')
+      .exec();
+
+    return subInventories;
+  } catch (error) {
+    throw new Error(error.message || "Could not get active sub-inventories by branch ID");
+  }
+}
+
+
+module.exports.getDeactiveSubInventoriesByBranchId = async (branchId) => {
+  try {
+    const subInventories = await SubInventory.find({ branch: branchId, active: false })
+      .populate('mainInventory product branch')
+      .exec();
+
+    return subInventories;
+  } catch (error) {
+    throw new Error(error.message || "Could not get deactive sub-inventories by branch ID");
+  }
+}
+
+
+
 module.exports.getActiveSubInventoriesByBranchName = async (branchId) => {
   try {
     const subInventories = await SubInventory.find({ branch: branchId, active: true })
@@ -100,6 +127,7 @@ module.exports.getDeactiveSubInventoriesByBranchName = async (branchId) => {
     throw new Error(error.message || "Could not get deactive sub-inventories by branch ID");
   }
 }
+
 
 
 
