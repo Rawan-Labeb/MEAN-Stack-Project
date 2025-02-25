@@ -23,7 +23,7 @@ export class OfflineOrderService {
 
   private getHeaders() {
     const token = this.getAuthToken();
-    console.log('Token in Headers:', token); // تأكيد إرسال التوكن
+    console.log('Token in Headers:', token); 
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });

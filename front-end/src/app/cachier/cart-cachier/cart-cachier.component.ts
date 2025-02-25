@@ -484,7 +484,6 @@ export class CartCachierComponent implements OnInit {
           status: 'completed'
         };
   
-        // عرض خيارات للمستخدم لاختيار كيفية إتمام الطلب
         Swal.fire({
           title: 'Create Order',
           text: `Total Price: ${order.totalPrice} EGP\nBranch: ${branch.branchName}`,
