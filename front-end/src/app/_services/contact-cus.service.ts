@@ -8,15 +8,22 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class ContactCusService {
-  private apiUrl = 'http://localhost:5000/complaints';
+  private apiUrl = 'http://localhost:5000/complaint';
 
   constructor(private http: HttpClient) {}
 
-  submitComplaint(complaint: any): Observable<any> {
-    return this.http.post(this.apiUrl, complaint).pipe(
-      catchError(this.handleError)
-    );
+  // submitComplaint(complaint: any): Observable<any> {
+  //   return this.http.post(this.apiUrl, complaint).pipe(
+  //     catchError(this.handleError)
+  //   );
+  // }
+
+  submitComplaint(complaint :any): Observable<any> 
+  {
+    return this.http.post(`${this.apiUrl}`,complaint);
   }
+
+
 
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
