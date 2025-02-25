@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ContactService } from '../_services/contact.service';
+import { ContactCusService } from '../_services/contact-cus.service';
 
 @Component({
   selector: 'app-contact-us',
   templateUrl: './contact-us.component.html',
-  imports:[CommonModule,ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   styleUrls: ['./contact-us.component.css']
 })
 export class ContactUsComponent {
   contactForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private contactCusService: ContactCusService) {
     this.contactForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -22,10 +24,18 @@ export class ContactUsComponent {
 
   onSubmit() {
     if (this.contactForm.valid) {
-      console.log('Form Submitted:', this.contactForm.value);
-      // You can send the form data to a server here
-      alert('Message sent successfully!');
-      this.contactForm.reset();
+      const formData = this.contactForm.value;
+      this.contactCusService.submitComplaint(formData).subscribe(
+        (response) => {
+          console.log('Response from server:', response);
+          alert('Message sent successfully!');
+          this.contactForm.reset();
+        },
+        (error) => {
+          console.error('Error sending message:', error);
+          alert('An error occurred while sending your message.');
+        }
+      );
     } else {
       alert('Please fill out all fields correctly.');
     }

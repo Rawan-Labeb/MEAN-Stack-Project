@@ -11,6 +11,9 @@ const {
 } = require("./../services/complaint.service");
 const router = express.Router();
 
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
 // Create a new complaint
 router.post('/', async (req, res) => {
     try {
@@ -37,8 +40,9 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
 // Update a complaint
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticaiton, authorize("customer"), async (req, res) => {
     try {
         const result = await updateComplaint(req.params.id, req.body);
         if (!result.success) {
@@ -51,7 +55,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete a complaint
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticaiton, authorize("customer"), async (req, res) => {
     try {
         const result = await deleteComplaint(req.params.id);
         if (!result.success) {
@@ -64,7 +68,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Change complaint status
-router.put('/status/:id', async (req, res) => {
+router.put('/status/:id', authenticaiton, authorize("clerk"), async (req, res) => {
     try {
         console.log(req.params.id);
         console.log(req.body.status)
@@ -79,7 +83,7 @@ router.put('/status/:id', async (req, res) => {
 });
 
 // Get complaints by user
-router.get('/user/:userId', async (req, res) => {
+router.get('/user/:userId',  authenticaiton, authorize("customer"), async (req, res) => {
     try {
         const result = await getComplaintsByUser(req.params.userId);
         if (!result.success) {
@@ -92,7 +96,7 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 // Get all complaints
-router.get('/', async (req, res) => {
+router.get('/',  authenticaiton, authorize("clerk"), async (req, res) => {
     try {
         const result = await getAllComplaints();
         if (!result.success) {

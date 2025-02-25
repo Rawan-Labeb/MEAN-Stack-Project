@@ -5,13 +5,22 @@ const {
     createOfflineOrder,
     cancelOfflineOrder,deleteProductFromOrderService
   } = require("../services/offline.orders.service");
-  const { getBranchById } = require('../services/branch.service'); 
-  const { getSubInventoryById } = require('../services/sub.inventory.services'); 
+
+
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
+
+
+  const { getBranchById } = require('../services/branch.service'); // Correct import for getBranchById
+  const { getSubInventoryById } = require('../services/sub.inventory.services'); // Correct import for getSubInventoryById
   
   const router = require("express").Router();
   const express = require("express");
   router.use(express.json());
   router.use(express.urlencoded({ extended: true }));
+
+  
   module.exports.deleteProductFromOrder = async (req, res) => {
     try {
       const { orderId, productId, quantity } = req.body;
@@ -24,6 +33,7 @@ const {
   };
   module.exports.getAllOfflineOrders = async (req, res) => {
     try {
+      console.log("test")
       const result = await getAllOfflineOrders();
       if (!result.success) return res.status(400).json(result.message);
       return res.status(200).json(result.message);

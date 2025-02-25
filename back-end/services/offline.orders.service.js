@@ -143,7 +143,7 @@ const validateOnCreateAndUpdate = async (orderData)=> {
     for(const item of orderData.items)
     {
         if (item.quantity <= 0)
-            return {valid: false, message: "Invalid quantity for item in sub-inventory ${item.subInventoryId}"}
+            return {valid: false, message: `Invalid quantity for item in sub-inventory ${item.subInventoryId}`}
     }
 
     if (!orderData.branch)

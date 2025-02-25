@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Order } from '../_models/order.module';
 import { Product } from '../_models/product.model';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,52 +13,84 @@ export class OrderService {
     private productApiUrl = 'http://localhost:5000/product';
 
 
-  constructor(private http: HttpClient) {} // Update with your actual backend API URL
-
+  constructor(private http: HttpClient,
+    private cookieSer: CookieService
+  ) {} // Update with your actual backend API URL
 
   createOrder(order: Order): Observable<any> {
-    return this.http.post(`${this.apiUrl}/createOrder`, order);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.post(`${this.apiUrl}/createOrder`, order, { headers });
   }
 
   getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/getAllOrders`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<Order[]>(`${this.apiUrl}/getAllOrders`, { headers });
   }
 
   getOrderById(id: string): Observable<Order> {
-    return this.http.get<Order>(`${this.apiUrl}/getOrderById/${id}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<Order>(`${this.apiUrl}/getOrderById/${id}`, { headers });
   }
 
   getOrdersByCustomerAndStatus(id: string, status: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerAndStatus/${id}/${status}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerAndStatus/${id}/${status}`, { headers });
   }
 
   getOrdersByCustomerId(id: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerId/${id}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrderByCustomerId/${id}`, { headers });
   }
 
+
   getOrdersByStatus(status: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByStatus/${status}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByStatus/${status}`, { headers });
   }
 
   getOrdersByProductId(id: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByProductId/${id}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<Order[]>(`${this.apiUrl}/getOrdersByProductId/${id}`, { headers });
   }
 
   changeOrderStatus(id: string, status: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/changeOrderStatus/${id}/${status}`, {});
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.put(`${this.apiUrl}/changeOrderStatus/${id}/${status}`, {}, { headers });
   }
 
   deleteOrder(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/deleteOrder/${id}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.delete(`${this.apiUrl}/deleteOrder/${id}`, { headers });
   }
 
   updateOrder(id: string, order: Partial<Order>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/updateOrder/${id}`, order);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.put(`${this.apiUrl}/updateOrder/${id}`, order, { headers });
   }
+
   getProductById(productId: string): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/getProductById/${productId}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<Product>(`${this.apiUrl}/getProductById/${productId}`, { headers });
   }
+
   deleteProductFromOrder(orderId: string, productId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${orderId}/product/${productId}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.delete(`${this.apiUrl}/${orderId}/product/${productId}`, { headers });
   }
+
+
+
+
 }
