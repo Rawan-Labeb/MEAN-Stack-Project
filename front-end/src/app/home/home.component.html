@@ -43,6 +43,32 @@
       </div>
     </div>
   </section>
+
+    <!-- best sales -->
+    <section class="featured-perfumes py-5">
+      <div class="container">
+        <h2 class="text-center mb-4" style="color: rgb(91, 23, 155);">Best Sales</h2>
+        <div class="row">
+          <div class="col-md-3" *ngFor="let product of bestSales">
+            <div class="card shadow-sm">
+              <img [src]="product.productImage" class="card-img-top" alt="{{ product.productName }}" />
+              <div class="card-body">
+                <h5 class="card-title">{{ product.productName }}</h5>
+                <p class="fw-bold">${{ product.productPrice.toFixed(2) }}</p>
+                <div class="rating" style="margin-bottom: 10px;">
+                  <!-- <span *ngFor="let star of Array(product.rating).fill(0)" >
+                    <i class="bi bi-star-fill text-warning"></i>
+                  </span> -->
+                </div>
+                <!-- <a routerLink="catalog/details/{{perfume.id}}"  class="btn btn-primary">Add to Cart</a> -->
+                <a routerLink="details/{{product._id}}"   class="btn btn-primary">Add to Cart</a>
+                <!-- <button class="btn btn-primary">Add to Cart</button> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   
   <!-- Categories Section -->
   <section class="categories py-5 bg-light">
@@ -64,7 +90,7 @@
   </section>
   
   <!-- New Arrivals Section -->
-  <section class="new-arrivals py-5">
+  <!-- <section class="new-arrivals py-5">
     <div class="container">
       <h2 class="text-center mb-4">New Arrivals</h2>
       <div class="row">
@@ -80,8 +106,29 @@
         </div>
       </div>
     </div>
-  </section>
+  </section> -->
   
+  <!-- New Arrivals D Section -->
+  <section class="new-arrivals py-5">
+    <div class="container">
+      <h2 class="text-center mb-4">New Arrivals D</h2>
+      <div class="row">
+        <div class="col-md-3" *ngFor="let product of newArrivalsD">
+          <div class="card shadow-sm">
+            <img [src]="product.productImage" class="card-img-top" alt="{{ product.productName }}" />
+            <div class="card-body">
+              <h5 class="card-title">{{ product.productName }}</h5>
+              <p class="fw-bold">${{ product.productPrice.toFixed(2) }}</p>
+              <!-- <a (click)="goBackToCatalog()" class="btn btn-warning">Buy Now</a>routerLink="details/{{perfume._id}}" -->
+              <a routerLink="details/{{product._id}}" class="btn btn-warning">View Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
   <!-- Customer Reviews Section -->
   <section class="customer-reviews py-5 bg-light">
     <div class="container">

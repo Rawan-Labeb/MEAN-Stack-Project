@@ -21,9 +21,9 @@
             aria-label="Filter products by category"
           >
             <option value="" aria-label="All Categories">All Categories</option>
-            <option value="men" aria-label="Men">Men</option>
-            <option value="women" aria-label="Women">Women</option>
-            <option value="unisex" aria-label="Unisex">Unisex</option>
+            <option value="Men" aria-label="Men">Men</option>
+            <option value="Women" aria-label="Women">Women</option>
+            <option value="Unisex" aria-label="Unisex">Unisex</option>
           </select>
         </div>
 
@@ -125,7 +125,7 @@
               <p class="fw-bold">${{ perfume?.productPrice.toFixed(2) }}</p>
               <p class="text-muted">{{ perfume?.productCategory | titlecase }}</p>
             </div>
-            <a routerLink="details/{{perfume._id}}" class="btn btn-primary w-100 mt-auto">View Details</a>
+            <a routerLink="details/{{perfume._id}}" class="btn btn-primary w-100 mt-auto">See Details</a>
           </div>
         </div>
       </div>

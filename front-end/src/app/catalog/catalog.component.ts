@@ -85,9 +85,10 @@ export class CatalogComponent implements OnInit {
       this.updateCategory(this.selectedCategory || ''); // Update the selected category
     });
 
-    this.subInventorySer.getSubInventoryRelatedToBranch("tanta Branch").subscribe({
+    this.subInventorySer.getSubInventoryRelatedToBranch("Ecommerce").subscribe({
       next: (data) => {
         this.productRelatedtoBranch = data;
+        console.log(data);
 
         // Fetch categories and map them to products
         const categoryRequests = this.productRelatedtoBranch.map((prod) =>
@@ -101,7 +102,8 @@ export class CatalogComponent implements OnInit {
               productPrice: prod.product.price,
               productDescription: prod.product.description,
               productImage: prod.product.images || ['assets/default-image.jpg'], // Fallback for missing images
-              productCategory: categories[index]?.name || 'Unknown', // Handle missing categories
+              productCategory: categories[index]?.name || 'men', // Handle missing categories
+              //  productCategory:  'men', // Handle missing categories
               productQuantity: prod.quantity,
               noOfSale: prod.numberOfSales,
               _id: prod._id

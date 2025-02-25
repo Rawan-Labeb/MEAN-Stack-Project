@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { SubInventoryServicesService } from '../_services/sub-inventory.services.service';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServiceService } from '../_services/auth-service.service';
+import { SubInventoryService } from '../_services/sub-inventory.service';
+import { CategoryService } from '../_services/category.service';
 
 
 interface Perfume {
@@ -46,7 +48,8 @@ interface BlogPost {
 export class HomeComponent implements OnInit{
   constructor(
     private router: Router,
-    public subInventorySer: SubInventoryServicesService,
+    public subInventorySer: SubInventoryService,
+    private categorySer:CategoryService,
     public cookieServices:CookieService,
     public authSer: AuthServiceService,
   
@@ -54,19 +57,148 @@ export class HomeComponent implements OnInit{
 
   ) {}
   productRelatedtoBranch:any[]=[];
-  ngOnInit(): void {
-    this.subInventorySer.getSubInventoryRelatedToBranch("uptown branch").subscribe({
-      next:(data)=>{
-        this.productRelatedtoBranch=data;
-        console.log(this.productRelatedtoBranch);
-      }
-    })
+  products:any[] = [];
+   token:any=null ;
+   loading: boolean = true; 
+   bestSales: any[] = []; 
+   newArrivalsD: any[] = []; 
+
+  // ngOnInit(): void {
+  //   this.subInventorySer.getSubInventoryRelatedToBranch("uptown branch").subscribe({
+  //     next:(data)=>{
+  //       this.productRelatedtoBranch=data;
+  //       console.log(this.productRelatedtoBranch);
+  //     }
+  //   })
     
   
-  }
+  // }
+  
+
+  // ngOnInit(): void {
+  //   this.authSer.decodeToken(this.getToken()).subscribe({
+  //     next: (data) => {
+  //       this.token = data;
+  //       this.fetchProducts();
+  //               console.log(this.productRelatedtoBranch);
+
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching token:', err);
+  //       // this.loading = false;
+  //     }
+  //   });
+
+  // }
+  
+  // private fetchProducts(): void {
+  //   const branchId = this.authSer.isAuthenticated() && this.token.branchId
+  //     ? this.token.branchId
+  //     : '67b129216e1b912065196f93';
+  
+  //   this.subInventorySer.getActiveSubInventoriesByBranchId(branchId).subscribe({
+  //     next: (data) => {
+  //       console.log(data);
+  //       this.productRelatedtoBranch = data;
+        
+  //       const categoryRequests = this.productRelatedtoBranch.map(prod =>
+  //         this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+  //       );
+  
+  //       Promise.all(categoryRequests).then(categories => {
+  //         this.products = this.productRelatedtoBranch.map((prod, index) => ({
+  //           productName: prod.product.name,
+  //           productPrice: prod.product.price,
+  //           productDescription: prod.product.description,
+  //           productImage: prod.product.images,
+  //           productCategory: categories[index]?.name,
+  //           productQuantity: prod.quantity,
+  //           noOfSale: prod.numberOfSales,
+  //           subInventoryDate: prod.lastUpdated,
+  //           _id: prod._id
+  //         }));
+  //         console.log(this.products); 
+
+  //         // Filter and sort for bestSales (top 4 by noOfSale)
+  //         this.bestSales = this.products
+  //         .sort((a, b) => b.noOfSale - a.noOfSale) 
+  //         .slice(0, 4); 
+
+  //         // Filter and sort for newArrivals (top 4 by subInventoryDate)
+  //         this.newArrivals = this.products
+  //           .sort((a, b) => new Date(b.subInventoryDate).getTime() - new Date(a.subInventoryDate).getTime()) 
+  //           .slice(0, 4); 
+
+  //         console.log('Best Sales:', this.bestSales);
+  //         console.log('New Arrivals:', this.newArrivals);
+
+  //         this.loading = false;
+  //       }).catch(error => {
+  //         console.error('Failed to retrieve categories', error);
+  //       });
+        
+
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching products:', err);
+  //       this.loading = false; 
+  //     }
+  //   });
+  // }
+
+  
+  
+  
+  
 
 
   // Static perfume data
+  
+  
+  
+  async ngOnInit(): Promise<void> {
+    try {
+      this.token = await this.authSer.decodeToken(this.getToken()).toPromise();
+      await this.fetchProducts();
+      console.log(this.products); 
+    } catch (err) {
+      console.error('Error fetching token:', err);
+    }
+  }
+  
+  private async fetchProducts(): Promise<void> {
+    try {
+      const branchId = this.authSer.isAuthenticated() && this.token.branchId
+        ? this.token.branchId
+        : '67b129216e1b912065196f93';
+  
+      this.productRelatedtoBranch = await this.subInventorySer.getActiveSubInventoriesByBranchId(branchId).toPromise() ?? [];
+  
+      const categoryRequests = this.productRelatedtoBranch.map(prod =>
+        this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+      );
+  
+      const categories = await Promise.all(categoryRequests);
+  
+      this.products = this.productRelatedtoBranch.map((prod, index) => ({
+        productName: prod.product.name,
+        productPrice: prod.product.price,
+        productDescription: prod.product.description,
+        productImage: prod.product.images,
+        productCategory: categories[index]?.name,
+        productQuantity: prod.quantity,
+        noOfSale: prod.numberOfSales,
+        subInventoryDate: prod.lastUpdated,
+        _id: prod._id
+      }));
+  
+      console.log(this.products); 
+      this.loading = false;
+    } catch (error) {
+      console.error('Failed to retrieve products or categories', error);
+      this.loading = false;
+    }
+  }
   perfumes: Perfume[] = [
     {
       id: 1,
@@ -139,7 +271,7 @@ export class HomeComponent implements OnInit{
   categories: Category[] = [
     { id: 1, name: 'Men', image: 'assets/category/men.jpeg' },
     { id: 2, name: 'Women', image: 'assets/category/women.jpeg' },
-    { id: 3, name: 'Unnisex', image: 'assets/category/unisex.jpeg' }
+    { id: 3, name: 'Unisex', image: 'assets/category/unisex.jpeg' }
   ];
   
 
