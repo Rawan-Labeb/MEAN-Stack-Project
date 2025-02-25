@@ -28,7 +28,7 @@ export class SubInventoryService {
 
 
 
-  
+
       getSubInventoryById(id: string): Observable<SubInventory> {
         return this.http.get<SubInventory>(`${this.apiUrl}/getSubInventoryById/${id}`);
       }
