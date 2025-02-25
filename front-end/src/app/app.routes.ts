@@ -13,7 +13,12 @@ import { NotFoundComponent } from './not-found/not-found.component';
 // import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
-import { CachierComponent } from './cachier/cachier.component';
+import { SalesClerkDashboardComponent } from './sales-clerk-dashboard/sales-clerk-dashboard.component';
+import { DashboardHomeComponent } from './sales-clerk-dashboard/dashboard-home/dashboard-home.component';
+import { OrdersComponent } from './sales-clerk-dashboard/orders/orders.component';
+import { BranchProductsComponent } from './sales-clerk-dashboard/branch-products/branch-products.component';
+import { OrderListComponent } from './seller-dashboard/orders/order-list/order-list.component';
+import { SalesChartComponent } from './seller-dashboard/analytics/sales-chart/sales-chart.component';import { CachierComponent } from './cachier/cachier.component';
 import { CartCachierComponent } from './cachier/cart-cachier/cart-cachier.component';
 import { CartCheckoutGuard } from './cart/_guards/cart-checkout.guard';
 import { CashierGuard } from './cachier/_guard/cashier.guard'
@@ -38,7 +43,17 @@ export const routes: Routes = [
   // {path:"login",component:LoginComponent},
   // {path:"register",component:RegisterComponent},
   // {path:"userprofile",component:UserProfileComponent},
-  {path:"sellerdashboard",component:SellerDashboardComponent},
+  {
+    path: "sellerdashboard",
+    component: SellerDashboardComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./seller-dashboard/seller-dashboard.routes')
+          .then(m => m.SELLER_DASHBOARD_ROUTES)
+      }
+    ]
+  },
   
   {path:"**",component:NotFoundComponent},
   {

@@ -1,13 +1,12 @@
-
 <!-- <app-admin-dashboard></app-admin-dashboard> -->
 
-
- <app-header></app-header> 
+<!-- Only show header if not in a dashboard route -->
+<app-header *ngIf="!isDashboardRoute()"></app-header>
 
 <router-outlet></router-outlet>
 
-<app-footer></app-footer>    
-
+<!-- Only show footer if not in a dashboard route -->
+<app-footer *ngIf="!isDashboardRoute()"></app-footer>
 
 <!-- <app-user-profile></app-user-profile> -->
 

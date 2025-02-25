@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server",
-    "dev": "nodemon server"
+    "dev": "nodemon server",
+    "reset-categories": "node scripts/reset-categories-api.js"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +27,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.10.0",
+    "nodemailer": "^6.9.9",
     "stripe": "^17.6.0",
     "uuid": "^11.0.5"
   },
