@@ -5,7 +5,8 @@ const  {
     updateComplaint,
     deleteComplaint,
     changeComplaintStatus,
-    getComplaintsByUser
+    getComplaintsByUser,
+    getComplaintsForCustomersAndGuest
 } = require("./../repos/complaint.repo")
 
 const {
@@ -145,7 +146,6 @@ module.exports.getComplaintsByUser = async (userId) => {
         if (!validation.valid) {
             return { success: false, message: validation.message };
         }
-        console.log(validation)
         const complaints = await getComplaintsByUser(userId);
         return { success: true, message: complaints };
     } catch (error) {
@@ -155,3 +155,11 @@ module.exports.getComplaintsByUser = async (userId) => {
 
 
 
+module.exports.getComplaintsForCustomersAndGuest = async () => {
+    try {
+        const onlineComplaints = await getComplaintsForCustomersAndGuest();
+        return { success: true, message: onlineComplaints };
+    } catch (error) {
+        return { success: false, message: "Failed To Get Data" };
+    }
+}

@@ -7,12 +7,30 @@ const {
     deleteComplaint,
     changeComplaintStatus,
     getComplaintsByUser,
-    getAllComplaints
+    getAllComplaints,
+    getComplaintsForCustomersAndGuest
 } = require("./../services/complaint.service");
 const router = express.Router();
 
 const {authenticaiton} = require("./../middlewares/authentication.middleware") 
 const {authorize} = require("./../middlewares/authorization.middleware")
+
+
+router.get("/getComplaintsForCustomersAndGuest" , authenticaiton, authorize("clerk"), async (req, res) => {
+    try {
+        const result = await getComplaintsForCustomersAndGuest();
+
+        if (!result.success) {
+            return res.status(404).json({ message: result.message });
+        }
+        res.status(200).json(result.message);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
 
 // Create a new complaint
 router.post('/', async (req, res) => {
@@ -70,8 +88,7 @@ router.delete('/:id', authenticaiton, authorize("customer"), async (req, res) =>
 // Change complaint status
 router.put('/status/:id', authenticaiton, authorize("clerk"), async (req, res) => {
     try {
-        console.log(req.params.id);
-        console.log(req.body.status)
+
         const result = await changeComplaintStatus(req.params.id, req.body.status);
         if (!result.success) {
             return res.status(404).json({ message: result.message });
@@ -96,7 +113,7 @@ router.get('/user/:userId',  authenticaiton, authorize("customer"), async (req, 
 });
 
 // Get all complaints
-router.get('/',  authenticaiton, authorize("clerk"), async (req, res) => {
+router.get('/',  authenticaiton, authorize("manager"), async (req, res) => {
     try {
         const result = await getAllComplaints();
         if (!result.success) {
@@ -107,5 +124,9 @@ router.get('/',  authenticaiton, authorize("clerk"), async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+
+
+
 
 module.exports = router;
