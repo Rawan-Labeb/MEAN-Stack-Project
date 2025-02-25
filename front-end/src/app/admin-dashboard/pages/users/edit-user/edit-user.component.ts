@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../../_services/user.service';
@@ -7,6 +7,7 @@ import { User } from '../../../../_models/user.model';
 import { ToastrService } from 'ngx-toastr';
 import { UploadComponent } from 'src/app/upload/upload.component';
 
+
 @Component({
   selector: 'app-edit-user',
   imports: [FormsModule, CommonModule, UploadComponent],
@@ -14,6 +15,7 @@ import { UploadComponent } from 'src/app/upload/upload.component';
   styleUrl: './edit-user.component.css'
 })
 export class EditUserComponent{
+  private toastr = inject(ToastrService);
     
     @Input() show = false;
     @Input() userData!: User; 
@@ -25,7 +27,6 @@ export class EditUserComponent{
 
     constructor(
       private userService: UserService,
-      private toastr: ToastrService,
     ) {}
 
 

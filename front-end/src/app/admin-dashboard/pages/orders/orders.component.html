@@ -1,16 +1,16 @@
-<!-- <div class="container-fluid page">
+<div class="container-fluid page">
   <div class="d-flex page__box p-3 mt-2">Orders</div>
   <div class="page__content shadow p-3 position-relative">
     <div>
       <div>
         <div class="container-fluid p-4">
-          <!-- Stats Cards
+          <!-- Stats Cards -->
           <div class="row mb-4 text-center justify-content-around">
             <div class="col-md-2">
               <div class="card bg-primary text-white">
                 <div class="card-body">
-                  <h5 class="card-title">Total <br>Orders</h5>
-                  <p class="card-text display-6">10</p>
+                  <h5 class="card-title">Total<br> Orders</h5>
+                  <p class="card-text display-6">{{orders.length}}</p>
                 </div>
               </div>
             </div>
@@ -18,44 +18,36 @@
               <div class="card bg-warning text-white">
                 <div class="card-body">
                   <h5 class="card-title">Pending Orders</h5>
-                  <p class="card-text display-6">6</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-2"> 
-              <div class="card bg-info text-white">
-                <div class="card-body">
-                  <h5 class="card-title">Shipped Orders</h5>
-                  <p class="card-text display-6">6</p>
+                  <p class="card-text display-6">{{pendingOrdersCount}}</p>
                 </div>
               </div>
             </div>
             <div class="col-md-2">
               <div class="card bg-success text-white">
                 <div class="card-body">
-                  <h5 class="card-title">Completed Orders</h5>
-                  <p class="card-text display-6">4</p>
+                  <h5 class="card-title">Shipped Orders</h5>
+                  <p class="card-text display-6">{{shippedOrdersCount}}</p>
                 </div>
               </div>
             </div>
             <div class="col-md-2">
               <div class="card bg-danger text-white">
                 <div class="card-body">
-                  <h5 class="card-title">Cancelled Orders</h5>
-                  <p class="card-text display-6">15</p>
+                  <h5 class="card-title">Caneled Orders</h5>
+                  <p class="card-text display-6">{{canceledOrdersCount}}</p>
                 </div>
               </div>
             </div>
             <div class="col-md-2">
-              <div class="card bg-secondary text-white">
+              <div class="card bg-info text-white">
                 <div class="card-body">
-                  <h5 class="card-title">Returned Orders</h5>
-                  <p class="card-text display-6">2</p>
+                  <h5 class="card-title">Refunded Orders</h5>
+                  <p class="card-text display-6">{{refundedOrdersCount}}</p>
                 </div>
               </div>
             </div>
           </div>
-          <!-- ***********************************************************************
+          <!-- *********************************************************************** -->
         <div class="card">
           <div class="card-header">
             <div class="row align-items-center">
@@ -63,9 +55,11 @@
                 <h3 class="mb-0"></h3>
               </div>
               <div class="col-auto">
-                <button class="btn btn-primary" routerLink="add">
-                  Add order
-                </button>
+                <app-details-order
+                  [show]="showDetailsModal" 
+                  [orderData]="orderData" 
+                  (close)="showDetailsModal = false" >
+                </app-details-order>
               </div>
             </div>
           </div>
@@ -77,18 +71,17 @@
                         class="form-control" 
                         [(ngModel)]="searchTerm" 
                         (input)="onSearch()"
-                        placeholder="Search order...">
+                        placeholder="Search Orders...">
               </div>
               <div class="col-md-3">
                 <select class="form-select" 
                         [(ngModel)]="statusFilter" 
                         (change)="onStatusFilterChange()">
                   <option value="all">All Status</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                  <option value="Returned">Returned</option>
+                  <option value="pending">Pending</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="refunded">Refunded</option>
                 </select>
               </div>
             </div>
@@ -97,82 +90,77 @@
               <table class="table table-striped">
                 <thead>
                   <tr>
-                    <th>Id</th>
-                    <th>Customer</th>
-                    <th>Price</th>
-                    <th>Items</th>
-                    <th (click)="sort('date')" style="cursor: pointer" class="justify-content-between">
-                      Date
-                      <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
-                    </th>
-                    <th>Payment</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
+                      <th>Id</th>
+                      <th (click)="sort('customerDetails')" style="cursor: pointer" class="justify-content-between">
+                        Customer
+                        <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
+                      </th>
+                      <th>Items</th>
+                      <th>Price</th>
+                      <th>Date</th>
+                      <th>Nots</th>
+                      <th>Payment</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let order of filteredOrders">
-                    <td>{{order.orderId}}</td>
+                  <tr *ngFor="let order of orders">
+                    <td>{{order._id}}</td>
                     <td>{{ order.customerDetails.firstName }} {{ order.customerDetails.lastName }}</td>
+                    <td>{{order.items.length}} item</td>
                     <td>${{order.totalPrice}}</td>
-                    <td>{{order.items.length}}</td>
-                    <td>{{formatDate(order.date)}}</td>
+                    <td>{{order.date}}</td>
+                    <td>{{order.notes}}</td>
                     <td>
                       <span class="badge" [ngClass]="{
-                        'bg-success': order.paymentMethod === 'Cash', 
-                        'bg-warning': order.paymentMethod === 'Card', 
-                        'bg-info': order.paymentMethod === 'Online',
+                        'bg-success': order.paymentMethod === 'Cash',
+                        'bg-warning': order.paymentMethod === 'Card',
+                        'bg-info': order.paymentMethod === 'Online'
                       }">
-                        {{ order.paymentMethod === 'Cash' ? 'Cash' :
-                        order.paymentMethod === 'Card' ? 'Card' :
-                        order.paymentMethod === 'Online' ? 'Online' :'' }}
-                      </span>
+                        {{ order.paymentMethod }}
+                      </span>                      
                     </td>
                     <td>
-                      <span class="badge" [ngClass]="{
-                          'bg-success': order.status === 'Completed', 
-                          'bg-warning': order.status === 'Pending', 
-                          'bg-info': order.status === 'Shipped',
-                          'bg-danger': order.status === 'Cancelled',
-                          'bg-secondary': order.status === 'Returned'
-                        }">
-                        {{ order.status === 'Pending' ? 'Pending' :
-                           order.status === 'Completed' ? 'Completed' :
-                           order.status === 'Shipped' ? 'Shipped' :
-                           order.status === 'Cancelled' ? 'Cancelled' :
-                           order.status === 'Returned' ? 'Returned' : '' }}
-                      </span>
+                      <span class="badge"
+                      [ngClass]="{
+                        'bg-warning': order.status === 'pending',
+                        'bg-primary': order.status === 'shipped',
+                        'bg-danger': order.status === 'cancelled',
+                        'bg-success': order.status === 'refunded'
+                      }">
+                  {{ order.status }}
+                </span>
                     </td>
                     <td>
                       <button [matMenuTriggerFor]="menu" class="border-0" style="background: none;">
                         <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
                       </button>
                       <mat-menu #menu="matMenu" class="bg-white ">
-                        <button mat-menu-item *ngIf="order.status === 'Pending' || order.status === 'Shipped'"
-                          (click)="updateOrderStatus(order)">
-                          <mat-icon>check</mat-icon>
-                          {{ order.status === 'Pending' ? 'Shipped' : 'Completed' }}
+                        <button *ngIf="order.status === 'pending'" mat-menu-item (click)="changeStatusOrder(order._id, 'shipped')">
+                        <mat-icon>local_shipping</mat-icon>
+                        Shipped
                         </button>
-                        <button mat-menu-item *ngIf="order.status === 'Pending'" (click)="cancelOrder(order)">
-                          <mat-icon>close</mat-icon>
-                          Cancelled
+
+                        <button *ngIf="order.status === 'pending'" mat-menu-item (click)="changeStatusOrder(order._id, 'cancelled')">
+                        <mat-icon>close</mat-icon>
+                        Cancel
                         </button>
-                        <button mat-menu-item *ngIf="order.status === 'Completed'" (click)="returnOrder(order)">
-                          <mat-icon>refresh</mat-icon>
-                          Returned
+
+                        <button *ngIf="order.status === 'pending'" mat-menu-item (click)="changeStatusOrder(order._id, 'refunded')">
+                        <mat-icon>money_off</mat-icon>
+                        Refund
                         </button>
-                        <button mat-menu-item [routerLink]="['edit', order.orderId]">
+
+                        <button *ngIf="order.status === 'shipped'" mat-menu-item (click)="changeStatusOrder(order._id, 'refunded')">
+                        <mat-icon>money_off</mat-icon>
+                        Refund
+                        </button>
+
+                        <button mat-menu-item (click)="openDetailsModal(order)">
                           <mat-icon>visibility</mat-icon>
                           Details
-                        </button>
-                        <button mat-menu-item [routerLink]="['edit', order.orderId]">
-                          <mat-icon>edit</mat-icon>
-                          Update
-                        </button>
-                        <button mat-menu-item (click)="deleteUser(order.orderId)">
-                          <mat-icon>delete</mat-icon>
-                          Delete
-                        </button>
+                        </button>    
                       </mat-menu>
                     </td>
                   </tr>
@@ -185,141 +173,3 @@
     </div>
   </div>
 </div>
-
-
-<div class="container-fluid page">
-  <div class="d-flex page__box p-3 mt-2">Users</div>
-  <div class="page__content shadow p-3 position-relative">
-    <div>
-      <div>
-        <div class="container-fluid p-4">
-          <!-- Stats Cards 
-          <div class="row mb-4 text-center justify-content-around">
-            <div class="col-md-3">
-              <div class="card bg-primary text-white">
-                <div class="card-body">
-                  <h5 class="card-title">Total Users</h5>
-                  <p class="card-text display-4">{{users.length}}</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="card bg-success text-white">
-                <div class="card-body">
-                  <h5 class="card-title">Active Users</h5>
-                  <p class="card-text display-4">{{activeUsersCount}}</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="card bg-danger text-white">
-                <div class="card-body">
-                  <h5 class="card-title">Inactive Users</h5>
-                  <p class="card-text display-4">{{inactiveUsersCount}}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- *********************************************************************** 
-        <div class="card">
-          <div class="card-header">
-            <div class="row align-items-center">
-              <div class="col">
-                <h3 class="mb-0"></h3>
-              </div>
-              <div class="col-auto">
-                <button class="btn btn-primary" (click)="openAddModal()">
-                  Add User
-                </button>
-                <app-add-user 
-                  [show]="showAddModal" 
-                  [userData]="userData" 
-                  (close)="showAddModal = false" 
-                  (saved)="onUserSaved()">
-                </app-add-user>
-              </div>
-            </div>
-          </div>
-          
-          <div class="card-body">
-            <div class="row mb-3 justify-content-between">
-              <div class="col-md-4">
-                <input type="text" 
-                        class="form-control" 
-                        [(ngModel)]="searchTerm" 
-                        (input)="onSearch()"
-                        placeholder="Search Users...">
-              </div>
-              <div class="col-md-3">
-                <select class="form-select" 
-                        [(ngModel)]="statusFilter" 
-                        (change)="onStatusFilterChange()">
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-
-            <app-edit-user
-              [show]="showEditModal" 
-              [userData]="userData" 
-              (updated)="onUserUpdated()" 
-              (close)="showEditModal = false">
-            </app-edit-user>
-      
-            <div class="table-responsive">
-              <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th (click)="sort('firstName')" style="cursor: pointer" class="justify-content-between">
-                      Name
-                      <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
-                    </th>
-                    <th>Email</th>
-                    <th>Address</th>
-                    <th>phone</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let user of filteredUsers">
-                    <td><img class="image" src="{{user.image}}" alt="">{{user.firstName}} {{user.lastName}}</td>
-                    <td>{{user.email}}</td>
-                    <td>{{user.address?.street}} {{user.address?.city}} {{user.address?.state}}</td>
-                    <td>{{user.contactNo}}</td>
-                    <td>
-                      <span class="badge" [ngClass]="user.isActive ? 'bg-success' : 'bg-danger'">
-                        {{user.isActive ? ' Active ' : 'Inactive'}}
-                      </span>
-                    </td>
-                    <td>
-                      <button [matMenuTriggerFor]="menu" class="border-0" style="background: none;">
-                        <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
-                      </button>
-                      <mat-menu #menu="matMenu" class="bg-white ">
-                        <button mat-menu-item (click)="openEditModal(user)">
-                          <mat-icon>edit</mat-icon>
-                          Update
-                        </button>
-                        <button mat-menu-item (click)="deleteUser(user._id)">
-                          <mat-icon>delete</mat-icon>
-                          Delete
-                        </button>
-                        <button mat-menu-item (click)="toggleUserStatus(user)">
-                          <mat-icon>{{ user.isActive ? 'close' : 'check' }}</mat-icon>
-                          {{ user.isActive ? 'Inactive' : 'Active' }}
-                        </button>     
-                      </mat-menu>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> -->

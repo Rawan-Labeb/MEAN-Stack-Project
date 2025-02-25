@@ -27,7 +27,7 @@ const prodReq = require("./controllers/product.request.controller");
 const prodReview = require("./controllers/product.review.controller");
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:4200', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());

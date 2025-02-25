@@ -1,5 +1,5 @@
 <div class="container-fluid page">
-    <div class="d-flex page__box p-3 mt-2">SubInventory</div>
+    <div class="d-flex page__box p-3 mt-2">{{branchName}} Products</div>
     <div class="page__content shadow p-3 position-relative">
       <div>
         <div>
@@ -99,7 +99,7 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let subInventory of filteredSubInventories">
-                        <td><img class="image" src="{{subInventory?.product?.images}}" alt="">{{subInventory?.product?.name}}</td>
+                        <td><img class="image" src="{{subInventory?.product!.images[0]}}" alt="">{{subInventory?.product?.name}}</td>
                         <td>{{subInventory?.product?.price}}</td>
                         <td>{{subInventory?.product?.noOfSale}}</td>
                         <td>{{subInventory?.product?.sellerId?.firstName}} {{subInventory?.product?.sellerId?.lastName}}</td>

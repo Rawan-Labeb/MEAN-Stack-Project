@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ProductService } from 'src/app/_services/product.service';
+import { forkJoin } from 'rxjs';
 @Component({
   selector: 'app-sub-inventory',
   imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule],
@@ -31,7 +33,8 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
       error: string | null = null;
       private destroy$ = new Subject<void>();
       subInventoryData: SubInventory = this.getInitialSubInventoryData();
-      constructor(private subInventoryService: SubInventoryService , private cdr: ChangeDetectorRef,private route: ActivatedRoute) {}
+      constructor(private subInventoryService: SubInventoryService , private cdr: ChangeDetectorRef,
+        private route: ActivatedRoute,private productService:ProductService) {}
     
       ngOnInit(): void {
         this.route.paramMap.subscribe(params => {
@@ -75,6 +78,18 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
           this.subInventories = [...data]
       
           this.filteredSubInventories = [...this.subInventories];
+
+          for (const item of this.subInventories) {
+            if (item.product && item.product._id) {
+              this.productService.getProductById(item.product._id).subscribe({
+                next: (product:any) => {
+                  item.product = product;
+                  this.cdr.detectChanges();
+                },
+                error: (error) => console.error('❌ Error fetching product:', error)
+              });
+            }
+          }
       
           this.applyFilters();
           this.cdr.detectChanges();
@@ -160,7 +175,15 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
               },
               error: (error) => {
                 console.error('Error updating quantity:', error);
-                Swal.fire('Error!', 'Failed to update quantity.', 'error');
+                Swal.fire({
+                  title: 'Error!',
+                  text: error?.error?.message || 'Failed to increase quantity.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  customClass: {
+                    confirmButton: 'btn btn-danger'
+                  }
+                });
               }
             });
           }
@@ -207,7 +230,15 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
               },
               error: (error) => {
                 console.error('Error updating quantity:', error);
-                Swal.fire('Error!', 'Failed to update quantity.', error);
+                Swal.fire({
+                  title: 'Error!',
+                  text: error?.error?.message || 'Failed to decrease quantity.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  customClass: {
+                    confirmButton: 'btn btn-danger'
+                  }
+                });
               }
             });
           }
@@ -248,7 +279,7 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
         if (this.searchTerm) {
           const searchLower = this.searchTerm.toLowerCase();
           filtered = filtered.filter(subInventory => 
-            subInventory.mainInventory.toLowerCase().includes(searchLower) 
+            subInventory.product.name.toLowerCase().includes(searchLower) 
           );
         }
     
@@ -260,7 +291,7 @@ export class SubInventoryComponent implements OnInit, OnDestroy {
     
         filtered.sort((a, b) => {
           const direction = this.sortDirection === 'asc' ? 1 : -1;
-          return String(a[this.sortColumn]).localeCompare(String(b[this.sortColumn])) * direction;
+          return a.product.name.localeCompare(b.product.name) * direction;
         });
     
         this.filteredSubInventories = [...filtered];

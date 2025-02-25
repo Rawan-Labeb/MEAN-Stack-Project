@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter,OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter,OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../../_services/user.service';
@@ -14,6 +14,7 @@ import { UploadComponent } from 'src/app/upload/upload.component';
   styleUrl: './add-user.component.css'
 })
 export class AddUserComponent{
+   private toastr = inject(ToastrService);
     @Input() show = false;
     @Input() userData: User ={
         _id: '',
@@ -35,7 +36,7 @@ export class AddUserComponent{
     emailExists = false;
   
   
-    constructor(private userService: UserService , private toastr: ToastrService) {}
+    constructor(private userService: UserService ) {}
     onImagesUploaded(imageUrls: string[]) {
       this.userData.image = imageUrls;
     }

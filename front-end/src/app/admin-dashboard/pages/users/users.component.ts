@@ -105,17 +105,37 @@ export class UsersComponent implements OnInit, OnDestroy{
         text: "You won't be able to revert this!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: 'Yes, delete it!',
+        customClass: {
+          confirmButton: 'btn btn-primary',
+          cancelButton:'btn btn-secondary'  
+        }
       }).then((result) => {
         if (result.isConfirmed) {
           this.UserService.deleteUser(id).subscribe({
             next: () => {
               this.loadUsers();
-              Swal.fire('Deleted!', 'user has been deleted.', 'success');
+              Swal.fire({
+                title: 'Success!',
+                text: `User has been deleted.`,
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'btn btn-success'  
+                }
+              });
             },
             error: (error) => {
               console.error('Error deleting user:', error);
-              Swal.fire('Error!', 'Failed to delete user.', 'error');
+              Swal.fire({
+                title: 'Error!',
+                text: error?.error?.message || 'Failed to delete user.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                customClass: {
+                  confirmButton: 'btn btn-danger'
+                }
+              });
             }
           });
         }
@@ -139,6 +159,50 @@ export class UsersComponent implements OnInit, OnDestroy{
         error:(error) => console.error('❌ Error:', error)
       });
     }
+
+changeUserRole(id: string): void { 
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You are about to change this user's role!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, change role!',
+    customClass: {
+      confirmButton: 'btn btn-primary',
+      cancelButton: 'btn btn-secondary'  
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.UserService.changeUserRole(id, "seller").subscribe({ 
+        next: () => {
+          this.loadUsers();
+          Swal.fire({
+            title: 'Success!',
+            text: `User role has been updated to seller.`,
+            icon: 'success',
+            confirmButtonText: 'OK',
+            customClass: {
+              confirmButton: 'btn btn-success'  
+            }
+          });
+        },
+        error: (error) => {
+          console.error('Error changing user role:', error);
+          Swal.fire({
+            title: 'Error!',
+            text: error?.error?.message || 'Failed to change user role.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: {
+              confirmButton: 'btn btn-danger'
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
 
     toggleUserStatus(user: User) {
       if (user.isActive) {

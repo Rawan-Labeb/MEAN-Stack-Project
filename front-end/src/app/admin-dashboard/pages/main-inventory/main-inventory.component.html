@@ -71,7 +71,7 @@
                   </thead>
                   <tbody>
                     <tr *ngFor="let mainInventory of filteredMainInventories">
-                      <td><img class="image" src="{{mainInventory?.product?.images}}" alt="">{{mainInventory?.product?.name}}</td>
+                      <td><img class="image" src="{{mainInventory?.product!.images[0]}}" alt="">{{mainInventory?.product?.name}}</td>
                       <td>{{mainInventory?.product?.price}}</td>
                       <td>{{mainInventory?.product?.noOfSale}}</td>
                       <td>{{mainInventory?.product?.sellerId?.firstName}} {{mainInventory?.product?.sellerId?.lastName}}</td>
@@ -95,6 +95,10 @@
                           <button mat-menu-item (click)="deleteMainInventory(mainInventory!._id)">
                             <mat-icon>delete</mat-icon>
                             Delete
+                          </button>
+                          <button mat-menu-item (click)="createSubInventory(mainInventory._id,mainInventory.product._id)">
+                            <mat-icon>store</mat-icon>
+                            subInventory
                           </button>
                           <!-- <button mat-menu-item (click)="toggleUserStatus(user)">
                             <mat-icon>{{ user.isActive ? 'close' : 'check' }}</mat-icon>

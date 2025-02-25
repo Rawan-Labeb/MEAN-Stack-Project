@@ -26,20 +26,19 @@ export class SubInventoryService {
       }
 
 
-
-
-
       getSubInventoryById(id: string): Observable<SubInventory> {
         return this.http.get<SubInventory>(`${this.apiUrl}/getSubInventoryById/${id}`);
       }
   
-      CreateSubInventory(subInventory: SubInventory): Observable<SubInventory> {
-        const subInventoryData = JSON.parse(JSON.stringify(subInventory));
-        delete subInventoryData._id;
-          console.log('Adding SubInventory:', subInventoryData);
-          return this.http.post<SubInventory>(`${this.apiUrl}/CreateSubInventory`, subInventoryData).pipe(
+      CreateSubInventory(id: string,product:string,branch:string,quantity:number): Observable<SubInventory> {
+        // const subInventoryData = JSON.parse(JSON.stringify(subInventory));
+        // delete subInventoryData._id;
+        //   console.log('Adding SubInventory:', subInventoryData);
+          return this.http.post<SubInventory>(`${this.apiUrl}/CreateSubInventory`, 
+            {"mainInventory":id,"product":product,"branch":branch,"quantity":quantity}).pipe(
               tap(createdSubInventory => {
-                  console.log('SubInventory added successfully:', createdSubInventory);
+                  console.log('SubInventory added successfully:',
+                    {"mainInventory":id,"product":product,"branch":branch,"quantity":quantity});
               })
           );
         }

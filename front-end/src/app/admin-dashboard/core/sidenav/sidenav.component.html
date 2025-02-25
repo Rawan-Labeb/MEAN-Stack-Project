@@ -30,20 +30,38 @@
     <mat-icon>shopping_bag</mat-icon><span>Products</span>
   </a>
 
-  <a mat-list-item routerLinkActive="list-item-active" routerLink="orders">
-    <mat-icon>shopping_cart</mat-icon><span>Orders</span>
-  </a>
-
   <a mat-list-item routerLinkActive="list-item-active" routerLink="mainInventories">
     <mat-icon>inventory_2</mat-icon><span>Main Inventory</span>
   </a>
 
   <a mat-list-item routerLinkActive="list-item-active" routerLink="branches">
-    <mat-icon>inventory_2</mat-icon><span>Branches</span>
+    <mat-icon>store</mat-icon><span>Branches</span>
   </a>
+  
+  <mat-list>
+    <mat-list-item (click)="toggleOnlineBranch()">
+      <mat-icon>public</mat-icon>
+      <span>Online Branch</span>
+      <mat-icon *ngIf="showMenu">expand_less</mat-icon>
+      <mat-icon *ngIf="!showMenu">expand_more</mat-icon>
+    </mat-list-item>
+  
+    <div *ngIf="showMenu" class="submenu">
+      <a mat-list-item [routerLink]="['subInventory', 'Ecommerce']" routerLinkActive="list-item-active">
+        <mat-icon>shopping_cart</mat-icon>
+        <span>Products</span>
+      </a>
+  
+      <a mat-list-item routerLink="orders" routerLinkActive="list-item-active">
+        <mat-icon>receipt_long</mat-icon>
+        <span>Orders</span>
+      </a>
+    </div>
+  </mat-list>
+  
 
   <a mat-list-item (click)="toggleSubMenu()">
-    <mat-icon>store</mat-icon><span>Branches</span>
+    <mat-icon>business</mat-icon><span>Offline Branches</span>
     <mat-icon>{{ showSubMenu ? 'expand_less' : 'expand_more' }}</mat-icon>
   </a>
   
@@ -60,14 +78,16 @@
         <a mat-list-item [routerLink]="['subInventory', branch.branchName]" routerLinkActive="list-item-active">
           <mat-icon>shopping_cart</mat-icon><span>Products</span>
         </a>
-        <a mat-list-item [routerLink]="['/orders', branch.branchName]" routerLinkActive="list-item-active">
+        <a mat-list-item [routerLink]="['orders',branch._id]" routerLinkActive="list-item-active">
           <mat-icon>receipt_long</mat-icon><span>Orders</span>
         </a>
       </div>
     </ng-container>
   </div>
-  
-  
+
+  <a mat-list-item routerLinkActive="list-item-active" routerLink="distReq">
+    <mat-icon>local_shipping</mat-icon><span>Distripution Request</span>
+  </a>
   <a mat-list-item routerLinkActive="list-item-active" routerLink="categories">
     <mat-icon>category</mat-icon><span>Categories</span>
   </a>

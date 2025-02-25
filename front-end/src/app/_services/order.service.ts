@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable,Subject } from 'rxjs';
 import { Order } from '../_models/order.module';
 import { Product } from '../_models/product.model';
 import { CookieService } from 'ngx-cookie-service';
@@ -11,7 +11,7 @@ import { CookieService } from 'ngx-cookie-service';
 export class OrderService {
   private apiUrl = 'http://localhost:5000/order';
     private productApiUrl = 'http://localhost:5000/product';
-
+  private orderUpdated = new Subject<Order>();
 
   constructor(private http: HttpClient,
     private cookieSer: CookieService

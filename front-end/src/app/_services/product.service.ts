@@ -69,4 +69,13 @@ export class ProductService {
       return this.productUpdated.asObservable();
   }
 
+  createProdReq(product: string,seller:string,superAdmin:string,requestedQuantity:number): Observable<any> {
+    return this.http.post<Product>(`http://localhost:5000/prodReq/createProdReq`,{
+      "product":product,"seller":seller,"superAdmin":superAdmin,"requestedQuantity":requestedQuantity
+    } ).pipe(
+        tap(createdProduct => {
+            console.log('ProdReq added successfully:', createdProduct);
+        })
+    );
+}
 }
