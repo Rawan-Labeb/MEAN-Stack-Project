@@ -128,28 +128,20 @@ const createCart = async (req, res) => {
   try {
     const { userId, items } = req.body;
     let userCart = await Cart.findOne({ user: userId });
-    const { userId, items } = req.body;
-    let userCart = await Cart.findOne({ user: userId });
 
     if (userCart) {
       for (const item of items) {
         const subInventory = await SubInventory.findById(item.subInventoryId).populate('product branch');
         if (!subInventory || !subInventory.active || subInventory.quantity < item.quantity) {
           return res.status(404).json({ error: `Sub-inventory item not available or insufficient stock` });
-        const subInventory = await SubInventory.findById(item.subInventoryId).populate('product branch');
-        if (!subInventory || !subInventory.active || subInventory.quantity < item.quantity) {
-          return res.status(404).json({ error: `Sub-inventory item not available or insufficient stock` });
         }
 
-        const existingItem = userCart.items.find(cartItem => cartItem.subInventory.equals(item.subInventoryId));
-        const existingItem = userCart.items.find(cartItem => cartItem.subInventory.equals(item.subInventoryId));
+        const existingItem = userCart.items.find(cartItem => cartItem.subInventory && cartItem.subInventory.equals(item.subInventoryId));
 
         if (existingItem) {
           existingItem.quantity += item.quantity;
         } else {
           userCart.items.push({
-            subInventory: item.subInventoryId,
-            branch: subInventory.branch._id,
             subInventory: item.subInventoryId,
             branch: subInventory.branch._id,
             quantity: item.quantity,
@@ -161,38 +153,25 @@ const createCart = async (req, res) => {
       await userCart.save();
       return res.status(200).json({ message: "Items added to existing cart", userCart });
     } else {
+      const itemsWithDetails = await Promise.all(items.map(async item => {
+        const subInventory = await SubInventory.findById(item.subInventoryId).populate('product branch');
+        if (!subInventory || !subInventory.active || subInventory.quantity < item.quantity) {
+          throw new Error(`Sub-inventory item not available or insufficient stock`);
+        }
+        return {
+          subInventory: item.subInventoryId,
+          branch: subInventory.branch._id,
+          quantity: item.quantity,
+          price: subInventory.product.price,
+          image: subInventory.product.images[0]
+        };
+      }));
+
       const newCart = new Cart({
         user: userId,
-        items: await Promise.all(items.map(async item => {
-          const subInventory = await SubInventory.findById(item.subInventoryId).populate('product branch');
-          if (!subInventory || !subInventory.active || subInventory.quantity < item.quantity) {
-            throw new Error(`Sub-inventory item not available or insufficient stock`);
-          }
-          return {
-            subInventory: item.subInventoryId,
-            branch: subInventory.branch._id,
-            quantity: item.quantity,
-            price: subInventory.product.price,
-            image: subInventory.product.images[0]
-          };
-        }))
+        items: itemsWithDetails
       });
-      const newCart = new Cart({
-        user: userId,
-        items: await Promise.all(items.map(async item => {
-          const subInventory = await SubInventory.findById(item.subInventoryId).populate('product branch');
-          if (!subInventory || !subInventory.active || subInventory.quantity < item.quantity) {
-            throw new Error(`Sub-inventory item not available or insufficient stock`);
-          }
-          return {
-            subInventory: item.subInventoryId,
-            branch: subInventory.branch._id,
-            quantity: item.quantity,
-            price: subInventory.product.price,
-            image: subInventory.product.images[0]
-          };
-        }))
-      });
+
       await newCart.save();
       return res.status(201).json(newCart);
     }
@@ -214,23 +193,32 @@ const getCartByUserId = async (req, res) => {
 
     if (!cart) return res.status(404).json({ error: 'Cart not found' });
 
-    const cart = await Cart.findOne({ user: req.params.userId })
-      .populate({
-        path: 'items.subInventory',
-        populate: {
-          path: 'product',
-          select: 'name description price images isActive'
-        }
-      })
-      .populate('items.branch');
-
-    if (!cart) return res.status(404).json({ error: 'Cart not found' });
-
     res.json(cart);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+// const getCartByUserId = async (req, res) => {
+//   try {
+//     if (!cart) return res.status(404).json({ error: 'Cart not found' });
+
+//     const cart = await Cart.findOne({ user: req.params.userId })
+//       .populate({
+//         path: 'items.subInventory',
+//         populate: {
+//           path: 'product',
+//           select: 'name description price images isActive'
+//         }
+//       })
+//       .populate('items.branch');
+
+//     if (!cart) return res.status(404).json({ error: 'Cart not found' });
+
+//     res.json(cart);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 const updateCart = async (req, res) => {
   try {

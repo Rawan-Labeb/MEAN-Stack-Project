@@ -71,6 +71,7 @@
             <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow-sm" aria-labelledby="userDropdown">
               <li *ngIf="userRole"><a class="dropdown-item" routerLink="/user/userprofile"><i class="bi bi-person me-2"></i> User Profile</a></li>
               <li *ngIf="userRole === 'admin'"><a class="dropdown-item" routerLink="/admindashboard"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</a></li>
+              <li *ngIf="userRole === 'Casheir'"><a class="dropdown-item" routerLink="/casheir"><i class="bi bi-clock-history me-2"></i> History</a></li>
               <li *ngIf="userRole === 'seller'" ><a class="dropdown-item" routerLink="/sellerdashboard"><i class="bi bi-speedometer2 me-2"></i> Seller Dashboard</a></li>
               <li *ngIf="userRole === 'customer'"><a class="dropdown-item" routerLink="/userprofile"><i class="bi bi-clock-history me-2"></i> History</a></li>
               <li><hr class="dropdown-divider"></li>

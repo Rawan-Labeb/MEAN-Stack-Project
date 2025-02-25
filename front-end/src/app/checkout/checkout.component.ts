@@ -70,15 +70,15 @@ export class CheckoutComponent implements OnInit {
     private http: HttpClient,
     private cookieService: CookieService 
   ) {}
-
   ngOnInit(): void {
     this.getUserIdFromToken();
+  
     if (!this.userId) {
       console.error('User ID not found!');
       Swal.fire('Error', 'User not authenticated!', 'error');
       return;
     }
-
+  
     this.cartService.getCart(this.userId).subscribe(
       (res: any) => {
         console.log(res.items);
@@ -88,9 +88,9 @@ export class CheckoutComponent implements OnInit {
       error => console.error('Error loading cart:', error)
     );
   }
-
+  
   getUserIdFromToken(): void {
-    const token = this.cookieService.get('authToken'); 
+    const token = this.cookieService.get('token'); 
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1])); 
@@ -100,6 +100,7 @@ export class CheckoutComponent implements OnInit {
       }
     }
   }
+  
 
   validateCartItems(): boolean {
     let isValid = true;
@@ -172,9 +173,19 @@ export class CheckoutComponent implements OnInit {
           Swal.fire('Success', 'Order placed successfully!', 'success').then(() => this.router.navigate(['/']));
         });
       },
-      error: (err: any) => console.error('Error creating order', err)
+      error: (err: any) => {
+        console.error('Error creating order', err);
+        
+        // التحقق إذا كان الخطأ بسبب البريد الإلكتروني
+        if (err.status === 400 && err.error && err.error.error === 'Invalid email address') {
+          Swal.fire('Invalid Email', 'Please provide a valid email address', 'error');
+        } else {
+          Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+        }
+      }
     });
   }
+  
 
   isValidOrder(customerDetails: any): boolean {
     if (!customerDetails.firstName || !customerDetails.lastName || !customerDetails.email || !customerDetails.phone || 
@@ -182,12 +193,26 @@ export class CheckoutComponent implements OnInit {
       Swal.fire('Incomplete Details', 'Please complete your billing details', 'warning');
       return false;
     }
+  
+    if (customerDetails.firstName.length < 3 || customerDetails.lastName.length < 3) {
+      Swal.fire('Invalid Name', 'First name and last name must be at least 3 characters long', 'warning');
+      return false;
+    }
+  
     if (!this.isValidEmail(customerDetails.email)) {
       Swal.fire('Invalid Email', 'Please provide a valid email address', 'warning');
       return false;
     }
+  
+    const phonePattern = /^[0-9]{11}$/;
+    if (!phonePattern.test(customerDetails.phone)) {
+      Swal.fire('Invalid Phone Number', 'Phone number must be exactly 11 digits', 'warning');
+      return false;
+    }
+  
     return true;
   }
+  
 
   trackByProductId(index: number, item: any): number {
     return item.subInventory.product ? item.subInventory.product._id : index;

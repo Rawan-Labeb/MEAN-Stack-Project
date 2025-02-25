@@ -37,4 +37,6 @@ export class CartService {
   getProductDetails(userId: string, subInventoryId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${userId}/subInventory-details/${subInventoryId}`);
   }
+
+  
 }

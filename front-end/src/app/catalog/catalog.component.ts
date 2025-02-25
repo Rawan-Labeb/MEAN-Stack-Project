@@ -102,7 +102,7 @@ export class CatalogComponent implements OnInit {
 
   // }
   ngOnInit(): void {
-    this.subInventorySer.getSubInventoryRelatedToBranch("Uptown Branch").subscribe({
+    this.subInventorySer.getSubInventoryRelatedToBranch("Ecommerce").subscribe({
       next: (data) => {
         this.productRelatedtoBarnch = data;
   

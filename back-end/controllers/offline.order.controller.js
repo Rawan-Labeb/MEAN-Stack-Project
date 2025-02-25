@@ -5,8 +5,8 @@ const {
     createOfflineOrder,
     cancelOfflineOrder,deleteProductFromOrderService
   } = require("../services/offline.orders.service");
-  const { getBranchById } = require('../services/branch.service'); // Correct import for getBranchById
-  const { getSubInventoryById } = require('../services/sub.inventory.services'); // Correct import for getSubInventoryById
+  const { getBranchById } = require('../services/branch.service'); 
+  const { getSubInventoryById } = require('../services/sub.inventory.services'); 
   
   const router = require("express").Router();
   const express = require("express");
