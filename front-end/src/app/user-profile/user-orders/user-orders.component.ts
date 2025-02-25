@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from 'src/app/_services/order.service';
 import { Order } from 'src/app/_models/order.module';
 
 import Swal from 'sweetalert2';
+import { AuthServiceService } from 'src/app/_services/auth-service.service';
 
 @Component({
   selector: 'app-user-orders',
@@ -22,7 +23,9 @@ export class UserOrdersComponent implements OnInit
 
   constructor(
     private orderSer: OrderService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authSer: AuthServiceService,
+    private router: Router
 
   ) { }
   ngOnInit(): void {
@@ -37,17 +40,19 @@ export class UserOrdersComponent implements OnInit
   loadUserOrders() {
     this.orderSer.getOrdersByCustomerId(this.id).subscribe({
       next: (orders) => {
-
         this.userOrder = orders;
-        
         this.noOfOrder = orders.length;
-        this.totalSpend = orders.reduce((total, order) => total + order.totalPrice,0);
-
+        this.totalSpend = orders.reduce((total, order) => total + order.totalPrice, 0);
         console.log(orders);
         console.log(this.userOrder);
       },
       error: (err) => {
-        console.error('Error fetching orders', err);
+        if (err.status === 401) {
+          this.authSer.logout();
+          this.router.navigateByUrl("user/login");
+        } else {
+          console.error('Error fetching orders', err);
+        }
       }
     });
   }

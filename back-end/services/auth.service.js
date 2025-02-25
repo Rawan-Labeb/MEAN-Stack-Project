@@ -57,6 +57,10 @@ const login = async (email, password) => {
             return { success: false, message: "Email Or Password Not Valid" };
         }
 
+        if (!user.message.isActive) {
+            return { success: false, message: "Please contact the admin for assistance." };
+        }
+
         const claims = createClaims(user.message);
 
         const token = signToken({ claims });

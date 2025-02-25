@@ -42,15 +42,7 @@ module.exports.getOrderById = async (orderId) => {
     }
 }
 
-// get order by product Id
-// module.exports.getOrdersByProductId = async (productId) => {
-//     try {
-//       const orders = await Order.find({ "items.productId": productId });
-//       return orders;
-//     } catch (error) {
-//       throw new Error("Could not fetch orders by product ID");
-//     }
-// };
+
 
 // return order based on status
 module.exports.getOrdersByStatus = async (orderStatus) => {
@@ -79,47 +71,56 @@ module.exports.getOrdersByCustomerAndStatus = async (customerId, status) => {
 
 
 module.exports.changeOrderStatus = async (orderId, changedStatus) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-  try {
-      changedStatus = changedStatus.toLowerCase();
-      const order = await Order.findById(orderId).session(session);
+    try {
+            changedStatus = changedStatus.toLowerCase();
+            const order = await Order.findById(orderId).session(session);
 
-      if (!order) {
-          throw new Error("Order not found");
-      }
+            if (!order) {
+                    throw new Error("Order not found");
+            }
 
-      const previousStatus = order.status;
-      order.status = changedStatus;
-      await order.save({ session });
+            const previousStatus = order.status;
+            order.status = changedStatus;
+            await order.save({ session });
 
-      // Handle quantity adjustments based on the status change
-      if ((previousStatus === "shipped" &&  changedStatus === "refunded") || 
-          (previousStatus === "pending" && changedStatus === "cancelled")) {
-          // Revert the quantity back to stock
-          for (const item of order.items) {
-              const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
-              
-              if (!subInventory) {
-                  throw new Error(`Sub-inventory ${item.subInventoryId} not found`);
-              }
+            // Handle quantity adjustments based on the status change
+            if ((previousStatus === "shipped" &&  changedStatus === "refunded") || 
+                    (previousStatus === "pending" && changedStatus === "cancelled")) {
+                    // Revert the quantity back to stock
+                    for (const item of order.items) {
+                            const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
+                            
+                            if (!subInventory) {
+                                    throw new Error(`Sub-inventory ${item.subInventoryId} not found`);
+                            }
 
-              subInventory.quantity += item.quantity;
-              subInventory.numberOfSales -= item.quantity;
-              await subInventory.save({ session });
-          }
-      }
+                            subInventory.quantity += item.quantity;
+                            subInventory.numberOfSales -= item.quantity;
+                            await subInventory.save({ session });
 
-      await session.commitTransaction();
-      session.endSession();
+                            // Decrease the number of sales for the product
+                            const product = await Product.findById(subInventory.product).session(session);
+                            if (!product) {
+                                    throw new Error(`Product ${subInventory.product} not found`);
+                            }
 
-      return order; 
-  } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-      throw new Error(error.message || "Could not change order status");
-  }
+                            product.noOfSale -= item.quantity;
+                            await product.save({ session });
+                    }
+            }
+
+            await session.commitTransaction();
+            session.endSession();
+
+            return order; 
+    } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw new Error(error.message || "Could not change order status");
+    }
 };
 
 
@@ -127,39 +128,47 @@ module.exports.changeOrderStatus = async (orderId, changedStatus) => {
 
 
 
-
 module.exports.deleteOrder = async (orderId) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-  try {
-      const deletedOrder = await Order.findOneAndDelete({ _id: orderId }).session(session);
+    try {
+            const deletedOrder = await Order.findOneAndDelete({ _id: orderId }).session(session);
 
-      // Loop through each item in the deleted order to return the quantity to the stock
-      if (deletedOrder.status === "shipped" || deletedOrder.status === "pending") {
-      for (const item of deletedOrder.items) {
-          const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
-          
-          if (!subInventory) {
-              throw new Error(`Sub-inventory ${item.subInventoryId} not found`);
-          }
+            // Loop through each item in the deleted order to return the quantity to the stock
+            if (deletedOrder.status === "shipped" || deletedOrder.status === "pending") {
+                for (const item of deletedOrder.items) {
+                    const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
+                    
+                    if (!subInventory) {
+                            throw new Error(`Sub-inventory ${item.subInventoryId} not found`);
+                    }
 
-          subInventory.quantity += item.quantity;
-          subInventory.numberOfSales -= item.quantity;
-          await subInventory.save({ session });
-      }
+                    subInventory.quantity += item.quantity;
+                    subInventory.numberOfSales -= item.quantity;
+                    await subInventory.save({ session });
+
+                    // Decrease the number of sales for the product
+                    const product = await Product.findById(subInventory.product).session(session);
+                    if (!product) {
+                            throw new Error(`Product ${subInventory.product} not found`);
+                    }
+
+                    product.noOfSale -= item.quantity;
+                    console.log(product.noOfSale);
+                    await product.save({ session });
+                }
+            }
+
+            await session.commitTransaction();
+            session.endSession();
+            
+            return deletedOrder;
+    } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw new Error("Could not delete order: " + error.message);
     }
-
-
-      await session.commitTransaction();
-      session.endSession();
-      
-      return deletedOrder;
-  } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-      throw new Error("Could not delete order: " + error.message);
-  }
 };
 
 
@@ -221,6 +230,15 @@ module.exports.createOrder = async (orderDetails) =>
         subInventory.quantity -= item.quantity;
         subInventory.numberOfSales += item.quantity;
         await subInventory.save({ session });
+
+        // Increase the number of sales for the product
+        // console.log(product.noOfSale);
+        // if (typeof product.noOfSale !== 'number') {
+        //     throw new Error(`Invalid number of sales for product ${subInventory.product}`);
+        // }
+        product.noOfSale += item.quantity;
+
+        await product.save({ session });
       }
   
       // Assign the computed total price to the order details

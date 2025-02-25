@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
+import { AuthServiceService } from '../_services/auth-service.service';
 
 @Component({
   selector: 'app-header',
@@ -12,7 +13,8 @@ import { CookieService } from 'ngx-cookie-service';
 export class HeaderComponent {
   constructor(
     public cookieSer:CookieService,
-    public router:Router
+    public router:Router,
+    private authSer:AuthServiceService
   )
   {
 
@@ -46,7 +48,7 @@ export class HeaderComponent {
 
   LogOut()
   {
-    this.cookieSer.delete("token");
+    this.authSer.logout();
     this.router.navigateByUrl("");
   }
   increaseQuantity(item: any): void {

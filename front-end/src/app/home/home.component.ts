@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
+import { SubInventoryService } from '../_services/sub-inventory.service';
+import { CategoryService } from '../_services/category.service';
+import { AuthServiceService } from '../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
 
 
 interface Perfume {
@@ -40,8 +44,241 @@ interface BlogPost {
   imports:[CommonModule,RouterLink],
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
-  constructor(private router: Router) {}
+export class HomeComponent implements OnInit
+{
+  constructor(
+    private router: Router,
+    private subInventorySer:SubInventoryService,
+    private categorySer:CategoryService,
+    private authSer:AuthServiceService,
+    private cookieServices:CookieService
+  ) {}
+
+  productRelatedtoBarnch:any[] = [];
+  products:any[] = [];
+  prodDetails:any;
+  loading: boolean = true; 
+  token:any = null;
+
+  getToken(): string {
+    return this.cookieServices.get('token'); 
+  }
+
+
+  // ngOnInit(): void {
+  //   this.authSer.decodeToken(this.getToken()).subscribe({
+  //     next: (data) => {
+  //       this.token = data;
+  //       this.fetchProducts();
+  //       console.log(this.products)
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching token:', err);
+  //       // this.loading = false;
+  //     }
+  //   });
+
+  // }
+  
+  // private fetchProducts(): void {
+  //   const branchId = this.authSer.isAuthenticated() && this.token.branchId
+  //     ? this.token.branchId
+  //     : '67b129216e1b912065196f93';
+  
+  //   this.subInventorySer.getActiveSubInventoriesByBranchId(branchId).subscribe({
+  //     next: (data) => {
+  //       console.log(data);
+  //       this.productRelatedtoBarnch = data;
+        
+  //       const categoryRequests = this.productRelatedtoBarnch.map(prod =>
+  //         this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+  //       );
+  
+  //       Promise.all(categoryRequests).then(categories => {
+  //         this.products = this.productRelatedtoBarnch.map((prod, index) => ({
+  //           productName: prod.product.name,
+  //           productPrice: prod.product.price,
+  //           productDescription: prod.product.description,
+  //           productImage: prod.product.images,
+  //           productCategory: categories[index]?.name,
+  //           productQuantity: prod.quantity,
+  //           noOfSale: prod.numberOfSales,
+  //           subInventoryDate: prod.lastUpdated,
+  //           _id: prod._id
+  //         }));
+  //         console.log(this.products); 
+  //         this.loading = false;
+  //       }).catch(error => {
+  //         console.error('Failed to retrieve categories', error);
+  //       });
+        
+
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching products:', err);
+  //       this.loading = false; 
+  //     }
+  //   });
+  // }
+  
+
+  // async ngOnInit(): Promise<void> {
+  //   try {
+  //     this.token = await this.authSer.decodeToken(this.getToken()).toPromise();
+  //     await this.fetchProducts();
+  //     console.log(this.products); // ✅ Now logs the updated products array
+  //   } catch (err) {
+  //     console.error('Error fetching token:', err);
+  //   }
+  // }
+
+
+  // ngOnInit(): void {
+  //   this.authSer.decodeToken(this.getToken()).subscribe({
+  //     next: (data) => {
+  //       this.token = data;
+
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching token:', err);
+  //       // this.loading = false;
+  //     }
+  //   });
+
+  //   const branchId = this.authSer.isAuthenticated() && this.token.branchId
+  //     ? this.token.branchId
+  //     : '67b129216e1b912065196f93';
+  
+  //   this.subInventorySer.getActiveSubInventoriesByBranchId(branchId).subscribe({
+  //     next: (data) => {
+  //       console.log(data);
+  //       this.productRelatedtoBarnch = data;
+        
+  //       const categoryRequests = this.productRelatedtoBarnch.map(prod =>
+  //         this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+  //       );
+  
+  //       Promise.all(categoryRequests).then(categories => {
+  //         this.products = this.productRelatedtoBarnch.map((prod, index) => ({
+  //           productName: prod.product.name,
+  //           productPrice: prod.product.price,
+  //           productDescription: prod.product.description,
+  //           productImage: prod.product.images,
+  //           productCategory: categories[index]?.name,
+  //           productQuantity: prod.quantity,
+  //           noOfSale: prod.numberOfSales,
+  //           subInventoryDate: prod.lastUpdated,
+  //           _id: prod._id
+  //         }));
+  //         console.log(this.products); 
+  //         this.loading = false;
+  //       }).catch(error => {
+  //         console.error('Failed to retrieve categories', error);
+  //       });
+        
+
+  //     },
+  //     error: (err) => {
+  //       console.error('Error fetching products:', err);
+  //       this.loading = false; 
+  //     }
+  //   });
+
+  //   console.log(this.products)
+  // }
+
+
+  
+  // private async fetchProducts(): Promise<void> {
+  //   try {
+  //     const branchId = this.authSer.isAuthenticated() && this.token.branchId
+  //       ? this.token.branchId
+  //       : '67b129216e1b912065196f93';
+  
+  //     await this.subInventorySer.getActiveSubInventoriesByBranchId(branchId).subscribe({
+  //       next: (data) => {
+  //         console.log(data);
+  //         this.productRelatedtoBarnch = data;
+  //       }
+  //     });
+  
+  //     const categoryRequests = this.productRelatedtoBarnch.map(prod =>
+  //       this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+  //     );
+  
+  //     const categories = await Promise.all(categoryRequests);
+  
+  //     this.products = this.productRelatedtoBarnch.map((prod, index) => ({
+  //       productName: prod.product.name,
+  //       productPrice: prod.product.price,
+  //       productDescription: prod.product.description,
+  //       productImage: prod.product.images,
+  //       productCategory: categories[index]?.name,
+  //       productQuantity: prod.quantity,
+  //       noOfSale: prod.numberOfSales,
+  //       subInventoryDate: prod.lastUpdated,
+  //       _id: prod._id
+  //     }));
+  
+  //     console.log(this.products); // ✅ Now logs the updated products array
+  //     this.loading = false;
+  //   } catch (error) {
+  //     console.error('Failed to retrieve products or categories', error);
+  //     this.loading = false;
+  //   }
+  // }
+
+
+  async ngOnInit(): Promise<void> {
+    try {
+      this.token = await this.authSer.decodeToken(this.getToken()).toPromise();
+      await this.fetchProducts();
+      console.log(this.products); 
+    } catch (err) {
+      console.error('Error fetching token:', err);
+    }
+  }
+  
+  private async fetchProducts(): Promise<void> {
+    try {
+      const branchId = this.authSer.isAuthenticated() && this.token.branchId
+        ? this.token.branchId
+        : '67b129216e1b912065196f93';
+  
+      this.productRelatedtoBarnch = await this.subInventorySer.getActiveSubInventoriesByBranchId(branchId).toPromise() ?? [];
+  
+      const categoryRequests = this.productRelatedtoBarnch.map(prod =>
+        this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
+      );
+  
+      const categories = await Promise.all(categoryRequests);
+  
+      this.products = this.productRelatedtoBarnch.map((prod, index) => ({
+        productName: prod.product.name,
+        productPrice: prod.product.price,
+        productDescription: prod.product.description,
+        productImage: prod.product.images,
+        productCategory: categories[index]?.name,
+        productQuantity: prod.quantity,
+        noOfSale: prod.numberOfSales,
+        subInventoryDate: prod.lastUpdated,
+        _id: prod._id
+      }));
+  
+      console.log(this.products); 
+      this.loading = false;
+    } catch (error) {
+      console.error('Failed to retrieve products or categories', error);
+      this.loading = false;
+    }
+  }
+  
+
+
+  
+
+
+
   // Static perfume data
   perfumes: Perfume[] = [
     {

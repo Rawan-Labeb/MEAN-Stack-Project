@@ -87,23 +87,10 @@ export class CatalogComponent implements OnInit {
   loading: boolean = true; 
 
 
-  // ngOnInit(): void {
-  //   this.subInventorySer.getSubInventoryRelatedToBranch("Uptown Branch").subscribe({
-  //     next: (data) => {
-  //       this.productRelatedtoBarnch = data;
-  //       this.test = this.productRelatedtoBarnch.map(prod => prod.product); // Extracting products
-  //       console.log(this.test);
-  //       console.log(this.productRelatedtoBarnch);
-  //       // this.prodDetails = data;
-  //     }
-  //   });
-
-  //   console.log(this.productRelatedtoBarnch);
-
-  // }
   ngOnInit(): void {
     this.subInventorySer.getSubInventoryRelatedToBranch("Uptown Branch").subscribe({
       next: (data) => {
+        console.log(data)
         this.productRelatedtoBarnch = data;
   
         this.allPerfumes = this.products as Perfume[];

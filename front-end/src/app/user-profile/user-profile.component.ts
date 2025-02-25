@@ -12,7 +12,7 @@ import { Order } from '../_models/order.module';
 import { OrderService } from '../_services/order.service';
 import { UploadService } from '../_services/upload.service';
 import { HttpClient } from '@angular/common/http';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import Swal from 'sweetalert2';
 import { ContactService } from '../_services/contact.service';
 import { Complaint } from '../_models/contact.model';
@@ -43,6 +43,7 @@ export class UserProfileComponent implements OnInit
     private cookieServices:CookieService,
     private locationSer:LocationServicesService,
     private uploadSer:UploadService,
+    private router:Router
   ) {
 
     this.userProfileForm = new FormGroup({
@@ -86,7 +87,14 @@ export class UserProfileComponent implements OnInit
             // this.loadUserComplaints();
           }
         },
-        error: (err) => console.error('Error fetching user data', err)
+        error: (err) => {
+          if (err.status == 401)
+          {
+            this.authSer.logout();
+            this.router.navigateByUrl("user/login");
+          }
+          console.error('Error fetching user data', err)
+        }
       });
     } else {
       console.error('Email not found in token');
@@ -223,7 +231,14 @@ onSubmit() {
     console.log(updatedUserData); // Log updated user data
     this.authSer.updateUserData(updatedUserData, this.id).subscribe({
       next: (data) => console.log('User data updated successfully', data),
-      error: (err) => console.error('Error updating user data', err)
+      error: (err) => {
+        if (err.status == 401)
+        {
+          this.authSer.logout();
+          this.router.navigateByUrl("user/login");
+        }
+        console.error('Error updating user data', err)
+      }
     });
   } else {
     console.error('Form is invalid');
