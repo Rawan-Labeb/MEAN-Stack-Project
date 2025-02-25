@@ -163,7 +163,7 @@ export class HomeComponent implements OnInit{
         ? this.token.branchId
         : '67b129216e1b912065196f93';
   
-      this.productRelatedtoBranch = await this.subInventorySer.getDeactiveSubInventoriesByBranchId(branchId).toPromise() ?? [];
+      this.productRelatedtoBranch = await this.subInventorySer.getActiveSubInventoriesByBranchId(branchId).toPromise() ?? [];
   
       const categoryRequests = this.productRelatedtoBranch.map(prod =>
         this.categorySer.getCategoryById(prod.product.categoryId).toPromise()
