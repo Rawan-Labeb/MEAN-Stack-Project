@@ -18,9 +18,7 @@ export class HeaderComponent implements OnInit {
   constructor(
     public cookieSer:CookieService,
     public router:Router,
-    private authSer: AuthServiceService 
-
-
+    private authSer:AuthServiceService
   )
   {
 
@@ -108,13 +106,6 @@ export class HeaderComponent implements OnInit {
   }
 
 
-  // LogOut()
-  // {
-  //   this.cookieSer.delete("token");
-  //   this.router.navigateByUrl("");
-  //   this.isauthenticated = false; 
-
-  // }
   increaseQuantity(item: any): void {
     if (item.quantity < 10) {
       item.quantity++;
@@ -159,7 +150,7 @@ export class HeaderComponent implements OnInit {
     }
   }
   LogOut(): void {
-    this.cookieSer.delete('token');
+    this.authSer.logout();
     this.router.navigateByUrl('');
     this.isauthenticated = false;
   

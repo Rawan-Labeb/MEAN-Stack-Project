@@ -63,16 +63,7 @@ export class HomeComponent implements OnInit{
    bestSales: any[] = []; 
    newArrivalsD: any[] = []; 
 
-  // ngOnInit(): void {
-  //   this.subInventorySer.getSubInventoryRelatedToBranch("uptown branch").subscribe({
-  //     next:(data)=>{
-  //       this.productRelatedtoBranch=data;
-  //       console.log(this.productRelatedtoBranch);
-  //     }
-  //   })
-    
   
-  // }
   
 
   // ngOnInit(): void {

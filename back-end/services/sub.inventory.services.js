@@ -60,8 +60,6 @@ const validateCreateAndUpdateData = async (data) =>
     if (!mInventorychk.success)
         return {valid: false, message: "No Main Inventory with the id Passed"};
 
-    console.log(data.quantity)
-    console.log(mInventorychk.message.quantity)
     
 
     if (data.quantity > mInventorychk.message.quantity || data.quantity <= 0)
@@ -73,6 +71,9 @@ const validateCreateAndUpdateData = async (data) =>
     const prodChk = await getProductById(data.product);
     if (!prodChk)
         return {valid: false, message: "No Product with the given id"};
+
+    if (!prodChk.isActive)
+        data.active = false;
 
     if (!data.branch)
         return {valid: false, message: "Branch Should Be Passed"};

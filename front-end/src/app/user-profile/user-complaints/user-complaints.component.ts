@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Complaint } from 'src/app/_models/contact.model';
 import { ContactService } from 'src/app/_services/contact.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
+import { AuthServiceService } from 'src/app/_services/auth-service.service';
 
 @Component({
   selector: 'app-user-complaints',
@@ -19,7 +20,9 @@ export class UserComplaintsComponent implements OnInit {
 
   constructor(
     private compliant: ContactService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authSer: AuthServiceService,
+    private router: Router
   ) { }
 
 
@@ -43,6 +46,11 @@ export class UserComplaintsComponent implements OnInit {
         console.log(complaints);
       },
       error: (err) => {
+        if (err.status == 401) {
+          this.authSer.logout();
+          this.router.navigateByUrl("user/login");
+
+        } 
         console.error('Error fetching complaints', err);
       }
     });

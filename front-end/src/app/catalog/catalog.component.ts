@@ -144,5 +144,5 @@ export class CatalogComponent implements OnInit {
 
   // Loading State
   loading: boolean = true;
-  productRelatedtoBranch: any[] = [];
+  productRelatedtoBranch: any[] = [];
 }

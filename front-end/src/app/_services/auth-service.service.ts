@@ -35,12 +35,15 @@ export class AuthServiceService {
   }
 
   getUserDataByEmail(email: string) {
-    return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail/${email}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail/${email}`, { headers });
   }
-  
   updateUserData(userData:userProfile, id:string)
   {
-    return this.http.put<userProfile>(`${this.apiUrl}/updateUser/${id}`,userData)
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.put<userProfile>(`${this.apiUrl}/updateUser/${id}`,userData, {headers})
   }
   
 
@@ -87,6 +90,12 @@ export class AuthServiceService {
   {
     return this.cookieSer.check("token");
   }
+
+
+  logout() {
+    this.cookieSer.deleteAll();
+  }
+
 
 
 }

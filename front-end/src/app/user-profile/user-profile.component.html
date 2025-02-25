@@ -115,7 +115,7 @@
       <router-outlet></router-outlet>
     </div> -->
 
-    <div class="container-fluid mt-4">
+    <!-- <div class="container-fluid mt-4">
       <div class="row">
         <div class="col-md-6">
           <div class="image-button" style="background-image: url('path-to-men-image.jpg');">
@@ -132,7 +132,54 @@
           </div>
         </div>
       </div>
+    </div> -->
+
+
+    <!-- <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6 col-12 p-0">
+          <div class="image-button d-flex justify-content-center align-items-center vh-100" 
+               style="background: url('./../../../assets/complaint/complaint.jpg') no-repeat center center/cover;">
+            <a [routerLink]="['/user/userprofile/complaints', id]" class="overlay-text text-white fs-3 fw-bold">
+              Complaints
+            </a>
+          </div>
+        </div>
+        <div class="col-md-6 col-12 p-0">
+          <div class="image-button d-flex justify-content-center align-items-center vh-100" 
+               style="background: url('./../../../assets/orders/orders.jpg') no-repeat center center/cover;">
+            <a [routerLink]="['/user/userprofile/orders', id]" class="overlay-text text-white fs-3 fw-bold">
+              Orders
+            </a>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    
+    <div class="container-fluid p-0">
+      <div class="row g-0">
+        <!-- Complaints Section -->
+        <div class="col-md-6 col-12">
+          <a [routerLink]="['/user/userprofile/complaints', id]" class="full-page-link complaints">
+            <div class="overlay">
+              <span class="text">Complaints</span>
+            </div>
+          </a>
+        </div>
+    
+        <!-- Orders Section -->
+        <div class="col-md-6 col-12">
+          <a [routerLink]="['/user/userprofile/orders', id]" class="full-page-link orders">
+            <div class="overlay">
+              <span class="text">Orders</span>
+            </div>
+          </a>
+        </div>
+      </div>
     </div>
+
+    <router-outlet></router-outlet>
+
 
     <router-outlet></router-outlet>
 
