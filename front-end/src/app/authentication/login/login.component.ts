@@ -30,7 +30,7 @@ export class LoginComponent
       email:new FormControl("", [Validators.required, Validators.email]),
       password: new FormControl("", [
         Validators.required, 
-        Validators.pattern(/^(?=.[A-Z])(?=.[a-z])(?=.\d)(?=.[@$!%?&#])[A-Za-z\d@$!%?&#]{8,}$/)
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/)
       ])      
       })
       this.loginForm = new Login(this.validate("email")?.value, this.validate("password")?.value, "");
@@ -57,6 +57,10 @@ export class LoginComponent
 
       this.loginSer.login(this.loginData).subscribe({
         next: (data) => {
+          if (this.cookieService.check("token"))
+          {
+            this.cookieService.delete("token")
+          }
           this.cookieService.set("token", data.token);
           console.log(data.token)
           this.router.navigateByUrl("");
