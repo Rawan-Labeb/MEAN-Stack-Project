@@ -1,27 +1,11 @@
 import { Routes } from '@angular/router';
-import { SellerDashboardComponent } from './seller-dashboard.component';
+import { ProductListComponent } from './products/product-list/product-list.component';
+import { OrderListComponent } from './orders/order-list/order-list.component';
+import { SalesChartComponent } from './analytics/sales-chart/sales-chart.component';
 
-export const SELLER_ROUTES: Routes = [
-  {
-    path: '',
-    component: SellerDashboardComponent,
-    children: [
-      { 
-        path: 'products',
-        loadComponent: () => import('./products/product-list/product-list.component')
-          .then(m => m.ProductListComponent)
-      },
-      { 
-        path: 'orders',
-        loadComponent: () => import('./orders/order-list/order-list.component')
-          .then(m => m.OrderListComponent)
-      },
-      { 
-        path: 'analytics',
-        loadComponent: () => import('./analytics/sales-chart/sales-chart.component')
-          .then(m => m.SalesChartComponent)
-      },
-      { path: '', redirectTo: 'products', pathMatch: 'full' }
-    ]
-  }
+export const SELLER_DASHBOARD_ROUTES: Routes = [
+  { path: '', redirectTo: 'products', pathMatch: 'full' },
+  { path: 'products', component: ProductListComponent },
+  { path: 'orders', component: OrderListComponent },
+  { path: 'sales', component: SalesChartComponent }
 ];

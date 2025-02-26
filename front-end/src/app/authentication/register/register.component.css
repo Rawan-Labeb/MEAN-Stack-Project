@@ -1,98 +1,48 @@
-.loginPage {
-    padding-top: 20px;
-    background-image: url(./../../../../assets/2229.jpg);
-    background-size: cover;
-    width: 100vw;
-    /* height: 100vh; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; /* Prevent horizontal and vertical scrolling */
-  }
-  
-  .formData {
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 100%;
-    max-width: 800px; /* Increased max-width for better responsiveness on larger screens */
-    box-sizing: border-box; /* Include padding and border in element's total width */
-  }
-  
-  form {
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    box-sizing: border-box; /* Include padding and border in element's total width */
-  }
-  
-  h2 {
-    font-weight: bold;
-    margin-bottom: 20px;
-    font-size: 3rem; /* Adjust font size for better responsiveness */
-  }
-  
-  input[type="email"],
-  input[type="password"],
-  input[type="text"],
-  input[type="tel"],
-  input[type="file"] {
-    margin-bottom: 15px;
-    border: 1px solid #ced4da;
-    padding: 10px;
-    border-radius: 4px;
-    width: 100%; /* Ensure full width usage */
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
-  }
-  
-  button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%; /* Ensure full width usage */
-    box-sizing: border-box; /* Include padding and border in element's total width */
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Media Queries for different screen sizes */
-  @media (max-width: 1024px) { /* For laptop screens */
-    .formData {
-      max-width: 700px; /* Adjust max-width for laptop screens */
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .formData {
-      width: 90%;
-      max-width: 100%; /* Ensure full width usage */
-    }
-    form {
-      padding: 20px;
-    }
-    h2 {
-      font-size: 1.5rem; /* Adjust heading size for better responsiveness */
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .formData {
-      width: 100%;
-      padding: 10px;
-    }
-    form {
-      padding: 15px;
-    }
-    h2 {
-      font-size: 1.2rem; /* Further adjust heading size for smaller screens */
-    }
-  }
-  
+body{
+  margin-top:20px;
+  background: #f6f9fc;
+}
+.account-block {
+  padding: 0;
+  background-image: url("./../EnterPage.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100%;
+  position: relative;
+}
+.account-block .overlay {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.account-block .account-testimonial {
+  text-align: center;
+  color: #fff;
+  position: absolute;
+  margin: 0 auto;
+  padding: 0 1.75rem;
+  bottom: 3rem;
+  left: 0;
+  right: 0;
+}
+
+.text-theme {
+  color: #5369f8 !important;
+}
+
+.btn-theme {
+  background-color: #5369f8;
+  border-color: #5369f8;
+  color: #fff;
+}
+
+#dataBlock
+{
+  height: 650px;
+}

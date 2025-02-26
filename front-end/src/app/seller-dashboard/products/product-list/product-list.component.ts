@@ -1,119 +1,125 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
+import { AuthServiceService } from '../../../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
 import { Product } from '../../models/product.model';
+import { AddProductComponent } from '../add-product/add-product.component';
+import { EditProductComponent } from '../edit-product/edit-product.component';
+import { DeleteProductComponent } from '../delete-product/delete-product.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-product-list',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './product-list.component.html',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    EditProductComponent,
+    AddProductComponent,
+    DeleteProductComponent
+  ],
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
-  filteredProducts: Product[] = [];
+  selectedProduct: Product | null = null;
+  showAddModal = false;
+  showEditModal = false;
   loading = false;
-  searchTerm: string = '';
-  sortColumn: keyof Product = 'name';
-  sortDirection: 'asc' | 'desc' = 'asc';
-  statusFilter: 'all' | 'active' | 'inactive' = 'all';
+  error: string | null = null;
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private authService: AuthServiceService,
+    private cookieService: CookieService
+  ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decodedToken => {
+        if (decodedToken) {
+          const sellerId = decodedToken.id; 
+          this.loadProducts(sellerId);
+        }
+      });
+    }
   }
 
-  loadProducts(): void {
+  loadProducts(sellerId: string): void {
     this.loading = true;
-    this.productService.getProducts().subscribe({
-      next: (data: Product[]) => {
-        this.products = data;
-        this.filteredProducts = [...data];
-        this.applyFilters();
+    this.productService.getProductsBySeller(sellerId).subscribe(
+      (products) => {
+        this.products = products;
         this.loading = false;
       },
-      error: (error) => {
+      (error) => {
         console.error('Error loading products:', error);
+        this.error = 'Failed to load products';
         this.loading = false;
       }
-    });
+    );
   }
 
-  deleteProduct(id: string): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.productService.deleteProduct(id).subscribe({
-          next: () => {
-            this.loadProducts();
-            Swal.fire('Deleted!', 'Product has been deleted.', 'success');
-          },
-          error: (error) => {
-            console.error('Error deleting product:', error);
-            Swal.fire('Error!', 'Failed to delete product.', 'error');
-          }
-        });
-      }
-    });
-  }
-
-  applyFilters(): void {
-    let filtered = [...this.products];
-
-    if (this.searchTerm) {
-      filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
+  onProductSaved(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decodedToken => {
+        if (decodedToken) {
+          this.loadProducts(decodedToken.id);
+        }
+      });
     }
-
-    if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(product => 
-        product.isActive === (this.statusFilter === 'active')
-      );
-    }
-
-    filtered.sort((a, b) => {
-      const direction = this.sortDirection === 'asc' ? 1 : -1;
-      if (typeof a[this.sortColumn] === 'number') {
-        return ((a[this.sortColumn] as number) - (b[this.sortColumn] as number)) * direction;
-      }
-      return String(a[this.sortColumn]).localeCompare(String(b[this.sortColumn])) * direction;
-    });
-
-    this.filteredProducts = filtered;
   }
 
-  onSearch(): void {
-    this.applyFilters();
+  onAddProduct(): void {
+    this.showAddModal = true;
   }
 
-  onStatusFilterChange(): void {
-    this.applyFilters();
+  onEditProduct(product: Product): void {
+    this.selectedProduct = product;
+    this.showEditModal = true;
   }
 
-  sort(column: keyof Product): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  toggleProductStatus(product: Product): void {
+    if (product.isActive) {
+      this.productService.deactivateProduct(product._id).subscribe({
+        next: () => {
+          this.refreshProducts();
+        },
+        error: (error) => console.error('Error deactivating product:', error)
+      });
     } else {
-      this.sortColumn = column;
-      this.sortDirection = 'asc';
+      this.productService.activateProduct(product._id).subscribe({
+        next: () => {
+          this.refreshProducts();
+        },
+        error: (error) => console.error('Error activating product:', error)
+      });
     }
-    this.applyFilters();
   }
 
-  getSortIcon(column: string): string {
-    if (this.sortColumn !== column) return 'fas fa-sort';
-    return this.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+  private refreshProducts(): void {
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decodedToken => {
+        if (decodedToken) {
+          this.loadProducts(decodedToken.id);
+        }
+      });
+    }
+  }
+
+  onModalClosed(): void {
+    this.showAddModal = false;
+    this.showEditModal = false;
+    this.selectedProduct = null;
+  }
+
+  onProductDeleted(): void {
+    this.refreshProducts();
   }
 }

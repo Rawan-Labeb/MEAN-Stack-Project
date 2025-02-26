@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "gh": "^2.8.9"
+    "chart.js": "^4.4.8",
+    "sweetalert2": "^11.17.2"
   }
 }
