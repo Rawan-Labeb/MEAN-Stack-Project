@@ -1,6 +1,6 @@
 const Cart = require('../models/cart.model');
 const Product = require('../models/product.model');
-const SubInventory = require('../models/sub.inventory'); // استيراد موديل المخزون الفرعي
+const SubInventory = require('../models/sub.inventory');
 
 class CartService {
   // async findCurrentUserShoppingCart(userId) {

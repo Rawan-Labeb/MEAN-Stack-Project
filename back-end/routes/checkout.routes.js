@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const orderController = require("../controllers/checkout.controller");
 
-// ✅ ربط دالة createOrder في order.controller.js
-router.post("/createOrder", orderController.createOrder);
+
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
+router.post("/createOrder",authenticaiton, authorize("customer"), orderController.createOrder);
 
 module.exports = router;

@@ -9,7 +9,9 @@ const {
     deactiveSubInventory,
     deleteSubInventory,
     decreaseSubInventoryQuantity,
-    increaseSubInventoryQuantity
+    increaseSubInventoryQuantity,
+    getDeactiveSubInventoriesByBranchId,
+    getActiveSubInventoriesByBranchId
     
 } = require("./../repos/sub.inventory.repo");
 
@@ -58,8 +60,6 @@ const validateCreateAndUpdateData = async (data) =>
     if (!mInventorychk.success)
         return {valid: false, message: "No Main Inventory with the id Passed"};
 
-    console.log(data.quantity)
-    console.log(mInventorychk.message.quantity)
     
 
     if (data.quantity > mInventorychk.message.quantity || data.quantity <= 0)
@@ -71,6 +71,9 @@ const validateCreateAndUpdateData = async (data) =>
     const prodChk = await getProductById(data.product);
     if (!prodChk)
         return {valid: false, message: "No Product with the given id"};
+
+    if (!prodChk.isActive)
+        data.active = false;
 
     if (!data.branch)
         return {valid: false, message: "Branch Should Be Passed"};
@@ -119,6 +122,35 @@ module.exports.getSubInventoriesByBranchName = async (branchName) => {
 }
 
 
+module.exports.getSubInventoriesByBranchId = async (branchId) => {
+    try
+    {
+        const chk = await validationONBranchId(branchId);
+        if (!chk.valid)
+            return {success: false, message: chk.message};
+        
+        const subInventories = await getSubInventoriesByBranchName(branchId);
+        return {success: true, message: subInventories};
+
+    }catch (error)
+    {
+        return {success:false, message: error.message};
+    }
+}
+
+const validationONBranchId = async (branchId) => {
+    if (!branchId)
+        return {valid: false, message: "Branch Id Should Be Passed"};
+
+    const branch = await getBranchById(branchId);
+    if (!branch)
+        return {valid: false, message: "No Branch With that Id"};
+
+    return {valid: true, message: branch};
+}
+
+
+
 module.exports.getActiveSubInventoriesByBranchName = async (branchName) => {
     try
     {
@@ -155,6 +187,44 @@ module.exports.getDeactiveSubInventoriesByBranchName = async (branchName) => {
     }
 }
 
+module.exports.getDeactiveSubInventoriesByBranchId = async (branchId) => {
+    try
+    {
+        const chk = await validationONBranchId(branchId);
+        if (!chk.valid)
+            return {success: false, message: chk.message};
+
+        const subInventories = await getDeactiveSubInventoriesByBranchId(chk.message._id);
+        
+        return {success: true, message: subInventories};
+
+    }catch (error)
+    {
+        return {success:false, message: error.message};
+    }
+}
+
+module.exports.getActiveSubInventoriesByBranchId = async (branchId) => {
+    try
+    {
+        const chk = await validationONBranchId(branchId);
+        if (!chk.valid)
+            return {success: false, message: chk.message};
+
+        const subInventories = await getActiveSubInventoriesByBranchId(chk.message._id);
+        
+        return {success: true, message: subInventories};
+
+    }catch (error)
+    {
+        return {success:false, message: error.message};
+    }
+}
+
+
+
+
+
 
 module.exports.activeSubInventory = async (subInventoryId) => {
     try
@@ -162,6 +232,11 @@ module.exports.activeSubInventory = async (subInventoryId) => {
         const chk = await validateSubInventoryId(subInventoryId);
         if (!chk.valid)
             return {success: false, message: chk.message};
+
+        
+        if (!chk.message.product.isActive)
+            return {success: false, message: "Product is not active "};
+
 
         const Inventory = await activeSubInventory(chk.message._id);
         return {success: true, message: Inventory};
@@ -178,6 +253,8 @@ module.exports.deactiveSubInventory = async (subInventoryId) => {
         const chk = await validateSubInventoryId(subInventoryId);
         if (!chk.valid)
             return {success: false, message: chk.message};
+
+
 
         const Inventory = await deactiveSubInventory(chk.message._id);
         return {success: true, message: Inventory};

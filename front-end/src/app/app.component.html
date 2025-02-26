@@ -1,20 +1,17 @@
-
 <!-- <app-admin-dashboard></app-admin-dashboard> -->
-<!-- <app-cart></app-cart>
-<app-checkout></app-checkout>
-<app-cachier></app-cachier>
-<router-outlet></router-outlet> -->
-<!-- <router-outlet></router-outlet> -->
-<!-- <app-cart></app-cart> -->
 
-<!-- <app-header></app-header> 
+<!-- Only show header if not in a dashboard route -->
+
+<!-- <app-header *ngIf="!isDashboardRoute()"></app-header> -->
+<app-header></app-header>
 
 <router-outlet></router-outlet>
 
-<app-footer></app-footer>    -->
-
+<!-- Only show footer if not in a dashboard route -->
+<app-footer></app-footer>
+<!-- <app-footer *ngIf="!isDashboardRoute()"></app-footer> -->
 
 <!-- <app-user-profile></app-user-profile> -->
 
 <!-- <app-login></app-login> -->
-<app-cachier></app-cachier>
+ <!-- <app-cart></app-cart> -->

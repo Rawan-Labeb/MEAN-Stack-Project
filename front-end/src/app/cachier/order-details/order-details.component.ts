@@ -12,7 +12,7 @@ import Swal from 'sweetalert2';
   imports: [CommonModule]
 })
 export class OrderDetailsComponent implements OnInit {
-  @Input() order!: Order; // Use the non-null assertion operator
+  @Input() order!: Order; 
 
   constructor(private orderService: OrderService) {}
 
@@ -28,7 +28,6 @@ export class OrderDetailsComponent implements OnInit {
       cancelButtonText: 'No, keep it'
     }).then((result) => {
       if (result.isConfirmed) {
-        // Implement the logic to delete the product from the order
         this.order.items = this.order.items.filter(item => item.productId !== productId);
         Swal.fire('Deleted!', 'The product has been deleted.', 'success');
       }

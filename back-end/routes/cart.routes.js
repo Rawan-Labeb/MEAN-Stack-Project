@@ -12,37 +12,30 @@ const {
   getProductDetailsFromCart,
 } = require('../controllers/cart.controller');
 
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
 const router = express.Router();
 
-// إنشاء سلة جديدة
-router.post('/create', createCart);
+router.post('/create', authenticaiton, authorize("customer"),   createCart);
 
-// الحصول على السلة بواسطة معرف المستخدم
-router.get('/:userId', getCartByUserId);
+router.get('/:userId', authenticaiton, authorize("customer"),  getCartByUserId);
 
-// تحديث السلة بواسطة معرف المستخدم
-router.put('/:userId/update', updateCart);
+router.put('/:userId/update',authenticaiton, authorize("customer"),  updateCart);
 
-// حذف السلة بواسطة معرف المستخدم
-router.delete('/:userId/delete', deleteCart);
+router.delete('/:userId/delete', authenticaiton, authorize("customer"), deleteCart);
 
-// إضافة منتجات إلى السلة
-router.post('/add', addProductsToShoppingCart);
+router.post('/add', authenticaiton, authorize("customer"),  addProductsToShoppingCart);
 
-// إزالة منتج من السلة
-router.delete('/remove/:userId/subInventory/:subInventoryId', removeProductFromCart);
+router.delete('/remove/:userId/subInventory/:subInventoryId', authenticaiton, authorize("customer"),  removeProductFromCart);
 
-// تقليل كمية منتج في السلة
-router.put('/dec/:userId/subInventory/:subInventoryId', decItemFromCart);
+router.put('/dec/:userId/subInventory/:subInventoryId', authenticaiton, authorize("customer"),  decItemFromCart);
 
-// زيادة كمية منتج في السلة
-router.put('/inc/:userId/subInventory/:subInventoryId', incItemInCart);
+router.put('/inc/:userId/subInventory/:subInventoryId', authenticaiton, authorize("customer"),  incItemInCart);
 
-// استرجاع منتج من السلة
-router.get('/:userId/subInventory/:subInventoryId', getProductFromCart);
+router.get('/:userId/subInventory/:subInventoryId', authenticaiton, authorize("customer"),  getProductFromCart);
 
-// استرجاع تفاصيل منتج من السلة
-router.get('/:userId/subInventory-details/:subInventoryId', getProductDetailsFromCart);
+router.get('/:userId/subInventory-details/:subInventoryId', authenticaiton, authorize("customer"),  getProductDetailsFromCart);
 
 module.exports = router;
 // // Create new cart (user id, items[product id, quantity, price]) in body

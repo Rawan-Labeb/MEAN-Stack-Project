@@ -1,10 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable ,of} from 'rxjs';
 import { Login } from '../_models/login';
 import { register } from '../_models/register';
 import { userProfile } from '../_models/userProfile.model';
-
 // import * as jwt from 'jsonwebtoken';
 // import { default as jwt_decode } from 'jwt-decode';
 // import {default as jwt_decode} from "jwt-decode"
@@ -36,24 +35,39 @@ export class AuthServiceService {
   }
 
   getUserDataByEmail(email: string) {
-    return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail/${email}`);
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get<userProfile>(`${this.apiUrl}/getUserByEmail/${email}`, { headers });
   }
-  
   updateUserData(userData:userProfile, id:string)
   {
-    return this.http.put<userProfile>(`${this.apiUrl}/updateUser/${id}`,userData)
+    const token = this.cookieSer.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.put<userProfile>(`${this.apiUrl}/updateUser/${id}`,userData, {headers})
   }
   
 
   // decode token
-  decodeToken(token: string): any {
+  // decodeToken(token: string): any {
+  //   try {
+  //     return jwtDecode(token);
+  //   } catch (error) {
+  //     console.error('Invalid token', error);
+  //     return null;
+  //   }
+  // }
+
+
+  decodeToken(token: string): Observable<any> {
     try {
-      return jwtDecode(token);
+      const decoded = jwtDecode(token);
+      return of(decoded); // Wrapping it in an Observable
     } catch (error) {
       console.error('Invalid token', error);
-      return null;
+      return of(null); // Returning null inside an Observable
     }
   }
+
 
   // request password to change 
   requestChangePassword (email:string): Observable<any>
@@ -77,7 +91,11 @@ export class AuthServiceService {
     return this.cookieSer.check("token");
   }
 
-  
+
+  logout() {
+    this.cookieSer.deleteAll();
+  }
+
 
 
 }

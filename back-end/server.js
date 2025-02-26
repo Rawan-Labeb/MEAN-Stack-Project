@@ -4,7 +4,7 @@ const cors = require('cors');
 const user = require("./controllers/user.controller");
 const permission = require("./controllers/permission.controller");
 const Complaint = require("./controllers/complaint.controller")
-const supplierController = require('./controllers/supplier.controller');
+
 require('dotenv').config();
 const category = require("./controllers/category.controller");
 const fileUpload = require("express-fileupload");
@@ -22,9 +22,12 @@ const cartRoutes = require("./routes/cart.routes"); // تأكد من استير�
 const checkoutRoutes = require("./routes/checkout.routes"); 
 const offlineOrderRoutes = require('./routes/offlineOrder.routes'); // Ensure this path is correct
 
+const distributionReq = require("./controllers/distribution.request..controller");
+const prodReq = require("./controllers/product.request.controller");
+const prodReview = require("./controllers/product.review.controller");
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:4200', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());
@@ -40,6 +43,9 @@ mongoose.connect(process.env.MONGO_URI)
     app.use("/order", order);
     app.use("/mainInventory", mainInventory);
     app.use("/subInventory", subInventory);
+    app.use("/distReq", distributionReq);
+    app.use("/prodReq", prodReq);
+    app.use("/prodReview", prodReview);
     // app.use(upload);
     app.use("/complaint",Complaint);
     app.use(category);
@@ -70,6 +76,7 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
+    process.exit(1);
   });
 
 

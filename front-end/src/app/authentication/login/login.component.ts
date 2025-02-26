@@ -6,6 +6,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { CommonModule, JsonPipe } from '@angular/common';
 import { AuthServiceService } from 'src/app/_services/auth-service.service';
 import { Router, RouterLink } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -56,15 +57,31 @@ export class LoginComponent
 
       this.loginSer.login(this.loginData).subscribe({
         next: (data) => {
+          if (this.cookieService.check("token"))
+          {
+            this.cookieService.delete("token")
+          }
           this.cookieService.set("token", data.token);
           console.log(data.token)
           this.router.navigateByUrl("");
           this.loginFailed = false;
         },
         error: (error) => {
-          console.log(error.error.message)
-          console.log(error)
-          this.loginFailed = true;
+          if (error.error.message == "Please contact the admin for assistance.")
+          {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: error.error.message,
+            });
+            this.loginFailed = false;
+          }
+          else 
+          {
+            console.log(error.error.message)
+            console.log(error)
+            this.loginFailed = true;
+          }
         }
       })
 
@@ -75,9 +92,8 @@ export class LoginComponent
   }
   
 
-  validate (inpupt:string)
-  {
-    return this.loginFrom.get(`${inpupt}`)
+  validate(input: string) {
+    return this.loginFrom.get(input);
   }
 
 

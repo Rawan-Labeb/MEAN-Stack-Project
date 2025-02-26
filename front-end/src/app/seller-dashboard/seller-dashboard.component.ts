@@ -41,14 +41,14 @@ import { FooterComponent } from './layout/footer/footer.component';
     .content {
       flex: 1;
       background-color: #f8f9fa;
-      overflow-y: auto;
+      overflow-y: auto; /* This enables vertical scrolling */
       padding: 1.5rem;
       min-height: calc(100vh - 60px - 200px); /* Adjust for header and footer */
     }
     :host {
       display: block;
       height: 100vh;
-      overflow: hidden;
+      overflow-y: auto; /* Change this from 'hidden' to 'auto' */
     }
     app-footer {
       margin-top: auto;

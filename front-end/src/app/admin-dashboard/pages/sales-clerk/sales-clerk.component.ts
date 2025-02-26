@@ -80,7 +80,7 @@ export class SalesClerkComponent implements OnInit, OnDestroy {
           console.error('❌ Error loading clerks:', error);
         } finally {
           this.loading = false;
-          this.cdr.detectChanges(); // تحديث واجهة المستخدم بعد أي حالة
+          this.cdr.detectChanges();
         }
       }
       

@@ -17,3 +17,6 @@ footer {
   a.text-dark:hover {
     text-decoration: underline;
   }
+  img {
+    max-width: 50px;
+  }

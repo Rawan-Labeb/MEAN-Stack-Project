@@ -2,7 +2,9 @@ const express=require('express')
 const services=require("../services/category.services")
 const {body,query,param,check,validationResult }=require("express-validator")
 const mongoose = require("mongoose");
-//const {authenticaitonMiddleware} =require("../middlewares/authentication.middleware")
+const {authenticaiton} = require("./../middlewares/authentication.middleware") 
+const {authorize} = require("./../middlewares/authorization.middleware")
+
 
 const router=express.Router()
 router.get('/categories', async (req, res, next) => {
@@ -43,7 +45,7 @@ router.get('/categories/get/active', async (req, res, next) => {
     }
 });
 
-router.get('/categoryByName/:name', async (req, res, next) => {
+router.get('/categoryByName/:name',  async (req, res, next) => {
     try {
         const category = await services.getCategoryByName(req.params.name);
         res.status(200).json(category);
@@ -52,7 +54,7 @@ router.get('/categoryByName/:name', async (req, res, next) => {
     }
 });
 
-router.post('/categories',async (req, res, next) => {
+router.post('/categories', authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -69,7 +71,7 @@ router.post('/categories',async (req, res, next) => {
     }
   })
 
-  router.put('/categories/:id',async (req, res, next) => {
+  router.put('/categories/:id', authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -88,7 +90,7 @@ router.post('/categories',async (req, res, next) => {
     }
   })
 
-  router.put('/categories/toggle/:id', async (req, res, next) => {
+  router.put('/categories/toggle/:id', authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
         const categoryId = req.params.id;
         const result = await services.updateCategoryActive(categoryId);
@@ -99,7 +101,7 @@ router.post('/categories',async (req, res, next) => {
 });
 
 
-  router.delete('/categories/:id', async (req, res, next) => {
+  router.delete('/categories/:id',authenticaiton, authorize("manager"), async (req, res, next) => {
     try {
       const categoryId = req.params.id;
   
@@ -115,4 +117,15 @@ router.post('/categories',async (req, res, next) => {
       next(error);
     }
   })
+
+
+router.delete('/categories', async (req, res, next) => {
+  try {
+    await services.deleteAllCategories();
+    res.status(200).json({ message: 'All categories deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports=router

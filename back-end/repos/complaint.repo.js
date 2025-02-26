@@ -81,6 +81,39 @@ async function getComplaintsByUser(userId) {
 
 
 
+
+
+const getComplaintsForCustomersAndGuest = async () => {
+    try {
+        const complaints = await Complaint.find({}).populate('user');
+
+
+
+        const onlineComplaints = [];
+
+        for(var complaint of complaints)
+        {
+            if (complaint.user)
+            {
+                if (complaint.user.role == 'customer')
+                    onlineComplaints.push(complaint);
+            }else 
+            {
+                onlineComplaints.push(complaint);
+            }
+        }
+
+
+        return onlineComplaints;
+    } catch (error) {
+        throw new Error('Error fetching complaints: ' + error.message);
+    }
+};
+
+
+
+
+
 module.exports = {
     getAllComplaints,
     createComplaint,
@@ -88,5 +121,6 @@ module.exports = {
     updateComplaint,
     deleteComplaint,
     changeComplaintStatus,
-    getComplaintsByUser
+    getComplaintsByUser,
+    getComplaintsForCustomersAndGuest
 };

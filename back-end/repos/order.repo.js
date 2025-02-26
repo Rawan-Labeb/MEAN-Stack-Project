@@ -18,8 +18,9 @@ module.exports.getOrdersByUserId = async (userId) => {
     try {
       const Orders = await Order.find({ customerId: userId })
         .populate("customerId", "firstName lastName email") 
-        .populate("items.productId", "name price") 
+        .populate("items.subInventoryId", "name price") 
         .exec();
+        console.log(Orders);
       return Orders;
     } catch (error) {
         console.log(error.message)
@@ -41,15 +42,7 @@ module.exports.getOrderById = async (orderId) => {
     }
 }
 
-// get order by product Id
-module.exports.getOrdersByProductId = async (productId) => {
-    try {
-      const orders = await Order.find({ "items.productId": productId });
-      return orders;
-    } catch (error) {
-      throw new Error("Could not fetch orders by product ID");
-    }
-};
+
 
 // return order based on status
 module.exports.getOrdersByStatus = async (orderStatus) => {
@@ -75,72 +68,128 @@ module.exports.getOrdersByCustomerAndStatus = async (customerId, status) => {
     }
 };
 
-// change order status  =============================================
+
+
 module.exports.changeOrderStatus = async (orderId, changedStatus) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        changedStatus = changedStatus.toLowerCase();
-        const result = await Order.findOneAndUpdate(
-            {_id: orderId },
-            { $set: { status: changedStatus } }, 
-            { new: true } 
-        );
+            changedStatus = changedStatus.toLowerCase();
+            const order = await Order.findById(orderId).session(session);
 
-        console.log(result)
+            if (!order) {
+                    throw new Error("Order not found");
+            }
 
-        if (!result) {
-            throw new Error("Order not found");
-        }
+            const previousStatus = order.status;
+            order.status = changedStatus;
+            await order.save({ session });
 
-        return result; 
+            // Handle quantity adjustments based on the status change
+            if ((previousStatus === "shipped" &&  changedStatus === "refunded") || 
+                    (previousStatus === "pending" && changedStatus === "cancelled")) {
+                    // Revert the quantity back to stock
+                    for (const item of order.items) {
+                            const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
+                            
+                            if (!subInventory) {
+                                    throw new Error(`Sub-inventory ${item.subInventoryId} not found`);
+                            }
+
+                            subInventory.quantity += item.quantity;
+                            subInventory.numberOfSales -= item.quantity;
+                            await subInventory.save({ session });
+
+                            // Decrease the number of sales for the product
+                            const product = await Product.findById(subInventory.product).session(session);
+                            if (!product) {
+                                    throw new Error(`Product ${subInventory.product} not found`);
+                            }
+
+                            product.noOfSale -= item.quantity;
+                            await product.save({ session });
+                    }
+            }
+
+            await session.commitTransaction();
+            session.endSession();
+
+            return order; 
     } catch (error) {
-        throw new Error(error.message || "Could not change order status");
+            await session.abortTransaction();
+            session.endSession();
+            throw new Error(error.message || "Could not change order status");
     }
 };
 
-// delete order by id ==========================================
+
+
+
+
+
 module.exports.deleteOrder = async (orderId) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const deletedOrder = await Order.findOneAndDelete({_id: orderId });
+            const deletedOrder = await Order.findOneAndDelete({ _id: orderId }).session(session);
 
-        if (!deletedOrder) {
-            throw new Error("Order not found.");
-        }
+            // Loop through each item in the deleted order to return the quantity to the stock
+            if (deletedOrder.status === "shipped" || deletedOrder.status === "pending") {
+                for (const item of deletedOrder.items) {
+                    const subInventory = await SubInventory.findById(item.subInventoryId).session(session);
+                    
+                    if (!subInventory) {
+                            throw new Error(`Sub-inventory ${item.subInventoryId} not found`);
+                    }
 
-        return deletedOrder;
+                    subInventory.quantity += item.quantity;
+                    subInventory.numberOfSales -= item.quantity;
+                    await subInventory.save({ session });
+
+                    // Decrease the number of sales for the product
+                    const product = await Product.findById(subInventory.product).session(session);
+                    if (!product) {
+                            throw new Error(`Product ${subInventory.product} not found`);
+                    }
+
+                    product.noOfSale -= item.quantity;
+                    console.log(product.noOfSale);
+                    await product.save({ session });
+                }
+            }
+
+            await session.commitTransaction();
+            session.endSession();
+            
+            return deletedOrder;
     } catch (error) {
-        throw new Error("Could not delete order.");
+            await session.abortTransaction();
+            session.endSession();
+            throw new Error("Could not delete order: " + error.message);
     }
 };
 
-// update order ============================================
-module.exports.updateOrder = async (orderId, updatedData) => {
-    try {
-      const updatedOrder = await Order.findByIdAndUpdate(
-        {_id: orderId},
-        { $set: updatedData },
-        { new: true, runValidators: true }
-      );
-      console.log(this.updateOrder);
-      if (!updatedOrder) {
-        throw new Error("Order not found.");
-      }
+
+
+// module.exports.updateOrder = async (orderId, updatedData) => {
+//     try {
+//       const updatedOrder = await Order.findByIdAndUpdate(
+//         {_id: orderId},
+//         { $set: updatedData },
+//         { new: true, runValidators: true }
+//       );
+//       console.log(this.updateOrder);
+//       if (!updatedOrder) {
+//         throw new Error("Order not found.");
+//       }
   
-      return updatedOrder;
-    } catch (error) {
-      throw new Error("Could not update order.");
-    }
-};
-
-// create order
-module.exports.createOrder = async (orderData) => {
-    try {
-      const newOrder = await Order.create(orderData);
-      return newOrder;
-    } catch (error) {
-      throw new Error("Could not create order.");
-    }
-};
-  
+//       return updatedOrder;
+//     } catch (error) {
+//       throw new Error("Could not update order.");
+//     }
+// };
 
 
 
@@ -181,6 +230,15 @@ module.exports.createOrder = async (orderDetails) =>
         subInventory.quantity -= item.quantity;
         subInventory.numberOfSales += item.quantity;
         await subInventory.save({ session });
+
+        // Increase the number of sales for the product
+        // console.log(product.noOfSale);
+        // if (typeof product.noOfSale !== 'number') {
+        //     throw new Error(`Invalid number of sales for product ${subInventory.product}`);
+        // }
+        product.noOfSale += item.quantity;
+
+        await product.save({ session });
       }
   
       // Assign the computed total price to the order details
