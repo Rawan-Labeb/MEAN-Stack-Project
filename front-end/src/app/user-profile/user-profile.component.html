@@ -48,18 +48,20 @@
               <label for="governorate">Governorate:</label>
               <select id="governorate" class="form-control" formControlName="state">
                 <option value="">-- Select Governorate --</option>
-                <option *ngFor="let gov of governorates" [value]="gov.id">{{ gov.governorate_name_en }}</option>
+                <option *ngFor="let gov of governorates" [value]="gov.name">{{ gov.name }}</option>
               </select>
               <input type="hidden" formControlName="stateName">
             </div>
+            
             <div class="col-md-12 mt-3">
               <label for="city">City:</label>
               <select id="city" class="form-control" formControlName="city">
                 <option value="">-- Select City --</option>
-                <option *ngFor="let city of cities" [value]="city.id">{{ city.city_name_en }}</option>
+                <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
               </select>
               <input type="hidden" formControlName="cityName">
             </div>
+
             <div class="col-md-12 mt-3">
               <label for="street">Street:</label>
               <input id="street" class="form-control" formControlName="street">
@@ -78,11 +80,6 @@
                 <div *ngIf="userProfileForm.get('contactNo')?.errors?.['pattern']">Invalid contact number format.</div>
               </div>
             </div>
-            <!-- <div class="col-md-12 mt-3">
-              <label for="image">Profile Image URL:</label>
-              <input id="image" type="text" class="form-control" formControlName="image">
-            </div> -->
-
 
             <div class="col-md-12 mt-3">
               <label for="image">Profile Image Upload:</label>
@@ -109,62 +106,6 @@
       </div>
     </div>
 
-
-
-
-    <!-- <div class="container-fluid mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <button [routerLink]="['/user/userprofile/complaints', id]" class="btn btn-primary">
-          Complaint
-        </button>
-        <button [routerLink]="['/user/userprofile/orders', id]" class="btn btn-primary">
-          Orders
-        </button>
-      </div>
-      <router-outlet></router-outlet>
-    </div> -->
-
-    <!-- <div class="container-fluid mt-4">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="image-button" style="background-image: url('path-to-men-image.jpg');">
-            <a [routerLink]="['/user/userprofile/complaints', id]" class="overlay-text">
-              Complaints
-            </a>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="image-button" style="background-image: url('path-to-women-image.jpg');">
-            <a [routerLink]="['/user/userprofile/orders', id]" class="overlay-text">
-              Orders
-            </a>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
-
-    <!-- <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-6 col-12 p-0">
-          <div class="image-button d-flex justify-content-center align-items-center vh-100" 
-               style="background: url('./../../../assets/complaint/complaint.jpg') no-repeat center center/cover;">
-            <a [routerLink]="['/user/userprofile/complaints', id]" class="overlay-text text-white fs-3 fw-bold">
-              Complaints
-            </a>
-          </div>
-        </div>
-        <div class="col-md-6 col-12 p-0">
-          <div class="image-button d-flex justify-content-center align-items-center vh-100" 
-               style="background: url('./../../../assets/orders/orders.jpg') no-repeat center center/cover;">
-            <a [routerLink]="['/user/userprofile/orders', id]" class="overlay-text text-white fs-3 fw-bold">
-              Orders
-            </a>
-          </div>
-        </div>
-      </div>
-    </div> -->
-    
     <div class="container-fluid p-0">
       <div class="row g-0">
         <!-- Complaints Section -->
@@ -190,7 +131,7 @@
     <router-outlet></router-outlet>
 
 
-    <router-outlet></router-outlet>
+    <!-- <router-outlet></router-outlet> -->
 
 
   </div>

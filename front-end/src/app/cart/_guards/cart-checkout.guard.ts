@@ -10,7 +10,7 @@ export class CartCheckoutGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const token = this.cookieService.get('token'); 
-
+    console.log(token)
     if (!token) {
       this.router.navigate(['/user/login']); 
       return false;
@@ -28,7 +28,7 @@ export class CartCheckoutGuard implements CanActivate {
 
       localStorage.setItem('userId', userId); 
 
-      if (userRole === 'customer') {
+      if (userRole.toLowerCase() === 'customer') {
         return true;
       }
 

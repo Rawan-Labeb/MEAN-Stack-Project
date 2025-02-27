@@ -17,7 +17,7 @@ export class CashierGuard implements CanActivate {
     }
   
     this.authService.decodeToken(token).subscribe(user => {
-      if (user && user.role === 'cashier') {
+      if (user && user.role.toLowerCase() === 'cashier') {
         return true;  
       } else {
         this.router.navigate(['/unauthorized']);
