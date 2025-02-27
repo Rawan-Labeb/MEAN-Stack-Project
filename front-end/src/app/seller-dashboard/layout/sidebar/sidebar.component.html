@@ -1,30 +1,66 @@
-<div class="sidebar">
-  <div class="brand-logo">
-    <h2>Perfume Store</h2>
+<div class="sidebar" [class.close]="!isSidebarOpen">
+  <div class="logo-details">
+    <i class="bx bxs-store"></i>
+    <span class="logo_name">Perfume Store</span>
+    <i class="bx bx-menu toggle-btn" (click)="toggleSidebar()"></i>
   </div>
-  
-  <nav class="sidebar">
-    <ul class="nav flex-column">
-      <li class="nav-item">
-        <a routerLink="/seller/dashboard" routerLinkActive="active" class="nav-link">
-          <i class="bi bi-speedometer2"></i> Dashboard
-        </a>
-      </li>
-      <li class="nav-item">
-        <a [routerLink]="['/sellerdashboard/products']" routerLinkActive="active" class="nav-link">
-          <i class="bi bi-box"></i> Products
-        </a>
-      </li>
-      <li class="nav-item">
-        <a [routerLink]="['/sellerdashboard/orders']" routerLinkActive="active" class="nav-link">
-          <i class="bi bi-cart"></i> Orders
-        </a>
-      </li>
-      <li class="nav-item">
-        <a [routerLink]="['/sellerdashboard/sales']" routerLinkActive="active" class="nav-link">
-          <i class="bi bi-graph-up"></i> Analytics
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <ul class="nav-links">
+    <li>
+      <a routerLink="/sellerdashboard/products" routerLinkActive="active">
+        <i class="bx bx-box"></i>
+        <span class="link_name">Products</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" href="#">Products</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="/sellerdashboard/orders" routerLinkActive="active">
+        <i class="bx bx-cart"></i>
+        <span class="link_name">Orders</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" href="#">Orders</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="/sellerdashboard/sales" routerLinkActive="active">
+        <i class="bx bx-line-chart"></i>
+        <span class="link_name">Analytics</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" href="#">Analytics</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="/sellerdashboard/product-requests" routerLinkActive="active">
+        <i class="bx bx-inbox"></i>
+        <span class="link_name">Product Requests</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" href="#">Product Requests</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="/sellerdashboard/product-reviews" routerLinkActive="active">
+        <i class="bx bx-star"></i>
+        <span class="link_name">Product Reviews</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" href="#">Product Reviews</a></li>
+      </ul>
+    </li>
+    <li>
+      <div class="profile-details">
+        <div class="profile-content">
+          <img src="assets/images/profile.png" alt="profileImg">
+        </div>
+        <div class="name-job">
+          <div class="profile_name">Seller Name</div>
+          <div class="job">Seller</div>
+        </div>
+        <i class='bx bx-log-out' (click)="logout()"></i>
+      </div>
+    </li>
+  </ul>
 </div>

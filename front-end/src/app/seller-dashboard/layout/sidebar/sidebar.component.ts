@@ -11,7 +11,13 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule]
 })
 export class SidebarComponent {
+  isSidebarOpen = true;
+
   constructor(private router: Router) {}
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 
   // Update navigation methods to use correct paths
   navigateToProducts(): void {
@@ -24,5 +30,14 @@ export class SidebarComponent {
 
   navigateToAnalytics(): void {
     this.router.navigate(['/sellerdashboard/sales']);
+  }
+
+  logout(): void {
+    // Clear local storage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Navigate to login page
+    this.router.navigate(['/user/login']);
   }
 }

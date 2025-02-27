@@ -45,6 +45,35 @@ export class ProductService {
     return of(null);
   }
 
+  private verifyUserStatus(): Observable<boolean> {
+    const token = this.cookieService.get('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+    return this.http.get<any>(`${this.apiUrl}/user/status`, { headers }).pipe(
+      tap(response => console.log('User status:', response)),
+      map(response => response.isActive === true),
+      catchError(error => {
+        console.error('Error checking user status:', error);
+        return of(false);
+      })
+    );
+  }
+
+  checkUserStatus(): void {
+    const token = this.cookieService.get('token');
+    console.log('Current token:', token);
+    
+    this.authService.decodeToken(token).subscribe({
+      next: (decoded) => console.log('Decoded token:', decoded),
+      error: (err) => console.error('Token decode error:', err)
+    });
+  
+    this.verifyUserStatus().subscribe({
+      next: (isActive) => console.log('User is active:', isActive),
+      error: (err) => console.error('Status check error:', err)
+    });
+  }
+
   // Keep core CRUD operations
   getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/product/getAllProducts`);
@@ -62,33 +91,25 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/product/getProductById/${id}`);
   }
 
-  createProduct(product: ProductSubmitData): Observable<any> {
+  createProduct(formData: any): Observable<any> {
     const token = this.cookieService.get('token');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
+    console.log('Creating product with token:', token ? 'Present' : 'Missing');
 
     const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json');
+      .set('Authorization', `Bearer ${token}`);
 
-    return this.authService.decodeToken(token).pipe(
-      switchMap(decodedToken => {
-        if (!decodedToken) {
-          throw new Error('Invalid token');
-        }
-
-        const productData = {
-          ...product,
-          sellerId: decodedToken.sub
-        };
-
-        return this.http.post(`${this.apiUrl}/product/createProduct`, productData, { headers }).pipe(
-          tap(response => console.log('Create product response:', response)),
-          catchError(this.handleError)
-        );
-      })
-    );
+    return this.http.post(`${this.apiUrl}/product/createProduct`, formData, { headers })
+      .pipe(
+        tap(response => console.log('Create product response:', response)),
+        catchError(error => {
+          console.error('Create product error:', {
+            status: error.status,
+            message: error.error?.message || error.message,
+            error: error
+          });
+          return throwError(() => error);
+        })
+      );
   }
 
   updateProduct(id: string, data: ProductSubmitData): Observable<Product> {

@@ -6,6 +6,7 @@ import { CategoryService } from '../../services/category.service';
 import { SellerUploadComponent } from '../../components/seller-upload/seller-upload.component';
 import { Product, Category, ProductSubmitData } from '../../models/product.model';
 import Swal from 'sweetalert2';
+import { CookieService } from 'ngx-cookie-service';  // Add this import
 
 @Component({
   selector: 'app-add-product',
@@ -34,7 +35,8 @@ export class AddProductComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private cookieService: CookieService  
   ) {}
 
   ngOnInit(): void {
@@ -100,35 +102,27 @@ export class AddProductComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.validateForm()) return;
-
     if (this.productForm.valid) {
-      const formValues = this.productForm.value;
-      const submitData: ProductSubmitData = {
-        name: formValues.name.trim(),
-        description: formValues.description.trim(),
-        price: Number(formValues.price),
-        quantity: Number(formValues.quantity),
-        categoryId: formValues.categoryId,
-        images: formValues.images || [],
-        isActive: true
-      };
-
       this.loading = true;
-      this.productService.createProduct(submitData).subscribe({
+      const formData = this.productForm.value;
+      
+      // Debug current auth state
+      const token = this.cookieService.get('token');
+      console.log('Submitting product with auth:', {
+        hasToken: !!token,
+        formData: formData
+      });
+
+      this.productService.createProduct(formData).subscribe({
         next: (response) => {
           console.log('Product created successfully:', response);
-          Swal.fire('Success', 'Product created successfully', 'success');
-          this.resetForm();
-          this.saved.emit();
-          this.close.emit();
+          // ...existing success handling...
         },
         error: (error) => {
-          console.error('Error creating product:', error);
-          Swal.fire('Error', 'Failed to create product', 'error');
-        },
-        complete: () => {
+          console.error('Product creation failed:', error);
           this.loading = false;
+          let errorMessage = error.error?.message || 'Failed to create product';
+          Swal.fire('Error', errorMessage, 'error');
         }
       });
     }

@@ -96,6 +96,8 @@ export class AuthServiceService {
     this.cookieSer.deleteAll();
   }
 
-
+  getTokenFromCookie(): string | null {
+    return this.cookieSer.get('token');
+  }
 
 }
