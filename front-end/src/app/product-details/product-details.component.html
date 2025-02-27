@@ -23,7 +23,7 @@
       <!-- <div class="mt-4">
         <h5 class="mb-3">Customer Rating</h5>
         <div class="rating d-flex align-items-center">
-          <span *ngFor="let star of Array(Math.floor(perfume.rating)).fill(0)">
+          <span *ngFor="let star of Array(Math.floor(prodRate.rating)).fill(0)">
             <i class="bi bi-star-fill text-warning"></i>
           </span>
           <span *ngIf="perfume.rating % 1 !== 0">
@@ -35,6 +35,32 @@
           <span class="ms-2 text-muted">({{ perfume.reviews.length }} reviews)</span>
         </div>
       </div> -->
+
+      <div class="mt-4">
+        <h5 class="mb-3">Customer Rating</h5>
+        <div class="rating d-flex align-items-center">
+          <!-- Full Stars -->
+          <span *ngFor="let star of Array(Math.floor(averageRating)).fill(0)">
+            <i class="bi bi-star-fill text-warning"></i>
+          </span>
+      
+          <!-- Half Star (if needed) -->
+          <span *ngIf="averageRating % 1 !== 0">
+            <i class="bi bi-star-half text-warning"></i>
+          </span>
+      
+          <!-- Empty Stars -->
+          <span *ngFor="let star of Array(5 - Math.ceil(averageRating)).fill(0)">
+            <i class="bi bi-star text-muted"></i>
+          </span>
+      
+          <span class="ms-2 text-muted">({{ prodRate.length }} reviews)</span>
+        </div>
+      </div>
+      
+
+
+
 
       <!-- Quantity Section -->
       <div class="mt-4">
@@ -120,6 +146,10 @@
   </section> -->
 
   <!-- Add Review Section -->
+
+
+  @if(claims.role.toLowerCase() == 'customer')
+  {
   <section class="mt-5">
     <h3 class="mb-4">Leave a Review</h3>
     <form (ngSubmit)="submitReview()" #reviewForm="ngForm">
@@ -152,11 +182,12 @@
       </button>
     </form>
   </section>
+}
 </div>
 
 <!-- Error Message -->
-<div *ngIf="!loading && !perfume" class="text-center py-5">
+<!-- <div *ngIf="!loading && !perfume" class="text-center py-5">
   <h3>Product Not Found</h3>
   <p>The product you are looking for does not exist.</p>
   <a routerLink="/catalog" class="btn btn-primary">Go Back to Catalog</a>
-</div>
+</div> -->

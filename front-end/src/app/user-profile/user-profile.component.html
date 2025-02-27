@@ -49,6 +49,7 @@
               <select id="governorate" class="form-control" formControlName="state">
                 <option value="">-- Select Governorate --</option>
                 <option *ngFor="let gov of governorates" [value]="gov.name">{{ gov.name }}</option>
+                <option *ngFor="let gov of governorates" [value]="gov.name">{{ gov.name }}</option>
               </select>
               <input type="hidden" formControlName="stateName">
             </div>
@@ -81,7 +82,7 @@
               </div>
             </div>
 
-            <!-- <div class="col-md-12 mt-3">
+            <div class="col-md-12 mt-3">
               <label for="image">Profile Image Upload:</label>
               <input id="image" type="file" class="form-control" (change)="onFileChange($event)">
               <div *ngIf="userProfileForm.get('image')?.invalid && userProfileForm.get('image')?.touched" class="text-danger">
