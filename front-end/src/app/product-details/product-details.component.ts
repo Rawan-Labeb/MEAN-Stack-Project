@@ -289,11 +289,10 @@ addToCart(): void {
   if (this.cookieSer.check("token")) {
     console.log(this.cookieSer.get("token"));
     let token = this.cookieSer.get("token");
-
     this.authSer.decodeToken(token).subscribe({
       next: (claims: any) => {
         this.cartSer.addToCart(claims.sub, this.product._id, this.quantity).subscribe({
-          next: () => {
+          next: (data) => {
             Swal.fire({
               icon: 'success',
               title: 'Success',
@@ -301,11 +300,12 @@ addToCart(): void {
               confirmButtonText: 'OK'
             });
           },
-          error: () => {
+          error: (err) => {
+            console.error('Failed to add to cart', err);
             Swal.fire({
               icon: 'error',
               title: 'Error',
-              text: 'Something went wrong. Please try again later.',
+              text: 'Failed to add to cart',
               confirmButtonText: 'OK'
             });
           }
@@ -323,13 +323,24 @@ addToCart(): void {
       }
     });
   } else {
-    Swal.fire({
-      icon: 'info',
-      title: 'Login Required',
-      text: 'You need to log in to add items to your cart.',
-      confirmButtonText: 'OK'
-    }).then(() => {
-      this.router.navigate(['/user/login']);
+    this.cartSer.addToCart("", this.product._id, this.quantity).subscribe({
+      next: (data) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Added to cart successfully!',
+          confirmButtonText: 'OK'
+        });
+      },
+      error: (err) => {
+        console.error('Failed to add to cart', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to add to cart',
+          confirmButtonText: 'OK'
+        });
+      }
     });
   }
 }
@@ -339,3 +350,4 @@ goBackToCatalog(): void {
 }
 
 }
+
