@@ -85,11 +85,6 @@ module.exports.updateProduct = async (id, productData) => {
 
 
 
-
-
-
-
-
   module.exports.deactiveProduct = async (id) => {
     const session = await mongoose.startSession();
     session.startTransaction();

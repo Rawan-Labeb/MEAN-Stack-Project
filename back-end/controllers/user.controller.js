@@ -13,6 +13,9 @@ const {getAllUsers,
     changePassword
 } = require ("./../services/user.service")
 
+// const cookieParser = require('cookie-parser');
+// router.use(cookieParser());
+
 const {authenticaiton} = require("./../middlewares/authentication.middleware") 
 const {authorize} = require("./../middlewares/authorization.middleware")
 
@@ -160,6 +163,9 @@ router.post("/login", async (req, res, next) => {
         return res.status(500).json({message: "Internal Server Error"});
     }
 });
+
+
+
 
 
 router.get("/getUsersBasedOnRole/:role", authenticaiton, authorize("manager"), async (req,res) => {

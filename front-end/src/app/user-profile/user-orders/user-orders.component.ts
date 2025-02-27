@@ -1,15 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { OrderService } from 'src/app/_services/order.service';
 import { Order } from 'src/app/_models/order.module';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 import Swal from 'sweetalert2';
 import { AuthServiceService } from 'src/app/_services/auth-service.service';
 
 @Component({
   selector: 'app-user-orders',
-  imports: [CommonModule],
+  imports: [CommonModule, MatMenuModule, MatButtonModule, MatIconModule, RouterLink],
   templateUrl: './user-orders.component.html',
   styleUrl: './user-orders.component.css'
 })
@@ -98,7 +101,7 @@ export class UserOrdersComponent implements OnInit
             <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; background: #f8f9fa;">
                 ${order.items.map(item => `
                     <div style="border-bottom: 1px solid #ddd; padding: 8px 0;">
-                        <p><strong>Product ID:</strong> ${item.productId}</p>
+                        <p><strong>Product ID:</strong> ${item._id}</p>
                         <p><strong>Price:</strong> $${item.price}</p>
                         <p><strong>Quantity:</strong> ${item.quantity}</p>
                     </div>
@@ -118,6 +121,81 @@ export class UserOrdersComponent implements OnInit
         }
     });
 }
+
+
+
+// deleteOrder(id: string) {
+//   Swal.fire({
+//     title: 'Are you sure?',
+//     text: 'You won\'t be able to revert this!',
+//     icon: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#3085d6',
+//     cancelButtonColor: '#d33',
+//     confirmButtonText: 'Yes, delete it!'
+//   }).then((result) => {
+//     if (result.isConfirmed) {
+//       this.orderSer.deleteOrder(id).subscribe({
+//         next: (response) => {
+//           Swal.fire(
+//             'Deleted!',
+//             'Your order has been deleted.',
+//             'success'
+//           );
+//           // Remove the order from your list
+//           this.userOrder = this.userOrder.filter(order => order._id !== id);
+//         },
+//         error: (error) => {
+//           Swal.fire(
+//             'Error!',
+//             'An error occurred while deleting the order.',
+//             'error'
+//           );
+//         }
+//       });
+//     }
+//   });
+// }
+
+
+deleteOrder(id: string) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'You won\'t be able to revert this!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.orderSer.deleteOrder(id).subscribe({
+        next: (response) => {
+          Swal.fire(
+            'Deleted!',
+            'Your order has been deleted.',
+            'success'
+          );
+          // Remove the order from your list
+          this.userOrder = this.userOrder.filter(order => order._id !== id);
+
+          // Update noOfOrder and totalSpend
+          this.noOfOrder = this.userOrder.length;
+          this.totalSpend = this.userOrder.reduce((total, order) => total + order.totalPrice, 0);
+        },
+        error: (error) => {
+          Swal.fire(
+            'Error!',
+            'An error occurred while deleting the order.',
+            'error'
+          );
+        }
+      });
+    }
+  });
+}
+
+
 
 
 
