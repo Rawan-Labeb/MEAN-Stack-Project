@@ -22,7 +22,7 @@ export class HeaderComponent implements OnInit {
   constructor(
     public cookieSer:CookieService,
     public router:Router,
-    private authSer:AuthServiceService,
+    public authSer:AuthServiceService,
  //>>>>>>>>>>   private cartService: CartService
   )
   {
@@ -49,6 +49,7 @@ export class HeaderComponent implements OnInit {
         if (data && data.role) {
           this.userRole = data.role;
           console.log('User Role:', this.userRole);
+          
         } else {
           console.error('Invalid or missing role in token');
         }
@@ -90,6 +91,32 @@ export class HeaderComponent implements OnInit {
   //   });
   // }
   
+  getToken(): string {
+    return this.cookieSer.get('token'); 
+  }
+
+  decodeUserToken(token: string): Observable<any> {
+    try {
+      const decoded = this.authSer.decodeToken(token);
+      console.log('Decoded Token:', decoded);
+      return of(decoded); 
+    } catch (error) {
+      console.error('Invalid token', error);
+      return of(null); 
+    }
+  }
+  LogOut(): void {
+    this.authSer.logout();
+    this.router.navigateByUrl('');
+    this.isauthenticated = false;
+  
+    // Reset user-related properties
+    this.userRole = null;
+    this.userEmail = null;
+    this.userData = null;
+  }
+
+
   
   fetchUserDataByEmail(): void {
     if (!this.userEmail) {
@@ -159,39 +186,6 @@ export class HeaderComponent implements OnInit {
   }
   calculateTotal(): number {
     return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  }
-  getToken(): string {
-    return this.cookieSer.get('token'); 
-  }
-  // decodeUserToken(token: string): Observable<any> {
-  //   try {
-  //     const decoded = this.authSer.decodeToken(token);
-  //     console.log('Decoded Token:', decoded); 
-  //     return decoded;
-  //   } catch (error) {
-  //     console.error('Invalid token', error);
-  //     return of (null);
-  //   }
-  // }
-  decodeUserToken(token: string): Observable<any> {
-    try {
-      const decoded = this.authSer.decodeToken(token);
-      console.log('Decoded Token:', decoded);
-      return of(decoded); 
-    } catch (error) {
-      console.error('Invalid token', error);
-      return of(null); 
-    }
-  }
-  LogOut(): void {
-    this.authSer.logout();
-    this.router.navigateByUrl('');
-    this.isauthenticated = false;
-  
-    // Reset user-related properties
-    this.userRole = null;
-    this.userEmail = null;
-    this.userData = null;
   }
 
   

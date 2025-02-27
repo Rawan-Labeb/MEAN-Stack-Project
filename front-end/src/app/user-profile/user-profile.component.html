@@ -49,6 +49,7 @@
               <select id="governorate" class="form-control" formControlName="state">
                 <option value="">-- Select Governorate --</option>
                 <option *ngFor="let gov of governorates" [value]="gov.name">{{ gov.name }}</option>
+                <option *ngFor="let gov of governorates" [value]="gov.name">{{ gov.name }}</option>
               </select>
               <input type="hidden" formControlName="stateName">
             </div>
