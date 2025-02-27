@@ -67,6 +67,8 @@
   
   <!-- Show all branches -->
   <div *ngIf="showSubMenu" class="submenu">
+    <div *ngIf="branches.length === 0">❌ لا توجد بيانات للعرض</div>
+
     <ng-container *ngFor="let branch of branches">
       <a mat-list-item (click)="toggleBranchMenu(branch, $event)">
         <mat-icon>location_on</mat-icon><span>{{ branch.branchName }}</span>
