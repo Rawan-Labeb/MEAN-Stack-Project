@@ -4,7 +4,7 @@
       <!-- Logo -->
       <a class="navbar-brand d-flex align-items-center" href="/home">
         <img 
-          src="assets/loading.png" 
+          src="./../../assets/loading.png" 
           alt="Logo" 
           class="d-inline-block align-text-top me-2" 
           style="max-height: 40px;"
@@ -93,6 +93,7 @@
               data-bs-toggle="offcanvas" 
               data-bs-target="#cartOffcanvas" 
               aria-controls="cartOffcanvas"
+              routerLink="/cart"
             >
               <i class="bi bi-cart fs-4 me-2"></i> Cart <span class="badge bg-primary rounded-pill ms-2">{{ getCartItemCount() }}</span>
             </button>
@@ -120,107 +121,3 @@
   </nav>
   
 <!-- Offcanvas for Cart -->
-<div 
-  class="offcanvas offcanvas-end rounded-0" 
-  tabindex="-1" 
-  id="cartOffcanvas" 
-  aria-labelledby="cartOffcanvasLabel"
->
-  <div class="offcanvas-header border-bottom" style="border-radius: 30px; width:90%; margin: auto;">
-    <h5 class="offcanvas-title" id="cartOffcanvasLabel">Shopping Cart</h5>
-    <button 
-      type="button" 
-      class="btn-close text-reset" 
-      data-bs-dismiss="offcanvas" 
-      aria-label="Close"
-    ></button>
-  </div>
-  <div class="offcanvas-body p-4">
-    <!-- Empty Cart Message -->
-    <p *ngIf="cartItems.length === 0" class="text-muted text-center">Your cart is empty.</p>
-    <!-- Cart Items List -->
-<ul class="list-group list-group-flush" *ngIf="cartItems.length > 0">
-  <li 
-    class="list-group-item d-flex flex-column py-2" 
-    *ngFor="let item of cartItems; let i = index"
-  >
-    <!-- First Row: Product Image, Details, Quantity Controls, and Remove Button -->
-    <div class="d-flex align-items-center">
-      <!-- Product Image -->
-      <img 
-        [src]="item.image" 
-        alt="{{ item.name }}" 
-        class="rounded me-3" 
-        style="width: 60px; height: 60px; object-fit: cover;"
-      />
-
-      <!-- Product Details -->
-      <div class="flex-grow-1 me-3">
-        <!-- <span class="fw-bold">{{ item.product.name }}</span><br> -->
-        <span class="fw-bold">{{ item.name }}</span><br>
-        <small class="text-muted">${{ item.price.toFixed(2) }}</small>
-      </div>
-
-      <!-- Quantity Controls -->
-      <div class="d-flex align-items-center gap-2 me-auto"> <!-- Added me-auto -->
-        <button 
-          class="btn btn-sm btn-outline-secondary" 
-          (click)="decreaseQuantity(item)"
-          [disabled]="item.quantity <= 1"
-        >
-          <i class="bi bi-dash"></i>
-        </button>
-        <span class="fw-bold">{{ item.quantity }}</span>
-        <button 
-          class="btn btn-sm btn-outline-secondary" 
-          (click)="increaseQuantity(item)"
-        >
-          <i class="bi bi-plus"></i>
-        </button>
-      </div>
-
-      <!-- Remove Button -->
-      <button class="btn btn-sm btn-danger ms-3"  
-        (click)="removeFromCart(i)"
-        title="Remove from cart"
-        style="height: 30px; width: 30px; display: flex; align-items: center; justify-content: center;"
-      >
-        <i class="bi bi-trash fs-6"></i>
-      </button>
-    </div>
-
-    <!-- Second Row: Total Price -->
-    <div class="d-flex justify-content-end mt-1">
-      <span class="fw-bold">${{ (item.price * item.quantity).toFixed(2) }}</span>
-    </div>
-  </li>
-</ul>
-
-    
-       
-
-    <!-- Total Amount Section -->
-    <div class="mt-4 border-top pt-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <span class="fw-bold fs-5">Total:</span>
-        <span class="fw-bold fs-5">${{ calculateTotal().toFixed(2) }}</span>
-      </div>
-    </div>
-
-    <!-- Buttons at the Bottom -->
-    <div class="mt-4 d-flex gap-2" *ngIf="cartItems.length > 0">
-      <button 
-        class="btn btn-primary w-100" 
-        routerLink="/checkout"
-      >
-        Checkout
-      </button>
-      <button 
-        class="btn btn-outline-primary w-100" 
-        routerLink="/cart"
-      >
-        View Cart
-      </button>
-    </div>
-  </div>
-</div>

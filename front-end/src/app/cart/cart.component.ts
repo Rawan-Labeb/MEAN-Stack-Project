@@ -149,6 +149,11 @@ addItemToCart(item: any): void {
   
     this.cartService.increaseQuantity(this.userId, item.subInventory).subscribe(
       () => {
+        console.log(this.quantity)
+        console.log(item.subInventory.quantity)
+        if (item.subInventory.quantity < this.quantity){
+          console.log("invalid")
+        }
         item.quantity += 1;
         this.updateCartRegisteredCustomerProductNum();
         Swal.fire({
