@@ -6,7 +6,7 @@
       </button>
     </div>
 
-<div class="mb-3 p-3 bg-light rounded shadow-sm">
+<!-- <div class="mb-3 p-3 bg-light rounded shadow-sm">
     <h5 class="fw-bold">Order Summary</h5>
     <p><strong>Total Orders:</strong> {{noOfOrder}}</p>
     <p><strong>Total Spent:</strong> <span class="text-primary fw-bold">$ {{totalSpend}}</span></p>
@@ -25,6 +25,111 @@
         </button>
       </li>
     </ul>
+  </div> -->
+
+
+
+
+
+
+  <div class="mb-3 p-3 bg-light rounded shadow-sm">
+    <h5 class="fw-bold">Order Summary</h5>
+    <p><strong>Total Orders:</strong> {{ noOfOrder }}</p>
+    <p><strong>Total Spent:</strong> <span class="text-primary fw-bold">$ {{ totalSpend }}</span></p>
   </div>
+  
+  <!-- <div class="mb-3 p-3 bg-white rounded shadow-sm">
+    <h5 class="fw-bold">Orders</h5>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Email</th>
+          <th scope="col">Total Price</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="userOrder.length === 0" class="text-center">
+          <td colspan="4">No orders available.</td>
+        </tr>
+        <tr *ngFor="let order of userOrder">
+          <th scope="row">{{ order._id }}</th>
+          <td>{{ order.customerDetails.email }}</td>
+          <td>$ {{ order.totalPrice }}</td>
+          <td>
+            <button mat-icon-button [matMenuTriggerFor]="orderMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #orderMenu="matMenu">
+              <button mat-menu-item (click)="viewOrder(order)">
+                <mat-icon>visibility</mat-icon> View Details
+              </button>
+              <button *ngIf="order.status === 'pending' && order._id" mat-menu-item (click)="deleteOrder(order._id)">
+                <mat-icon>delete</mat-icon> Delete
+              </button>
+
+            </mat-menu>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+ -->
+
+
+ <div class="mb-3 p-3 bg-white rounded shadow-sm">
+  <h5 class="fw-bold">Orders</h5>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Email</th>
+        <th scope="col">Total Price</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="userOrder.length === 0" class="text-center">
+        <td colspan="5">No orders available.</td>
+      </tr>
+      <tr *ngFor="let order of userOrder">
+        <th scope="row">{{ order._id }}</th>
+        <td>{{ order.customerDetails.email }}</td>
+        <td>$ {{ order.totalPrice }}</td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'badge-warning': order.status === 'pending',
+            'badge-info': order.status === 'shipped',
+            'badge-success': order.status === 'completed',
+            'badge-danger': order.status === 'cancelled',
+            'badge-secondary': order.status === 'returned',
+            'badge-primary': order.status === 'refunded'
+          }">{{ order.status }}</span>
+        </td>
+        <td>
+          <button mat-icon-button [matMenuTriggerFor]="orderMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #orderMenu="matMenu">
+            <button mat-menu-item (click)="viewOrder(order)">
+              <mat-icon>visibility</mat-icon> View Details
+            </button>
+            <button *ngIf="order.status === 'pending' && order._id" mat-menu-item (click)="deleteOrder(order._id)">
+              <mat-icon>delete</mat-icon> Delete
+            </button>
+          </mat-menu>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
 </div>
 

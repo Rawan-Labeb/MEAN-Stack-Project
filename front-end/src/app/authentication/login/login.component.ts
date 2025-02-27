@@ -61,7 +61,7 @@ export class LoginComponent
           {
             this.cookieService.delete("token")
           }
-          this.cookieService.set("token", data.token);
+          this.cookieService.set("token", data.token, 1, '/');
           console.log(data.token)
           this.router.navigateByUrl("");
           this.loginFailed = false;
