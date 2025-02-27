@@ -311,13 +311,14 @@ addToCart(): void {
           }
         });
       },
-      error: (err) => {
-        console.error('Failed to decode token', err);
+      error: () => {
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to decode token',
+          icon: 'warning',
+          title: 'Session Expired',
+          text: 'Your session has expired. Please log in again.',
           confirmButtonText: 'OK'
+        }).then(() => {
+          this.router.navigate(['/login']);
         });
       }
     });
@@ -343,7 +344,6 @@ addToCart(): void {
     });
   }
 }
-
 
 goBackToCatalog(): void {
   this.router.navigate(['/catalog']);
