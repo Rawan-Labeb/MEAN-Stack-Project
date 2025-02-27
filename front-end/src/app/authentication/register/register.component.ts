@@ -73,7 +73,7 @@ export class RegisterComponent {
       {
         this.cookieService.delete("token")
       }
-      this.cookieService.set("token", response.token);
+      this.cookieService.set("token", response.token, 1 ,'/');
       this.router.navigateByUrl("");
 
       // Handle successful registration
