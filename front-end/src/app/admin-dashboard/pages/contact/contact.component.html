@@ -116,7 +116,7 @@
                 <tbody>
                   <tr *ngFor="let complaint of filteredComplaints">
                     <td>{{complaint.user?.firstName}} {{complaint.user?.lastName}}</td>
-                    <td>{{complaint.email}}</td>
+                    <td>{{ complaint.email || complaint.user?.email }}</td>
                     <td>{{complaint.subject}}</td>
                     <td>{{complaint.description}}</td>
                     <td>{{complaint.createdAt}}</td>
@@ -137,6 +137,9 @@
                       </button>
                     
                       <mat-menu #menu="matMenu" class="bg-white">
+                        <button mat-menu-item (click)="openEmail(complaint.email || complaint.user?.email)">
+                          <mat-icon>email</mat-icon> Email
+                        </button>
                         <ng-container *ngIf="complaint.status !== 'Resolved' && complaint.status !== 'Rejected'">
                           
                           <button mat-menu-item *ngIf="complaint.status === 'Pending'" 

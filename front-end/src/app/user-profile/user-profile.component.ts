@@ -16,10 +16,11 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import Swal from 'sweetalert2';
 import { ContactService } from '../_services/contact.service';
 import { Complaint } from '../_models/contact.model';
+import {UploadComponent} from'../upload/upload.component'
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule, CommonModule, JsonPipe, RouterLink, RouterOutlet],
+  imports: [ReactiveFormsModule, CommonModule, JsonPipe, RouterLink, RouterOutlet,UploadComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -37,6 +38,10 @@ export class UserProfileComponent implements OnInit
 
   // user Order 
   userOrder:Order[] = [];
+
+  onImagesUploaded(imageUrls: string[]) {
+    this.userData.image = imageUrls;
+  }
 
   constructor(
     private authSer: AuthServiceService,
@@ -321,7 +326,9 @@ onSubmit() {
     });
   }
 
-
+  removeImage() {
+    this.userData.image=[];
+  }
 
 
 
