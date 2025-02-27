@@ -40,8 +40,10 @@ export class UserProfileComponent implements OnInit
   userOrder:Order[] = [];
 
   onImagesUploaded(imageUrls: string[]) {
-    this.userData.image = imageUrls;
+    this.userData.image = imageUrls; 
+    this.userProfileForm.patchValue({ image: imageUrls });
   }
+  
 
   constructor(
     private authSer: AuthServiceService,
