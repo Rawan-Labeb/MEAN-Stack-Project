@@ -1,6 +1,6 @@
  <div class="sidebar-header" style="color: white; background-color:#00003f; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px;">
     <p style="margin: 0; font-size: 18px; font-weight: bold;">Casheir</p>
-    <button class="btn back-button" [routerLink]="['/cashier']">Back ></button>
+    <button class="btn back-button" [routerLink]="['/cashier']">Orders ></button>
   </div>
 <div class="container">
     <div class="card">
@@ -48,7 +48,7 @@
   
           <div class="back-to-shop btn btn-link btn-sm quantity-btn fixed-bottom-cart" style="font-weight: bold; font-size: 12px;">
             <a href="#" style="color:#00003f; font-size: 12px; text-decoration: none;">&leftarrow;</a>
-            <span style="font-size: 12px;" class="back">Back </span>
+            <span style="font-size: 12px;" class="back"[routerLink]="['/home']">Back Home </span>
           </div>
         </div>
         <div class="col-md-4 summary">

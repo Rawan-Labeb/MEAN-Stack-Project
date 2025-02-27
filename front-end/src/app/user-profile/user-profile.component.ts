@@ -16,10 +16,11 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import Swal from 'sweetalert2';
 import { ContactService } from '../_services/contact.service';
 import { Complaint } from '../_models/contact.model';
+import {UploadComponent} from'../upload/upload.component'
 
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule, CommonModule, JsonPipe, RouterLink, RouterOutlet],
+  imports: [ReactiveFormsModule, CommonModule, JsonPipe, RouterLink, RouterOutlet,UploadComponent],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -37,6 +38,12 @@ export class UserProfileComponent implements OnInit
 
   // user Order 
   userOrder:Order[] = [];
+
+  onImagesUploaded(imageUrls: string[]) {
+    this.userData.image = imageUrls; 
+    this.userProfileForm.patchValue({ image: imageUrls });
+  }
+  
 
   constructor(
     private authSer: AuthServiceService,
@@ -62,81 +69,96 @@ export class UserProfileComponent implements OnInit
     
   }
 
+
   ngOnInit(): void {
     // Get user data
     this.decodeUserToken(this.getToken()).subscribe({
-      next: (data:any) => {
+      next: (data: any) => {
         this.token = data;
         console.log(data);
-    }
-  });
-
+      }
+    });
+  
     if (this.token && this.token.email) {
       this.authSer.getUserDataByEmail(this.token.email).subscribe({
         next: (data) => {
           if (data._id) {
-            // Assign the sanitized data
             this.id = data._id;
             this.userData = data;
             console.log(data);
-            console.log(this.userData); // Log userData after it is set
+            console.log(this.userData);
             this.fillFormWithUserData();
-            
-            // Now it's safe to call loadUserOrders
-            // this.loadUserOrders();
-            // this.loadUserComplaints();
           }
         },
         error: (err) => {
-          if (err.status == 401)
-          {
+          if (err.status == 401) {
             this.authSer.logout();
             this.router.navigateByUrl("user/login");
           }
-          console.error('Error fetching user data', err)
+          console.error("Error fetching user data", err);
         }
       });
     } else {
-      console.error('Email not found in token');
+      console.error("Email not found in token");
     }
   
-    // Get governorates
-    this.locationSer.getGovernorates().subscribe({
-      next: (data) => {
-        this.governorates = data[2].data;
-        console.log(this.governorates);
+    // Assign governorates directly from local data
+    this.governorates = [
+      { name: "Cairo", cities: ["Nasr City", "Heliopolis", "Maadi", "Shubra", "Zamalek", "New Cairo"] },
+      { name: "Alexandria", cities: ["Sidi Gaber", "Mansheya", "Smouha", "Montaza", "Borg El Arab"] },
+      { name: "Giza", cities: ["Dokki", "Mohandessin", "Haram", "6th of October", "Sheikh Zayed"] },
+      { name: "Qalyubia", cities: ["Banha", "Shibin El Qanater", "Khosous"] },
+      { name: "Port Said", cities: ["Al Manakh", "Al Sharq", "Al Zohour"] },
+      { name: "Suez", cities: ["Arbaeen", "Ganayen", "Faisal"] },
+      { name: "Sharqia", cities: ["Zagazig", "Belbeis", "Minya Al Qamh"] },
+      { name: "Dakahlia", cities: ["Mansoura", "Talkha", "Mit Ghamr"] },
+      { name: "Aswan", cities: ["Aswan City", "Kom Ombo", "Edfu"] },
+      { name: "Asyut", cities: ["Asyut City", "Dairut", "Manfalut"] },
+      { name: "Beheira", cities: ["Damanhour", "Kafr El Dawar", "Rashid"] },
+      { name: "Beni Suef", cities: ["Beni Suef City", "Biba", "El Wasta"] },
+      { name: "Fayoum", cities: ["Fayoum City", "Tamiya", "Sinnuris"] },
+      { name: "Gharbia", cities: ["Tanta", "El Mahalla El Kubra", "Zefta"] },
+      { name: "Ismailia", cities: ["Ismailia City", "Fayed", "Al Qantara"] },
+      { name: "Kafr El Sheikh", cities: ["Kafr El Sheikh City", "Desouk", "Baltim"] },
+      { name: "Matruh", cities: ["Marsa Matruh", "Siwa", "El Dabaa"] },
+      { name: "Minya", cities: ["Minya City", "Mallawi", "Beni Mazar"] },
+      { name: "Monufia", cities: ["Shibin El Kom", "Menouf", "Ashmoun"] },
+      { name: "New Valley", cities: ["Kharga", "Dakhla", "Farafra"] },
+      { name: "North Sinai", cities: ["Arish", "Sheikh Zuweid", "Rafah"] },
+      { name: "Qena", cities: ["Qena City", "Nag Hammadi", "Luxor"] },
+      { name: "Red Sea", cities: ["Hurghada", "Safaga", "Marsa Alam"] },
+      { name: "Sohag", cities: ["Sohag City", "Girga", "Akhmim"] },
+      { name: "South Sinai", cities: ["Sharm El Sheikh", "Dahab", "Nuweiba"] },
+      { name: "Damietta", cities: ["Damietta City", "New Damietta", "Faraskour"] },
+      { name: "Luxor", cities: ["Luxor City", "Esna", "Armant"] }
+    ];
   
-        // Fetch cities for the initial state and call fillFormWithUserData
-        if (this.userData && this.userData.address && this.userData.address.state) {
-          const selectedGovernorate = this.governorates.find(gov => gov.governorate_name_en === this.userData.address.state);
-          if (selectedGovernorate) {
-            this.locationSer.getCities(selectedGovernorate.id).subscribe(cityData => {
-              this.cities = cityData;
-              this.fillFormWithUserData();
-            });
-          } else {
-            this.fillFormWithUserData();
-          }
-        }
-      }
+    console.log(this.governorates);
+  
+    // Populate cities if user data contains an address
+    if (this.userData && this.userData.address && this.userData.address.state) {
+      const selectedGovernorate = this.governorates.find(
+        (gov) => gov.name === this.userData.address.state
+      );
+      this.cities = selectedGovernorate ? selectedGovernorate.cities : [];
+      this.fillFormWithUserData();
+    }
+  
+    // Watch for governorate changes
+    this.userProfileForm.get("state")?.valueChanges.subscribe((selectedGovernorateName) => {
+      const selectedGovernorate = this.governorates.find((gov) => gov.name === selectedGovernorateName);
+      this.cities = selectedGovernorate ? selectedGovernorate.cities : [];
+  
+      this.userProfileForm.patchValue({
+        stateName: selectedGovernorate ? selectedGovernorate.name : "",
+        city: null // Reset city selection when governorate changes
+      });
     });
   
-    this.userProfileForm.get('state')?.valueChanges.subscribe(governorateId => {
-      const selectedGovernorate = this.governorates.find(gov => gov.id === governorateId);
+    // Watch for city changes
+    this.userProfileForm.get("city")?.valueChanges.subscribe((selectedCity) => {
       this.userProfileForm.patchValue({
-        stateName: selectedGovernorate ? selectedGovernorate.governorate_name_en : ''
-      });
-  
-      this.locationSer.getCities(governorateId).subscribe(data => {
-        this.cities = data;
-        console.log(data);
-      });
-    });
-  
-    this.userProfileForm.get('city')?.valueChanges.subscribe(cityId => {
-      const selectedCity = this.cities.find(city => city.id === cityId);
-      this.userProfileForm.patchValue({
-        cityName: selectedCity ? selectedCity.city_name_en : ''
+        cityName: selectedCity
       });
     });
   }
@@ -208,8 +230,14 @@ export class UserProfileComponent implements OnInit
 
 onSubmit() {
   console.log(this.userData);
-  
-  // Update userData with form values and avoid accessing undefined properties
+
+  if (!this.userProfileForm.valid) {
+    // Display a friendly message if the form is invalid
+    this.showErrorMessage("Please fill out all required fields correctly.");
+    return;
+  }
+
+  // Prepare updated user data
   const updatedUserData = {
     _id: this.id,
     firstName: this.userProfileForm.get('firstName')?.value,
@@ -227,35 +255,59 @@ onSubmit() {
 
   console.log(updatedUserData);
 
-  if (this.userProfileForm.valid) {
-    console.log(updatedUserData); // Log updated user data
-    this.authSer.updateUserData(updatedUserData, this.id).subscribe({
-      next: (data) => console.log('User data updated successfully', data),
-      error: (err) => {
-        if (err.status == 401)
-        {
-          this.authSer.logout();
-          this.router.navigateByUrl("user/login");
-        }
-        console.error('Error updating user data', err)
+  // Call the API to update user data
+  this.authSer.updateUserData(updatedUserData, this.id).subscribe({
+    next: (data) => {
+      console.log('User data updated successfully', data);
+      this.showSuccessMessage("Your profile has been updated successfully!");
+    },
+    error: (err) => {
+      console.error('Error updating user data', err);
+      if (err.status === 401) {
+        this.authSer.logout();
+        this.router.navigateByUrl("user/login");
+      } else if (err.status === 400) {
+        this.showErrorMessage("There was a problem updating your profile. Please check your details and try again.");
+      } else {
+        this.showErrorMessage("An unexpected error occurred. Please try again later.");
       }
-    });
-  } else {
-    console.error('Form is invalid');
-  }
-
-
-
-
-  if (this.userProfileForm.valid) {
-    // Form is valid, process the data
-    console.log('Form Submitted', this.userProfileForm.value);
-  } else {
-    // Form is invalid, handle the errors
-    console.log('Form Invalid');
-  }
-
+    }
+  });
 }
+
+
+
+
+showSuccessMessage(message: string) {
+  Swal.fire({
+    icon: 'success',
+    title: 'Success!',
+    text: message,
+    showConfirmButton: false,
+    timer: 3000
+  });
+}
+
+showErrorMessage(message: string) {
+  Swal.fire({
+    icon: 'error',
+    title: 'Oops...',
+    text: message,
+    showConfirmButton: true
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 // // handel upload image
 //   // Method to handle file input change
@@ -321,7 +373,9 @@ onSubmit() {
     });
   }
 
-
+  removeImage() {
+    this.userData.image=[];
+  }
 
 
 

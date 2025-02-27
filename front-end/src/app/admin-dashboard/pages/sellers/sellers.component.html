@@ -90,8 +90,8 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Status</th>
-                    <th>Products</th>
-                    <th>Orders</th>
+                    <!-- <th>Products</th>
+                    <th>Orders</th> -->
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -105,7 +105,7 @@
                         {{user.isActive ? ' Active ' : 'Inactive'}}
                       </span>
                     </td>
-                    <td>
+                    <!-- <td>
                       <button class="btn btn-info" [routerLink]="['products', user._id]">
                           Products
                       </button>
@@ -114,7 +114,7 @@
                       <button class="btn btn-warning" [routerLink]="['products', user._id]">
                           Orders
                       </button>
-                    </td>
+                    </td> -->
                     <td>
                       <button [matMenuTriggerFor]="menu" class="border-0" style="background: none;">
                         <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
@@ -130,7 +130,7 @@
                         </button>
                         <button mat-menu-item (click)="changeUserRole(user._id)">
                           <mat-icon>sync_alt</mat-icon>
-                          Seller
+                          Customer
                         </button>
                         <button mat-menu-item (click)="toggleUserStatus(user)">
                           <mat-icon>{{ user.isActive ? 'close' : 'check' }}</mat-icon>

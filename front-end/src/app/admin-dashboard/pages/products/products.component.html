@@ -114,6 +114,11 @@
                     <th>Actions</th>
                   </tr>
                 </thead>
+                <app-prod-review [show]="showReviewModal"
+                 [reviewData]="reviewData" 
+                 (close)="showReviewModal = false">
+                </app-prod-review>
+
                 <tbody>
                   <tr *ngFor="let product of filteredProducts">
                     <td><img class="image" src="{{product.images[0]}}" alt="">{{product.name}}</td>
@@ -141,12 +146,12 @@
                           <mat-icon>edit</mat-icon>
                           Update
                         </button>
-                        <app-update-product 
+                        <!-- <app-update-product 
                           *ngIf="showEditModal" 
                           [productData]="productData" 
                           (updated)="onProductUpdated()" 
                           (close)="showEditModal = false">
-                        </app-update-product> 
+                        </app-update-product>  -->
                         <button mat-menu-item (click)="deleteProduct(product!._id)">
                           <mat-icon>delete</mat-icon>
                           Delete
@@ -155,16 +160,16 @@
                           <mat-icon>{{ product.isActive ? 'close' : 'check' }}</mat-icon>
                           {{ product.isActive ? 'Inactive' : 'Active' }}
                         </button>                        
-                        <!-- <button mat-menu-item>
+                        <button mat-menu-item (click)="openReviewModal(product._id)">
                           <mat-icon>wysiwyg</mat-icon>
                           Reviews
-                        </button> -->
+                        </button>
                         <button mat-menu-item (click)="createMainInventory(product._id)">
                           <mat-icon>inventory_2</mat-icon>
                           MainInventory
                         </button>
                         <button mat-menu-item (click)="createProdReq(product._id,product.sellerId._id)">
-                          <mat-icon>product</mat-icon>
+                          <mat-icon>shopping_bag</mat-icon>
                           prodReq
                         </button>
                       </mat-menu>

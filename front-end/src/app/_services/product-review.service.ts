@@ -14,28 +14,38 @@ export class ProductReviewService {
     private http: HttpClient
   ) { }
 
-  createReviewOnProduct (review:any)
-  {
-    return this.http.post(`${this.apiUrl}/createReview`,review);
-  }
+  // createReviewOnProduct (review:any)
+  // {
+  //   return this.http.post(`${this.apiUrl}/createReview`,review);
+  // }
 
-  getReviewsByProductId (id:any) 
+  createReviewOnProduct(review: any) {
+    return this.http.post(`${this.apiUrl}/createReview`, review, {
+      headers: { 'Content-Type': 'application/json' },
+      withCredentials: true, // If authentication is required
+    });
+  }
+  
+
+
+
+  getReviewsByProductId (id:any) : Observable<any[]>
   {
-    return this.http.get(`${this.apiUrl}/getReviewsByProduct/:${id}`)
+    return this.http.get<any[]>(`${this.apiUrl}/getReviewsByProduct/${id}`)
   }
 
   deleteReviewById (id:any)
   {
-    return this.http.get(`${this.apiUrl}/deleteReview/:${id}`)
+    return this.http.delete(`${this.apiUrl}/deleteReview/${id}`)
   }
   
   getReviewById (id:any)
   {
-    return this.http.get(`${this.apiUrl}/getReviewById/:${id}`)
+    return this.http.get(`${this.apiUrl}/getReviewById/${id}`)
   }
 
   getReviewsByUserId (id:any)
   {
-    return this.http.get(`${this.apiUrl}/getReviewsByUser/:${id}`)
+    return this.http.get(`${this.apiUrl}/getReviewsByUser/${id}`)
   }
 }

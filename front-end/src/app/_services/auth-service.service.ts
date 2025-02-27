@@ -93,11 +93,15 @@ export class AuthServiceService {
 
 
   logout() {
+    this.cookieSer.delete('token', '/'); // Explicitly delete the token cookie
     this.cookieSer.deleteAll();
   }
 
-  getTokenFromCookie(): string | null {
-    return this.cookieSer.get('token');
+  getToken()
+  {
+    return this.cookieSer.get("token");
   }
+
+
 
 }

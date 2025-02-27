@@ -25,7 +25,7 @@ export const canLoginSuperAdminGuard: CanActivateFn = (route, state) => {
 
   return authService.decodeToken(token).pipe(
     map(decodedToken => {
-      if (decodedToken?.role === 'manager') {
+      if (decodedToken?.role.toLowerCase() === 'manager') {
         return true;
       } else {
         router.navigateByUrl('/user/login');

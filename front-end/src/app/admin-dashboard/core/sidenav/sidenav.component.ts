@@ -33,6 +33,8 @@ export class SidenavComponent implements OnInit {
   loadBranches(): void {
     this.branchService.getbranchesBasedOnType("offline").subscribe({
       next: (response) => {
+        console.log('✅ Branches response:', response); // طباعة البيانات المسترجعة
+
         this.branches = response.map(branch => ({ ...branch, showSubSubMenu: false }));
       },
       error: (error) => console.error('❌ Error fetching branches:', error)

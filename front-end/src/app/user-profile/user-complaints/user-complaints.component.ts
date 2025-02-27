@@ -1,14 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { Complaint } from 'src/app/_models/contact.model';
 import { ContactService } from 'src/app/_services/contact.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { AuthServiceService } from 'src/app/_services/auth-service.service';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+
+
 
 @Component({
   selector: 'app-user-complaints',
-  imports: [CommonModule],
+  imports: [CommonModule, MatMenuModule, MatButtonModule, MatIconModule, RouterLink],
   templateUrl: './user-complaints.component.html',
   styleUrl: './user-complaints.component.css'
 })
@@ -97,6 +102,42 @@ export class UserComplaintsComponent implements OnInit {
     });
   }
   
+  deleteComplaint(id: string) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.compliant.deleteComplaint(id).subscribe({
+          next: (response) => {
+            Swal.fire(
+              'Deleted!',
+              'Your complaint has been deleted.',
+              'success'
+            );
+            // Update userComplaints by removing the deleted complaint
+            this.userComplaints = this.userComplaints.filter(complaint => complaint._id !== id);
+            // Update noOfComplaints
+            this.noOfComplaints = this.userComplaints.length;
+          },
+          error: (error) => {
+            Swal.fire(
+              'Error!',
+              'An error occurred while deleting the complaint.',
+              'error'
+            );
+          }
+        });
+      }
+    });
+  }
+  
+
 
 
 }
