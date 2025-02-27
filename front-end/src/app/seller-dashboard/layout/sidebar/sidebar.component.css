@@ -1,4 +1,4 @@
-.sidebar {
+ .sidebar {
     width: 250px;
   height: 100%;
   position: fixed;
@@ -26,16 +26,16 @@
 
 .nav-item {
   margin: 0.5rem 0;
-  }
-  
-  .nav-link {
+}
+
+.nav-link {
   padding: 0.8rem 1.5rem;
   color: rgba(255, 255, 255, 0.8) !important;
   transition: all 0.3s ease;
   border-radius: 8px;
   margin: 0 0.5rem;
-  }
-  
+}
+
 .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.1);
   color: white !important;
@@ -57,4 +57,4 @@
 
 .nav {
   padding: 1rem 0.5rem;
-  }
+}

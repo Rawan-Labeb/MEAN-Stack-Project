@@ -57,6 +57,10 @@ export class LoginComponent
 
       this.loginSer.login(this.loginData).subscribe({
         next: (data) => {
+          if (this.cookieService.check("token"))
+          {
+            this.cookieService.delete("token")
+          }
           this.cookieService.set("token", data.token);
           console.log(data.token)
           this.router.navigateByUrl("");
@@ -88,9 +92,8 @@ export class LoginComponent
   }
   
 
-  validate (inpupt:string)
-  {
-    return this.loginFrom.get(`${inpupt}`)
+  validate(input: string) {
+    return this.loginFrom.get(input);
   }
 
 

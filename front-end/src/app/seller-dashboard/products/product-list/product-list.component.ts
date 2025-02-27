@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
+<<<<<<< HEAD
 import { Product, ProductFormData } from '../../models/product.model';
 import { DeleteProductComponent } from '../delete-product/delete-product.component';
 import { AddProductComponent } from '../add-product/add-product.component';
