@@ -49,6 +49,7 @@
               <select id="governorate" class="form-control" formControlName="state">
                 <option value="">-- Select Governorate --</option>
                 <option *ngFor="let gov of governorates" [value]="gov.name">{{ gov.name }}</option>
+                <option *ngFor="let gov of governorates" [value]="gov.name">{{ gov.name }}</option>
               </select>
               <input type="hidden" formControlName="stateName">
             </div>
@@ -87,8 +88,16 @@
               <div *ngIf="userProfileForm.get('image')?.invalid && userProfileForm.get('image')?.touched" class="text-danger">
                 Image file is required.
               </div>
+            </div> -->
+            <app-upload (imagesUploaded)="onImagesUploaded($event)"></app-upload>
+            <div *ngIf="userData.image" class="d-flex flex-wrap gap-2">
+              <div *ngFor="let image of userData.image; let i = index" class="position-relative">
+                <img [src]="userData.image" width="50" height="50">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" (click)="removeImage()">
+                  ×
+                </button>
+              </div>
             </div>
-
           </div>
           <div class="mt-5 text-center">
             <button type="submit" class="btn btn-primary profile-button">Save Profile</button>

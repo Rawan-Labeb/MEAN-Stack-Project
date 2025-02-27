@@ -170,6 +170,14 @@ complaints: Complaint[] =[]
       this.applyFilters();
     }
     
+    openEmail(email: string | undefined) {
+      if (email) {
+        window.open(`mailto:${email}`, '_blank');
+      } else {
+        console.warn('No email available');
+      }
+    }
+    
       // openAddModal(): void {
       //   this.userData = this.getInitialUserData();
       //   this.showAddModal = true;

@@ -12,14 +12,18 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { UpdateProductComponent } from './update-product/update-product.component';
 import { MainInventoryService } from 'src/app/_services/main-inventory.service';
+import {ProductReviewService} from '../../../_services/product-review.service'
+import { ProdReviewComponent } from "./prod-review/prod-review.component";
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule, RouterModule, MatIconModule, MatMenuModule, AddProductComponent, UpdateProductComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule, MatMenuModule, AddProductComponent, UpdateProductComponent, ProdReviewComponent],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent implements OnInit, OnDestroy {
+  reviewData: any;
+  showReviewModal = false;
   products: Product[] = [];
   filteredProducts: Product[] = [];
   loading = false;
@@ -36,7 +40,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   productData: Product = this.getInitialProductData();
 
-  constructor(private productService: ProductService, private cdr: ChangeDetectorRef ,private mainInventoryService:MainInventoryService) {}
+  constructor(private productService: ProductService, private cdr: ChangeDetectorRef ,
+    private mainInventoryService:MainInventoryService,private productReviewService: ProductReviewService) {}
 
   ngOnInit(): void {
     this.loadProducts();
@@ -314,6 +319,22 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.showEditModal = true;
     console.log("✅ Opening Edit Modal with Data:", this.productData);
   }
+
+  openReviewModal(prodId: string): void {
+    this.productReviewService.getReviewsByProductId(prodId).subscribe({
+      next: (reviews) => {
+        this.reviewData = reviews;
+        this.showReviewModal = true;
+        console.log(this.reviewData);
+        console.log("🟢 فتح المودال:", this.showReviewModal)
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error("❌ Error fetching review:", error);
+      },
+    });    
+  }
+  
 
   onProductSaved(): void {
     this.loadProducts();

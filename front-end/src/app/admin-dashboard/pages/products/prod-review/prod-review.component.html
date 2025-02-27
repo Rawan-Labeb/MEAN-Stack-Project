@@ -1,0 +1,51 @@
+<!-- <pre>{{ reviewData | json }}</pre> -->
+
+<div class="modal" [class.show]="show" [style.display]="show ? 'block' : 'none'">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Reviews</h5>
+          <button type="button" class="btn-close" (click)="onClose()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive mt-3">
+            <table class="table table-striped">
+              <thead class="table-primary text-white">
+                <tr>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Rate</th>
+                  <th class="p-3">Comment</th>
+                  <th class="p-3">Date</th>
+                  <th class="p-3">Action</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of reviewData" class="align-middle">
+                  <td class="p-2 border-bottom">{{ item?.customer?.firstName }}</td>
+                  <td class="p-2 border-bottom">
+                    <span *ngFor="let star of [].constructor(item.rating)" style="display: inline;">
+                      <i class="fa-solid fa-star text-warning"></i>
+                    </span>
+                  </td>                  
+
+                  <td class="p-2 border-bottom">{{ item?.comment }}</td>
+                  <td class="p-2 border-bottom">{{ item?.createdAt}}</td>
+                  <td class="p-2 border-bottom">
+                    <button class="btn btn-info" (click)="deleteReview(item._id)">
+                        Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+              
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="onClose()">Close</button>
+              </div>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </div>
