@@ -47,11 +47,14 @@ export class AppComponent implements OnInit {
   title = 'E-commerce App';
   userRole: string = '';
 
-  constructor(private userRoleService: UserRoleService) {}
+  constructor(private userRoleService: UserRoleService,private router: Router) {}
 
   ngOnInit() {
     this.userRoleService.userRole$.subscribe(role => {
       this.userRole = role;
     });
+  }
+  isAdminRoute(): boolean {
+    return this.router.url.startsWith('/admin');
   }
 }

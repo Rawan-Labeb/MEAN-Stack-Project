@@ -205,7 +205,7 @@ const validateOnCreateAndUpdate = async (productData) => {
 
     if (chkSeller.message.role == 'seller')
     {
-        if (!chkSeller.isActive)
+        if (!chkSeller.message.isActive)
             return {valid: false, message: "Can not make this operation User Not Active"}
     }
 
