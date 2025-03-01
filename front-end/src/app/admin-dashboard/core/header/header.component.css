@@ -27,7 +27,7 @@ mat-toolbar {
   }
   
   .user {
-    font-size: 14px;
+    font-size: 16px;
     display: flex;
     align-items: center;
   }
@@ -44,5 +44,22 @@ mat-toolbar {
     height: 18px;
     font-size: 16px;
     margin-left: 5px;
+  }
+  .custom-text {
+    color: #007bff; /* لون Bootstrap الأساسي */
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+  
+    &:after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px; /* مكان الخط */
+      width: 100%;
+      height: 2px;
+      background-color: #17a2b8; /* لون Bootstrap info */
+    }
   }
   
