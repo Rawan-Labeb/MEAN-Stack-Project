@@ -68,20 +68,49 @@
               aria-expanded="false"
             >
               <i class="bi bi-person-circle fs-4 me-2"></i> 
-              <span *ngIf="userFirstName">{{ userFirstName }}</span>
-              <span *ngIf="!userFirstName">REGISTER</span>
+              <span *ngIf="userRole">{{ userFirstName }}</span>
+              <span *ngIf="!userRole">REGISTER</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow-sm" aria-labelledby="userDropdown">
-              <li *ngIf="userRole?.toLocaleLowerCase()  == 'customer'"><a class="dropdown-item" routerLink="/user/userprofile"><i class="bi bi-person me-2"></i> User Profile</a></li>
-              <li *ngIf="userRole?.toLocaleLowerCase() == 'manager'"><a class="dropdown-item" routerLink="/admindashboard"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</a></li>
-              <li *ngIf="userRole?.toLocaleLowerCase() == 'casheir' || userRole?.toLocaleLowerCase() == 'clerk'"><a class="dropdown-item" routerLink="/casheir"><i class="bi bi-clock-history me-2"></i> History</a></li>
-              <li *ngIf="userRole?.toLocaleLowerCase()  == 'seller'" ><a class="dropdown-item" routerLink="/sellerdashboard"><i class="bi bi-speedometer2 me-2"></i> Seller Dashboard</a></li>
-              <!-- <li *ngIf="userRole?.toLocaleLowerCase()  == 'customer'"><a class="dropdown-item" routerLink="/user/userprofile"><i class="bi bi-clock-history me-2"></i> History</a></li> -->
+              <li *ngIf="userRole?.toLowerCase() == 'customer'">
+                <a class="dropdown-item" routerLink="/user/userprofile">
+                  <i class="bi bi-person me-2"></i> User Profile
+                </a>
+              </li>
+              <li *ngIf="userRole?.toLowerCase() == 'manager'">
+                <a class="dropdown-item" routerLink="/admindashboard">
+                  <i class="bi bi-speedometer2 me-2"></i> Admin Dashboard
+                </a>
+              </li>
+              <li *ngIf="userRole?.toLowerCase() == 'cashier' || userRole?.toLowerCase() == 'clerk'">
+                <a class="dropdown-item" routerLink="/cashier">
+                  <i class="bi bi-clock-history me-2"></i> History
+                </a>
+              </li>
+              <li *ngIf="userRole?.toLowerCase() == 'seller'">
+                <a class="dropdown-item" routerLink="/sellerdashboard">
+                  <i class="bi bi-speedometer2 me-2"></i> Seller Dashboard
+                </a>
+              </li>
               <li><hr class="dropdown-divider"></li>
-              <li ><a class="dropdown-item" *ngIf="authSer.isAuthenticated()" (click)="LogOut()"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-              <li *ngIf="!(authSer.isAuthenticated())"><a class="dropdown-item" routerLink="/user/login"><i class="bi bi-box-arrow-right me-2"></i> login</a></li>
-              <li *ngIf="!(authSer.isAuthenticated())"><a class="dropdown-item" routerLink="/user/register"><i class="bi bi-pencil-square me-2"></i> Register</a></li>
+              <li *ngIf="authSer.isAuthenticated()">
+                <a class="dropdown-item" (click)="LogOut()">
+                  <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+              </li>
+              <li *ngIf="!authSer.isAuthenticated()">
+                <a class="dropdown-item" routerLink="/user/login">
+                  <i class="bi bi-box-arrow-right me-2"></i> Login
+                </a>
+              </li>
+              <li *ngIf="!authSer.isAuthenticated()">
+                <a class="dropdown-item" routerLink="/user/register">
+                  <i class="bi bi-pencil-square me-2"></i> Register
+                </a>
+              </li>
             </ul>
+            
+            
             
           </li>
   

@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServiceService } from '../_services/auth-service.service';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of } from 'rxjs';
 // >>>>>>>>> import { CartService } from '../cart/service/cart.service';
 
 @Component({
@@ -18,19 +18,38 @@ export class HeaderComponent implements OnInit {
 
   //>>>>>>>>> cartItems: any[] = []; 
 
-  ngOnInit(): void {
+  // ngOnInit(): void {
+  //   const token = this.authSer.getToken();
+  //   if (token) {
+  //     this.authSer.decodeToken(token).subscribe({
+  //       next: (data) => {
+  //         console.log(data);
+  //         console.log(data.role);
+  //         this.userRole = data.role;
+  //       },
+  //       error: (err) => {
+  //         console.error('Error decoding token:', err);
+  //       }
+  //     });
+  //   }
+  // }
+
+  async ngOnInit(): Promise<void> {
+    await this.loadUserRole();
+  }
+
+  async loadUserRole(): Promise<void> {
     const token = this.authSer.getToken();
     if (token) {
-      this.authSer.decodeToken(token).subscribe({
-        next: (data) => {
-          console.log(data);
-          console.log(data.role);
-          this.userRole = data.role;
-        },
-        error: (err) => {
-          console.error('Error decoding token:', err);
-        }
-      });
+      try {
+        const data = await firstValueFrom(this.authSer.decodeToken(token)); // 🔥 تحويل الـ Observable إلى Promise
+        console.log(data);
+        console.log(data.role);
+        this.userRole = data.role;
+        this.cdRef.detectChanges(); // 🛠 تحديث القالب بعد التغيير
+      } catch (err) {
+        console.error('❌ Error decoding token:', err);
+      }
     }
   }
 
@@ -41,6 +60,7 @@ export class HeaderComponent implements OnInit {
     public cookieSer:CookieService,
     public router:Router,
     public authSer:AuthServiceService,
+    private cdRef: ChangeDetectorRef
  //>>>>>>>>>>   private cartService: CartService
   )
   {
