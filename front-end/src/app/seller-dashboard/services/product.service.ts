@@ -13,6 +13,7 @@ import { CookieService } from 'ngx-cookie-service';
 export class ProductService {
   private apiUrl = 'http://localhost:5000'; 
   private productUpdated = new Subject<Product>();
+  private productUpdateSubject = new Subject<void>();
 
   constructor(
     private http: HttpClient,
@@ -74,7 +75,7 @@ export class ProductService {
     });
   }
 
-  // Keep core CRUD operations
+  // Core CRUD operations
   getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/product/getAllProducts`);
   }
@@ -91,77 +92,224 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/product/getProductById/${id}`);
   }
 
-  createProduct(formData: any): Observable<any> {
-    const token = this.cookieService.get('token');
-    console.log('Creating product with token:', token ? 'Present' : 'Missing');
+  // Create a product with file upload support
+  createProduct(productData: ProductFormData, files: File[] = []): Observable<any> {
+    console.log('Creating product with data:', productData);
+    
+    // Ensure we have the token explicitly for this call
+    const token = this.cookieService.get('token') || localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token available');
+      return throwError(() => new Error('Authentication required'));
+    }
 
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`);
+    // Format token properly for authorization - ensure Bearer has a space after it
+    const authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    const headers = new HttpHeaders().set('Authorization', authToken);
+    
+    console.log('Token format check:', {
+      originalToken: token.substring(0, 20) + '...',
+      formattedToken: authToken.substring(0, 20) + '...',
+      hasBearer: token.startsWith('Bearer '),
+      tokenLength: token.length
+    });
 
-    return this.http.post(`${this.apiUrl}/product/createProduct`, formData, { headers })
-      .pipe(
-        tap(response => console.log('Create product response:', response)),
+    // If we have files to upload, do that first
+    if (files && files.length > 0) {
+      const formData = new FormData();
+      
+      // Append all files
+      Array.from(files).forEach(file => {
+        formData.append('imageUrls', file);
+      });
+      
+      // First upload the images
+      return this.http.post<any>(`${this.apiUrl}/upload`, formData, { headers }).pipe(
         catchError(error => {
-          console.error('Create product error:', {
+          console.error('Error uploading product images:', error);
+          return throwError(() => error);
+        }),
+        switchMap(uploadResult => {
+          console.log('Image upload result:', uploadResult);
+          
+          // Once images are uploaded, create the product
+          const productToSave = {
+            name: productData.name,
+            description: productData.description,
+            price: productData.price,
+            quantity: productData.quantity,
+            categoryId: productData.categoryId,
+            sellerId: productData.sellerId,
+            isActive: productData.isActive !== undefined ? productData.isActive : true,
+            images: uploadResult.imageUrls || []
+          };
+          
+          // Create the product with the image URLs
+          return this.http.post<any>(
+            `${this.apiUrl}/product/createProduct`,
+            productToSave,
+            { headers }
+          ).pipe(
+            catchError(error => {
+              console.error('Error creating product:', error);
+              if (error.status === 401) {
+                console.error('Authentication error - token may be invalid or expired:', authToken);
+              }
+              return throwError(() => error);
+            })
+          );
+        })
+      );
+    } else {
+      // No images to upload, create the product directly
+      const productToSave = {
+        name: productData.name,
+        description: productData.description,
+        price: productData.price,
+        quantity: productData.quantity,
+        categoryId: productData.categoryId,
+        sellerId: productData.sellerId,
+        isActive: productData.isActive !== undefined ? productData.isActive : true,
+        images: []
+      };
+      
+      // Log the full request details
+      console.log('Sending product creation request:', {
+        url: `${this.apiUrl}/product/createProduct`,
+        headers: {
+          'Authorization': authToken.substring(0, 30) + '...',
+          'Content-Type': 'application/json'
+        },
+        body: productToSave
+      });
+      
+      return this.http.post<any>(
+        `${this.apiUrl}/product/createProduct`,
+        productToSave,
+        { headers }
+      ).pipe(
+        catchError(error => {
+          console.error('Error creating product:', error);
+          // Log more details about the error
+          console.error('Error response details:', {
             status: error.status,
-            message: error.error?.message || error.message,
-            error: error
+            statusText: error.statusText,
+            error: error.error,
+            message: error.message,
+            url: error.url
           });
+          
           return throwError(() => error);
         })
       );
+    }
   }
 
-  updateProduct(id: string, data: ProductSubmitData): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/product/updateProduct/${id}`, data);
-  }
-
-  // Keep only one delete method with error handling
-  deleteProduct(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/product/deleteProduct/${id}`).pipe(
-      tap(() => console.log('Delete successful')),
+  // Update a product with file upload support
+  updateProduct(id: string, productData: ProductFormData, files: File[] = []): Observable<Product> {
+    const formData = new FormData();
+    
+    // Append product data
+    formData.append('name', productData.name);
+    formData.append('price', productData.price.toString());
+    formData.append('quantity', productData.quantity.toString());
+    formData.append('description', productData.description);
+    formData.append('isActive', productData.isActive.toString());
+    formData.append('categoryId', productData.categoryId);
+    formData.append('sellerId', productData.sellerId);
+    
+    // First, upload images if any
+    if (files.length > 0) {
+      return this.uploadProductImages(files).pipe(
+        switchMap(response => {
+          // Add image URLs to product data
+          if (response && response.imageUrls) {
+            formData.append('images', JSON.stringify(response.imageUrls));
+          }
+          
+          // Then update the product with image URLs
+          return this.http.put<Product>(`${this.apiUrl}/product/updateProduct/${id}`, formData).pipe(
+            tap(() => this.notifyProductUpdate()),
+            catchError(this.handleError)
+          );
+        }),
+        catchError(this.handleError)
+      );
+    }
+    
+    // No images to upload, just update the product
+    return this.http.put<Product>(`${this.apiUrl}/product/updateProduct/${id}`, formData).pipe(
+      tap(() => this.notifyProductUpdate()),
       catchError(this.handleError)
     );
   }
 
+  // Delete a product
+  deleteProduct(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/product/deleteProduct/${id}`).pipe(
+      tap(() => this.notifyProductUpdate()),
+      catchError(this.handleError)
+    );
+  }
+
+  // Activate/deactivate a product
   activateProduct(id: string): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/product/activeProduct/${id}`, {});
+    return this.http.post<Product>(`${this.apiUrl}/product/activeProduct/${id}`, {}).pipe(
+      tap(() => this.notifyProductUpdate()),
+      catchError(this.handleError)
+    );
   }
 
   deactivateProduct(id: string): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/product/deactiveProduct/${id}`, {});
-  }
-
-  // Keep other unique methods
-  getProductsByCategory(categoryId: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/product/getProductsByCategory/${categoryId}`);
-  }
-
-  getSellerProducts(sellerId: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/product/seller/${sellerId}`).pipe(
-      tap(products => console.log('Raw product response:', JSON.stringify(products, null, 2))),
+    return this.http.post<Product>(`${this.apiUrl}/product/deactiveProduct/${id}`, {}).pipe(
+      tap(() => this.notifyProductUpdate()),
       catchError(this.handleError)
     );
   }
 
-  getProductsBySeller(sellerId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/seller/${sellerId}`);
+  // Get products by category
+  getProductsByCategory(categoryId: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/product/getProductsByCategory/${categoryId}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  // Consolidate image upload methods
-  uploadProductImages(files: FileList): Observable<{imageUrls: string[]}> {
+  // Get products by seller
+  getSellerProducts(sellerId: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/product/seller/${sellerId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Upload product images
+  uploadProductImages(files: File[] | FileList): Observable<{imageUrls: string[]}> {
     const formData = new FormData();
-    Array.from(files).forEach(file => {
-      formData.append('imageUrls', file);
-    });
-    return this.http.post<{imageUrls: string[]}>('http://localhost:5000/upload', formData);
+    
+    if (files instanceof FileList) {
+      Array.from(files).forEach(file => {
+        formData.append('imageUrls', file);
+      });
+    } else {
+      files.forEach(file => {
+        formData.append('imageUrls', file);
+      });
+    }
+    
+    return this.http.post<{imageUrls: string[]}>(`${this.apiUrl}/upload`, formData).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  // Keep utility methods
-  onProductUpdate(): Observable<Product> {
-    return this.productUpdated.asObservable();
+  // Notification methods
+  notifyProductUpdate(): void {
+    this.productUpdateSubject.next();
   }
 
+  onProductUpdate(): Observable<void> {
+    return this.productUpdateSubject.asObservable();
+  }
+
+  // Error handling
   private handleError(error: HttpErrorResponse) {
     console.error('Error details:', {
       status: error.status,

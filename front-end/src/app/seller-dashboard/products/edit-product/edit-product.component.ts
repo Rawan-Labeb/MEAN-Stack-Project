@@ -1,110 +1,187 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
+import { Category, Product, ProductFormData } from '../../models/product.model';
 import { SellerUploadComponent } from '../../components/seller-upload/seller-upload.component';
-import { Product, Category } from '../../models/product.model';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-edit-product',
+  templateUrl: './edit-product.component.html',
+  styleUrls: ['./edit-product.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, SellerUploadComponent],
-  templateUrl: './edit-product.component.html'
+  imports: [CommonModule, ReactiveFormsModule, SellerUploadComponent]
 })
 export class EditProductComponent implements OnInit {
-  @Input() show = false;
   @Input() product!: Product;
+  @Input() productData!: ProductFormData;
   @Output() close = new EventEmitter<void>();
-  @Output() saved = new EventEmitter<void>();
+  @Output() productUpdated = new EventEmitter<void>();
 
+  productForm!: FormGroup;
   categories: Category[] = [];
   loading = false;
-  productCopy!: Product;
+  selectedFiles: File[] = [];
+  previewUrls: string[] = [];
+  existingImages: string[] = [];
+  errorMessage: string | null = null;
+  isSubmitting = false;
+  show = true;
 
   constructor(
+    private fb: FormBuilder,
     private productService: ProductService,
     private categoryService: CategoryService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.initForm();
     this.loadCategories();
-    if (this.product) {
-      this.productCopy = { ...this.product };
+    
+    if (this.product && this.product.images) {
+      this.existingImages = [...this.product.images];
     }
   }
 
+  private initForm(): void {
+    this.productForm = this.fb.group({
+      name: [this.productData.name, [Validators.required]],
+      description: [this.productData.description, [Validators.required]],
+      price: [this.productData.price, [Validators.required, Validators.min(0)]],
+      quantity: [this.productData.quantity, [Validators.required, Validators.min(0)]],
+      categoryId: [this.productData.categoryId, [Validators.required]],
+      isActive: [this.productData.isActive],
+      images: [this.product?.images || []]
+    });
+  }
+
   private loadCategories() {
-    this.categoryService.getActiveCategories().subscribe({
+    this.loading = true;
+    this.categoryService.getCategories().subscribe({
       next: (categories) => {
         this.categories = categories;
+        this.loading = false;
       },
       error: (error) => {
         console.error('Error loading categories:', error);
-        Swal.fire('Error', 'Failed to load categories', 'error');
+        this.loading = false;
+        this.errorMessage = 'Failed to load categories';
       }
     });
   }
 
   onImagesUploaded(uploadedUrls: string[]): void {
-    this.productCopy.images = uploadedUrls;
+    console.log('Received uploaded image URLs:', uploadedUrls);
+    const currentImages = this.productForm.get('images')?.value || [];
+    
+    if (uploadedUrls && uploadedUrls.length > 0) {
+      // Combine existing images with new ones
+      const updatedImages = [...currentImages, ...uploadedUrls];
+      this.productForm.patchValue({ images: updatedImages });
+    }
   }
 
-  onSubmit(): void {
-    if (!this.validateForm()) return;
-
-    this.loading = true;
-    const updateData = {
-      name: this.productCopy.name,
-      description: this.productCopy.description,
-      price: this.productCopy.price,
-      quantity: this.productCopy.quantity,
-      categoryId: typeof this.productCopy.categoryId === 'string' 
-        ? this.productCopy.categoryId 
-        : this.productCopy.categoryId._id,
-      sellerId: this.productCopy.sellerId,
-      images: this.productCopy.images,
-      isActive: this.productCopy.isActive
-    };
-
-    this.productService.updateProduct(this.product._id, updateData).subscribe({
-      next: () => {
-        Swal.fire('Success', 'Product updated successfully', 'success');
-        this.saved.emit();
-        this.close.emit();
-      },
-      error: (error) => {
-        console.error('Error updating product:', error);
-        Swal.fire('Error', 'Failed to update product', 'error');
-      },
-      complete: () => {
-        this.loading = false;
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      // Update selected files
+      this.selectedFiles = Array.from(input.files);
+      
+      // Create preview URLs for the selected files
+      for (const file of this.selectedFiles) {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.previewUrls.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
       }
-    });
+    }
   }
 
-  private validateForm(): boolean {
-    if (!this.productCopy.name?.trim()) {
-      Swal.fire('Error', 'Product name is required', 'error');
-      return false;
+  removeImage(index: number, isExisting: boolean = false): void {
+    if (isExisting) {
+      // Remove from existing images
+      const currentImages = this.productForm.get('images')?.value || [];
+      const updatedImages = currentImages.filter((_: string, i: number) => i !== index);
+      this.productForm.get('images')?.setValue(updatedImages);
+      this.existingImages = updatedImages;
+    } else {
+      // Remove from newly selected files
+      const updatedFiles = this.selectedFiles.filter((_, i) => i !== index);
+      const updatedUrls = this.previewUrls.filter((_, i) => i !== index);
+      
+      this.selectedFiles = updatedFiles;
+      this.previewUrls = updatedUrls;
     }
-    if (!this.productCopy.categoryId) {
-      Swal.fire('Error', 'Please select a category', 'error');
-      return false;
+  }
+  
+  updateProduct(): void {
+    if (!this.productForm.valid) {
+      // Mark all controls as touched to show validation errors
+      Object.keys(this.productForm.controls).forEach(key => {
+        const control = this.productForm.get(key);
+        control?.markAsTouched();
+      });
+      
+      console.error('Form is invalid, cannot submit');
+      return;
     }
-    if (this.productCopy.price <= 0) {
-      Swal.fire('Error', 'Price must be greater than 0', 'error');
-      return false;
-    }
-    if (this.productCopy.quantity < 0) {
-      Swal.fire('Error', 'Quantity cannot be negative', 'error');
-      return false;
-    }
-    return true;
+    
+    this.isSubmitting = true;
+    this.errorMessage = null;
+    
+    // Get form values
+    const formValue = this.productForm.value;
+    
+    // Create product data from form
+    const productToUpdate: ProductFormData = {
+      name: formValue.name,
+      price: formValue.price,
+      quantity: formValue.quantity,
+      description: formValue.description || '',
+      isActive: formValue.isActive,
+      categoryId: formValue.categoryId,
+      sellerId: this.productData.sellerId
+    };
+    
+    console.log('Updating product:', productToUpdate);
+    
+    this.productService.updateProduct(this.product._id, productToUpdate, this.selectedFiles)
+      .subscribe({
+        next: () => {
+          console.log('Product updated successfully');
+          this.isSubmitting = false;
+          this.productUpdated.emit();
+        },
+        error: (error) => {
+          console.error('Error updating product', error);
+          this.errorMessage = error.message || 'An error occurred while updating the product';
+          this.isSubmitting = false;
+        }
+      });
+  }
+  
+  closeModal(): void {
+    this.close.emit();
   }
 
   onClose(): void {
     this.close.emit();
+  }
+
+  onSubmit(): void {
+    this.updateProduct();
+  }
+
+  // Helper methods for template
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.productForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getErrorMessage(fieldName: string): boolean {
+    const field = this.productForm.get(fieldName);
+    return !!(field && field.hasError('required'));
   }
 }

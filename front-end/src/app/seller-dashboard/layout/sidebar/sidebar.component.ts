@@ -21,15 +21,15 @@ export class SidebarComponent {
 
   // Update navigation methods to use correct paths
   navigateToProducts(): void {
-    this.router.navigate(['/sellerdashboard/products']);
+    this.router.navigate(['/seller/products']);
   }
 
   navigateToOrders(): void {
-    this.router.navigate(['/sellerdashboard/orders']);
+    this.router.navigate(['/seller/orders']);
   }
 
   navigateToAnalytics(): void {
-    this.router.navigate(['/sellerdashboard/sales']);
+    this.router.navigate(['/seller/sales']);
   }
 
   logout(): void {

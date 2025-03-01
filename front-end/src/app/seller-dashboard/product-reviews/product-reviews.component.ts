@@ -25,7 +25,7 @@ export class ProductReviewsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const token = this.authService.getTokenFromCookie();
+    const token = this.authService.getToken();
     if (token) {
       this.authService.decodeToken(token).subscribe({
         next: (decoded: any) => {

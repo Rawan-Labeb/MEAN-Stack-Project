@@ -11,13 +11,17 @@ import { authInterceptor } from './app/_interceptors/auth.interceptor';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
+// Import the functional interceptor correctly
+import { sellerAuthInterceptor } from './app/seller-dashboard/interceptors/seller-auth.interceptor';
+
 if (environment.production) {
   enableProdMode();
 }
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideHttpClient(withInterceptors([authInterceptor])),
+    // Use both interceptors
+    provideHttpClient(withInterceptors([authInterceptor, sellerAuthInterceptor])),
     provideRouter(routes),
     importProvidersFrom(HttpClientModule),
     provideToastr(),
