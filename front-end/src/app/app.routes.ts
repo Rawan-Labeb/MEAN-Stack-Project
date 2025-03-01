@@ -41,6 +41,13 @@ export const routes: Routes = [
   // {path:"userprofile",component:UserProfileComponent},
   {path:"sellerdashboard",component:SellerDashboardComponent},
   
+  // Add this route for sales clerk dashboard
+  {
+    path: "sales-clerk", 
+    loadChildren: () => import("./sales-clerk-dashboard/sales-clerk-dashboard.routes")
+      .then(s => s.salesClerkDashboardRoutes)
+  },
+  
   {path:"**",component:NotFoundComponent},
   {
     path: 'login',

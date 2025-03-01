@@ -27,8 +27,18 @@ export class BranchProductsComponent implements OnInit {
     private branchService: BranchService
   ) {}
 
+  /*
   ngOnInit() {
-    this.loadBranches();
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    this.loadBranchProducts();
+  }
+  */
+
+  ngOnInit() {
+    this.loadProducts();
   }
 
   loadBranches() {

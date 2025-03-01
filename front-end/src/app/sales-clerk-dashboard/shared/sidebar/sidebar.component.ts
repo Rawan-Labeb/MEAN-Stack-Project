@@ -93,6 +93,6 @@ export class SidebarComponent {
   menuItems = [
     { path: './home', icon: 'fas fa-home', title: 'Dashboard' },
     { path: './orders', icon: 'fas fa-shopping-cart', title: 'Orders' },
-    { path: './branch-products', icon: 'fas fa-box', title: 'Branch Products' }
+    { path: './products', icon: 'fas fa-box', title: 'Branch Products' } // Changed from branch-products to products
   ];
 }
