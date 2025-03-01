@@ -1,0 +1,119 @@
+<div class="container-fluid">
+  <h2 class="mb-4">Inventory Stock Requests</h2>
+
+  <!-- Create New Request Form -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Request New Stock</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="submitRequest()" #requestForm="ngForm">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="productSelect" class="form-label">Select Inventory Item</label>
+                <select 
+                  id="productSelect"
+                  class="form-select" 
+                  [(ngModel)]="selectedInventory" 
+                  name="inventory"
+                  required>
+                  <option value="" disabled selected>Choose an item...</option>
+                  <option *ngFor="let item of inventoryItems" [value]="item._id">
+                    {{item.name}} - Available: {{item.quantity}}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="quantityInput" class="form-label">Quantity Needed</label>
+                <input 
+                  type="number" 
+                  id="quantityInput"
+                  class="form-control" 
+                  [(ngModel)]="requestQuantity" 
+                  name="quantity" 
+                  min="1" 
+                  required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="messageInput" class="form-label">Message (Optional)</label>
+              <textarea 
+                id="messageInput"
+                class="form-control" 
+                [(ngModel)]="requestMessage" 
+                name="message"
+                rows="3"></textarea>
+            </div>
+            <div class="text-end">
+              <button 
+                type="submit" 
+                class="btn btn-primary" 
+                [disabled]="!requestForm.form.valid">
+                Submit Request
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Requests Table -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">My Stock Requests</h5>
+          <div>
+            <select class="form-select form-select-sm" [(ngModel)]="statusFilter" (change)="applyFilters()">
+              <option value="all">All Requests</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Request Date</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let request of filteredRequests">
+                  <td>{{request._id.substring(0, 8)}}</td>
+                  <td>{{request.mainInventory.name}}</td>
+                  <td>{{request.requestedQuantity}}</td>
+                  <td>
+                    <span class="badge rounded-pill"
+                          [ngClass]="{
+                            'bg-warning': request.status === 'pending',
+                            'bg-success': request.status === 'approved',
+                            'bg-danger': request.status === 'rejected'
+                          }">
+                      {{request.status}}
+                    </span>
+                  </td>
+                  <td>{{request.createdAt | date:'medium'}}</td>
+                  <td>{{request.message || '-'}}</td>
+                </tr>
+                <tr *ngIf="filteredRequests.length === 0">
+                  <td colspan="6" class="text-center">No requests found</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

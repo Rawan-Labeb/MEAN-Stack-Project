@@ -1,76 +1,80 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <h3>Branch Orders</h3>
-        <div class="d-flex gap-3">
-          <input type="text" 
-                 class="form-control" 
-                 placeholder="Search orders..."
-                 [(ngModel)]="searchTerm">
-          <select class="form-select" [(ngModel)]="statusFilter">
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-            <option value="canceled">Canceled</option>
-          </select>
-        </div>
+  <div class="row mb-4">
+    <div class="col">
+      <h2>Order Management</h2>
+      <p class="text-muted">View and manage customer orders</p>
+    </div>
+  </div>
+  
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="d-flex align-items-center">
+        <label class="me-2">Filter by status:</label>
+        <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+          <option value="all">All Orders</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
       </div>
     </div>
-
+  </div>
+  
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Orders</h5>
+    </div>
     <div class="card-body">
-      <!-- Loading state -->
-      <div *ngIf="loading" class="text-center p-4">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-
-      <!-- Error state -->
-      <div *ngIf="error" class="alert alert-danger">
-        {{error}}
-      </div>
-
-      <!-- Data state -->
-      <div *ngIf="!loading && !error" class="table-responsive">
-        <table class="table">
+      <div class="table-responsive">
+        <table class="table table-hover">
           <thead>
             <tr>
-              <th>Order ID</th>
-              <th>Items</th>
-              <th>Total Amount</th>
-              <th>Status</th>
+              <th>Order #</th>
+              <th>Customer</th>
               <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let order of filteredOrders">
-              <td>{{order._id}}</td>
-              <td>{{getTotalItems(order)}} items</td>
-              <td>{{order.totalPrice | currency}}</td>
+              <td>{{ order.orderNumber }}</td>
+              <td>{{ order.customerName }}</td>
+              <td>{{ order.createdAt | date:'medium' }}</td>
+              <td>{{ order.items.length }}</td>
+              <td>${{ order.totalAmount.toFixed(2) }}</td>
               <td>
                 <span class="badge"
-                      [class.bg-warning]="order.status === 'pending'"
-                      [class.bg-success]="order.status === 'completed'"
-                      [class.bg-danger]="order.status === 'canceled'">
-                  {{order.status}}
+                  [class.bg-warning]="order.status === 'pending'"
+                  [class.bg-info]="order.status === 'processing'"
+                  [class.bg-primary]="order.status === 'shipped'"
+                  [class.bg-success]="order.status === 'delivered'"
+                  [class.bg-danger]="order.status === 'cancelled'">
+                  {{ order.status }}
                 </span>
               </td>
-              <td>{{order.date | date:'short'}}</td>
               <td>
                 <div class="btn-group">
-                  <button class="btn btn-info me-2" 
-                          (click)="openOrderDetails(order)">
-                    View Details
+                  <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    Actions
                   </button>
-                  <button class="btn btn-danger"
-                          *ngIf="order.status === 'pending'"
-                          (click)="cancelOrder(order._id)">
-                    Cancel Order
-                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'pending'); $event.preventDefault()">Set as Pending</a></li>
+                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'processing'); $event.preventDefault()">Set as Processing</a></li>
+                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'shipped'); $event.preventDefault()">Set as Shipped</a></li>
+                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'delivered'); $event.preventDefault()">Set as Delivered</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" (click)="updateStatus(order._id, 'cancelled'); $event.preventDefault()">Cancel Order</a></li>
+                  </ul>
                 </div>
               </td>
+            </tr>
+            <tr *ngIf="filteredOrders.length === 0">
+              <td colspan="7" class="text-center">No orders found</td>
             </tr>
           </tbody>
         </table>

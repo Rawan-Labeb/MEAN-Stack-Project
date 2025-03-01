@@ -1,98 +1,163 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { OfflineOrderService } from '../services/offline-order.service';
-import { OfflineOrder } from '../models/offline-order.model';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { OrderDetailsModalComponent } from './order-details-modal/order-details-modal.component';
+
+interface Order {
+  _id: string;
+  orderNumber: string;
+  customerName: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+interface OrderItem {
+  product: {
+    _id: string;
+    name: string;
+  };
+  quantity: number;
+  price: number;
+}
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.css']
 })
 export class OrdersComponent implements OnInit {
-  orders: OfflineOrder[] = [];
-  searchTerm = '';
-  statusFilter = 'all';
-  loading = false;
-  error: string | null = null;
+  orders: Order[] = [];
+  filteredOrders: Order[] = [];
+  statusFilter: string = 'all';
   
-  // Use one of the real branch IDs from your data
-  branchId: string = '67b129216e1b912065196f93'; // Uptown Branch ID
-
-  constructor(private orderService: OfflineOrderService, private modalService: NgbModal) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadOrders();
   }
-
-  loadOrders() {
-    this.loading = true;
-    this.error = null;
-    this.orders = []; // Reset orders before loading
-
-    console.log('Loading orders for branch:', this.branchId); // Debug log
-
-    this.orderService.getAllOrdersByBranch(this.branchId)
-      .subscribe({
-        next: (data) => {
-          console.log('Received orders:', data); // Debug log
-          this.orders = data;
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error loading orders:', error);
-          this.error = typeof error === 'string' ? error : 'Failed to load orders';
-          this.loading = false;
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
+  
+  loadOrders(): void {
+    // Static data for demonstration
+    this.orders = [
+      {
+        _id: 'ord001',
+        orderNumber: 'ORD-5012',
+        customerName: 'John Smith',
+        items: [
+          {
+            product: {
+              _id: '1',
+              name: 'Chanel No. 5'
+            },
+            quantity: 1,
+            price: 129.99
+          },
+          {
+            product: {
+              _id: '2',
+              name: 'Dior Sauvage'
+            },
+            quantity: 1,
+            price: 95.99
+          }
+        ],
+        totalAmount: 225.98,
+        status: 'delivered',
+        createdAt: new Date(2023, 11, 15)
+      },
+      {
+        _id: 'ord002',
+        orderNumber: 'ORD-5011',
+        customerName: 'Sarah Johnson',
+        items: [
+          {
+            product: {
+              _id: '3',
+              name: 'Acqua di Gio'
+            },
+            quantity: 1,
+            price: 85.50
+          }
+        ],
+        totalAmount: 85.50,
+        status: 'processing',
+        createdAt: new Date(2023, 11, 14)
+      },
+      {
+        _id: 'ord003',
+        orderNumber: 'ORD-5010',
+        customerName: 'Michael Brown',
+        items: [
+          {
+            product: {
+              _id: '4',
+              name: 'Marc Jacobs Daisy'
+            },
+            quantity: 2,
+            price: 78.99
+          },
+          {
+            product: {
+              _id: '5',
+              name: 'Versace Eros'
+            },
+            quantity: 1,
+            price: 90.99
+          },
+          {
+            product: {
+              _id: '1',
+              name: 'Chanel No. 5'
+            },
+            quantity: 1,
+            price: 129.99
+          }
+        ],
+        totalAmount: 378.96,
+        status: 'shipped',
+        createdAt: new Date(2023, 11, 12)
+      },
+      {
+        _id: 'ord004',
+        orderNumber: 'ORD-5009',
+        customerName: 'Emily Davis',
+        items: [
+          {
+            product: {
+              _id: '2',
+              name: 'Dior Sauvage'
+            },
+            quantity: 1,
+            price: 95.99
+          }
+        ],
+        totalAmount: 95.99,
+        status: 'pending',
+        createdAt: new Date(2023, 11, 10)
+      }
+    ];
+    
+    this.applyFilters();
   }
-
-  cancelOrder(orderId: string) {
-    if (confirm('Are you sure you want to cancel this order?')) {
-      this.loading = true;
-      this.orderService.cancelOrder(orderId).subscribe({
-        next: () => {
-          this.loadOrders(); // Reload orders after cancellation
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error canceling order:', error);
-          this.error = 'Failed to cancel order';
-          this.loading = false;
-        }
-      });
+  
+  applyFilters(): void {
+    if (this.statusFilter === 'all') {
+      this.filteredOrders = [...this.orders];
+    } else {
+      this.filteredOrders = this.orders.filter(
+        order => order.status === this.statusFilter
+      );
     }
   }
-
-  openOrderDetails(order: OfflineOrder) {
-    const modalRef = this.modalService.open(OrderDetailsModalComponent, {
-      size: 'lg',
-      centered: true
-    });
-    modalRef.componentInstance.order = order;
-  }
-
-  get filteredOrders() {
-    return this.orders.filter(order => {
-      const matchesSearch = 
-        order._id.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
-        order.branch.branchName.toLowerCase().includes(this.searchTerm.toLowerCase());
-      
-      const matchesStatus = this.statusFilter === 'all' || order.status === this.statusFilter;
-      
-      return matchesSearch && matchesStatus;
-    });
-  }
-
-  getTotalItems(order: OfflineOrder): number {
-    return order.items.reduce((total, item) => total + item.quantity, 0);
+  
+  updateStatus(orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'): void {
+    const order = this.orders.find(o => o._id === orderId);
+    if (order) {
+      order.status = newStatus;
+      order.updatedAt = new Date();
+      this.applyFilters();
+    }
   }
 }

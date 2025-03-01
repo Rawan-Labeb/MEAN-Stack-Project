@@ -1,9 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SalesClerkInventoryService } from '../services/sales-clerk-inventory.service';
-import { SalesClerkInventory } from '../models/sales-clerk-inventory.model';
-import { BranchService } from '../services/branch.service';
+
+interface BranchProduct {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  quantity: number;
+  image: string;
+  isActive: boolean;
+}
 
 @Component({
   selector: 'app-branch-products',
@@ -13,157 +21,95 @@ import { BranchService } from '../services/branch.service';
   styleUrls: ['./branch-products.component.css']
 })
 export class BranchProductsComponent implements OnInit {
-  products: SalesClerkInventory[] = [];
-  filteredProducts: SalesClerkInventory[] = [];
-  branches: any[] = [];
-  selectedBranch: string = '';
+  products: BranchProduct[] = [];
+  filteredProducts: BranchProduct[] = [];
   searchTerm: string = '';
-  statusFilter: string = 'all';
-  loading = false;
-  error: string | null = null;
-
-  constructor(
-    private salesClerkService: SalesClerkInventoryService,
-    private branchService: BranchService
-  ) {}
-
-  /*
-  ngOnInit() {
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    this.loadBranchProducts();
-  }
-  */
-
-  ngOnInit() {
+  categoryFilter: string = 'all';
+  
+  ngOnInit(): void {
     this.loadProducts();
   }
-
-  loadBranches() {
-    this.loading = true;
-    this.branchService.getActiveBranches().subscribe({
-      next: (branches) => {
-        
-        this.branches = branches;
-        if (this.branches.length > 0) {
-          this.selectedBranch = this.branches[0].branchName;
-          this.loadProducts();
-        }
+  
+  loadProducts(): void {
+    // Static data for demonstration
+    this.products = [
+      {
+        _id: 'bp1',
+        name: 'Chanel No. 5',
+        description: 'Iconic fragrance with aldehydic floral notes',
+        category: 'Women\'s Perfume',
+        price: 129.99,
+        quantity: 10,
+        image: 'assets/images/products/chanel5.jpg',
+        isActive: true
       },
-      error: (error) => {
-        console.error('Error loading branches:', error);
-        this.error = 'Failed to load branches';
-        this.loading = false;
+      {
+        _id: 'bp2',
+        name: 'Dior Sauvage',
+        description: 'Fresh and bold masculine fragrance',
+        category: 'Men\'s Perfume',
+        price: 95.99,
+        quantity: 15,
+        image: 'assets/images/products/dior-sauvage.jpg',
+        isActive: true
+      },
+      {
+        _id: 'bp3',
+        name: 'Acqua di Gio',
+        description: 'Light and airy marine-inspired fragrance',
+        category: 'Men\'s Perfume',
+        price: 85.50,
+        quantity: 8,
+        image: 'assets/images/products/acqua-di-gio.jpg',
+        isActive: true
+      },
+      {
+        _id: 'bp4',
+        name: 'Marc Jacobs Daisy',
+        description: 'Fresh and feminine with notes of wild berries',
+        category: 'Women\'s Perfume',
+        price: 78.99,
+        quantity: 12,
+        image: 'assets/images/products/daisy.jpg',
+        isActive: false
+      },
+      {
+        _id: 'bp5',
+        name: 'Versace Eros',
+        description: 'Bold and intense with mint and vanilla',
+        category: 'Men\'s Perfume',
+        price: 90.99,
+        quantity: 5,
+        image: 'assets/images/products/versace-eros.jpg',
+        isActive: true
       }
-    });
-  }
-
-  onBranchChange() {
-    this.loadProducts();
-  }
-
-  loadProducts() {
-    if (!this.selectedBranch) return;
+    ];
     
-    this.loading = true;
-    this.error = null;
-
-    let request$;
-    switch(this.statusFilter) {
-      case 'active':
-        request$ = this.salesClerkService.getActiveBranchInventory(this.selectedBranch);
-        break;
-      case 'inactive':
-        request$ = this.salesClerkService.getDeactiveBranchInventory(this.selectedBranch);
-        break;
-      default:
-        request$ = this.salesClerkService.getBranchInventory(this.selectedBranch);
-    }
-
-    request$.subscribe({
-      next: (data) => {
-        this.products = data;
-        this.applyFilters();
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error:', error);
-        this.error = 'Failed to load products';
-        this.loading = false;
-      }
-    });
+    this.applyFilters();
   }
-
-  onStatusFilterChange() {
-    this.loadProducts();
-  }
-
-  applyFilter() {
-    if (!this.searchTerm.trim()) {
-      this.filteredProducts = this.products;
-      return;
-    }
-
-    const search = this.searchTerm.toLowerCase();
-    this.filteredProducts = this.products.filter(product => 
-      product.name.toLowerCase().includes(search) ||
-      product.inventoryName.toLowerCase().includes(search)
-    );
-  }
-
-  applyFilters() {
+  
+  applyFilters(): void {
     this.filteredProducts = this.products.filter(product => {
-      const matchesSearch = 
+      // Apply search filter
+      const searchMatch = !this.searchTerm || 
         product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        product.inventoryName.toLowerCase().includes(this.searchTerm.toLowerCase());
+        product.description.toLowerCase().includes(this.searchTerm.toLowerCase());
+        
+      // Apply category filter
+      const categoryMatch = this.categoryFilter === 'all' || product.category === this.categoryFilter;
       
-      const matchesStatus = 
-        this.statusFilter === 'all' || 
-        (this.statusFilter === 'active' && product.isActive) ||
-        (this.statusFilter === 'inactive' && !product.isActive);
-      
-      return matchesSearch && matchesStatus;
+      return searchMatch && categoryMatch;
     });
   }
-
-  toggleStatus(product: SalesClerkInventory) {
-    this.loading = true;
-    this.salesClerkService.toggleProductStatus(product._id, product.isActive)
-      .subscribe({
-        next: () => {
-          product.isActive = !product.isActive;
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error toggling status:', error);
-          this.error = 'Failed to update product status';
-          this.loading = false;
-        }
-      });
+  
+  get categories(): string[] {
+    const categories = new Set<string>();
+    this.products.forEach(product => categories.add(product.category));
+    return Array.from(categories);
   }
-
-  requestRestock(product: SalesClerkInventory) {
-    console.log('Request restock for:', product);
-    // To be implemented
-  }
-
-  deleteProduct(product: SalesClerkInventory) {
-    if (confirm(`Are you sure you want to delete ${product.name}?`)) {
-      this.loading = true;
-      this.salesClerkService.deleteProduct(product._id).subscribe({
-        next: () => {
-          this.products = this.products.filter(p => p._id !== product._id);
-          this.applyFilter();
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error deleting product:', error);
-          this.error = 'Failed to delete product';
-          this.loading = false;
-        }
-      });
-    }
+  
+  toggleProductStatus(product: BranchProduct): void {
+    product.isActive = !product.isActive;
+    // In a real application, you would call an API to update the status
   }
 }

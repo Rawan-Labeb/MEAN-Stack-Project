@@ -1,16 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { SidebarComponent } from './shared/sidebar/sidebar.component';
-import { FooterComponent } from './shared/footer/footer.component';
+import { SidebarComponent } from '././layout/sidebar/sidebar.component';
+import { HeaderComponent } from './layout/header/header.component';
+import { FooterComponent } from './layout/footer/footer.component';
 
 @Component({
   selector: 'app-sales-clerk-dashboard',
-  standalone: true,
-  imports: [CommonModule, RouterModule, SidebarComponent, FooterComponent],
   templateUrl: './sales-clerk-dashboard.component.html',
-  styleUrls: ['./sales-clerk-dashboard.component.css']
+  styleUrls: ['./sales-clerk-dashboard.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    SidebarComponent, 
+    HeaderComponent, 
+    FooterComponent
+  ]
 })
 export class SalesClerkDashboardComponent {
-  
+  isSidebarOpen = true;
+  isOnlineBranch = true; // Added this property
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 }

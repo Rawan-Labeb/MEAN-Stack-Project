@@ -1,92 +1,93 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <h2>Branch Inventory</h2>
-        <select class="form-select w-auto" 
-                [(ngModel)]="selectedBranch"
-                (change)="onBranchChange()">
-          <option value="">Select Branch</option>
-          <option *ngFor="let branch of branches" 
-                  [value]="branch.branchName">
-            {{branch.branchName}} ({{branch.type}})
-          </option>
-        </select>
-      </div>
-      <div class="header-actions">
-        <div class="search-box">
-          <input type="text" 
-                 class="form-control" 
-                 placeholder="Search products..." 
-                 [(ngModel)]="searchTerm" 
-                 (input)="applyFilter()">
-        </div>
-        <select class="form-select" 
-                [(ngModel)]="statusFilter" 
-                (change)="onStatusFilterChange()">
-          <option value="all">All Status</option>
-          <option value="active">Active Only</option>
-          <option value="inactive">Inactive Only</option>
-        </select>
+  <div class="row mb-4">
+    <div class="col">
+      <h2>Branch Products</h2>
+      <p class="text-muted">Manage products available in your branch</p>
+    </div>
+  </div>
+  
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Search products..." 
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()">
       </div>
     </div>
-    
-    <div class="card-body">
-      <!-- Loading state -->
-      <div *ngIf="loading" class="text-center p-4">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
+    <div class="col-md-4">
+      <select class="form-select" [(ngModel)]="categoryFilter" (change)="applyFilters()">
+        <option value="all">All Categories</option>
+        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+      </select>
+    </div>
+    <div class="col-md-2 text-end">
+      <span class="badge bg-primary">{{ filteredProducts.length }} products</span>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of filteredProducts">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="product-image">
+                        <img [src]="product.image || 'assets/images/placeholder.jpg'" [alt]="product.name">
+                      </div>
+                      <div class="ms-3">
+                        <h6 class="mb-0">{{ product.name }}</h6>
+                        <p class="text-muted mb-0">{{ product.description | slice:0:50 }}{{ product.description.length > 50 ? '...' : '' }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ product.category }}</td>
+                  <td>${{ product.price.toFixed(2) }}</td>
+                  <td>
+                    <span [class.text-danger]="product.quantity < 5">
+                      {{ product.quantity }}
+                    </span>
+                    <span class="badge bg-danger ms-1" *ngIf="product.quantity < 5">Low</span>
+                  </td>
+                  <td>
+                    <span class="badge" [class.bg-success]="product.isActive" [class.bg-danger]="!product.isActive">
+                      {{ product.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button 
+                      class="btn btn-sm" 
+                      [class.btn-outline-danger]="product.isActive"
+                      [class.btn-outline-success]="!product.isActive"
+                      (click)="toggleProductStatus(product)">
+                      {{ product.isActive ? 'Deactivate' : 'Activate' }}
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredProducts.length === 0">
+                  <td colspan="6" class="text-center">No products found</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-
-      <!-- Error state -->
-      <div *ngIf="error" class="alert alert-danger">
-        {{error}}
-      </div>
-
-      <!-- Data state -->
-      <div *ngIf="!loading && !error" class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Product Name</th>
-              <th>Inventory</th>
-              <th>Stock</th>
-              <th>Price</th>
-              <th>Last Restocked</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let product of filteredProducts">
-              <td>{{product.name}}</td>
-              <td>{{product.inventoryName}}</td>
-              <td>{{product.stock}}</td>
-              <td>{{product.price | currency}}</td>
-              <td>{{product.lastRestocked | date:'short'}}</td>
-              <td>
-                <span class="badge" 
-                      [class.bg-success]="product.isActive"
-                      [class.bg-danger]="!product.isActive">
-                  {{product.isActive ? 'Active' : 'Inactive'}}
-                </span>
-              </td>
-              <td>
-                <div class="btn-group">
-                  <button class="btn btn-primary me-2" 
-                          (click)="toggleStatus(product)">
-                    {{ product.isActive ? 'Deactivate' : 'Activate' }}
-                  </button>
-                  <button class="btn btn-danger"
-                          (click)="deleteProduct(product)">
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>

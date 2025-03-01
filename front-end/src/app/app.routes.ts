@@ -18,9 +18,7 @@ import { CachierComponent } from './cachier/cachier.component';
 import { CartCachierComponent } from './cachier/cart-cachier/cart-cachier.component';
 import { CartCheckoutGuard } from './cart/_guards/cart-checkout.guard';
 import { CashierGuard } from './cachier/_guard/cashier.guard'
-
-
-
+import { SalesClerkDashboardComponent } from './sales-clerk-dashboard/sales-clerk-dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -40,14 +38,11 @@ export const routes: Routes = [
   // {path:"register",component:RegisterComponent},
   // {path:"userprofile",component:UserProfileComponent},
   {path:"sellerdashboard",component:SellerDashboardComponent},
-  
-  // Add this route for sales clerk dashboard
   {
     path: "sales-clerk", 
     loadChildren: () => import("./sales-clerk-dashboard/sales-clerk-dashboard.routes")
       .then(s => s.salesClerkDashboardRoutes)
   },
-  
   {path:"**",component:NotFoundComponent},
   {
     path: 'login',
@@ -55,7 +50,6 @@ export const routes: Routes = [
   },
 
   // { path: '', redirectTo: 'seller', pathMatch: 'full' },
-  
 ];
 
 

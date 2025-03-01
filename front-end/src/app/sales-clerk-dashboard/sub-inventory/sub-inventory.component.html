@@ -1,0 +1,122 @@
+<div class="container-fluid">
+  <h2 class="mb-4">Sub-Inventory Management</h2>
+  
+  <!-- Controls and filters -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Search products..." 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearch()">
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+        <option value="all">All Status</option>
+        <option value="active">Active Only</option>
+        <option value="inactive">Inactive Only</option>
+      </select>
+    </div>
+    
+    <div class="col-md-3 text-end">
+      <button class="btn btn-primary">
+        <i class="fas fa-sync-alt me-2"></i>Refresh Stock
+      </button>
+    </div>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading inventory items...</p>
+  </div>
+  
+  <!-- Inventory Table -->
+  <div *ngIf="!isLoading" class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th (click)="sort('name')">
+                Product Name <i [class]="getSortIcon('name')"></i>
+              </th>
+              <th (click)="sort('category')">
+                Category <i [class]="getSortIcon('category')"></i>
+              </th>
+              <th (click)="sort('quantity')">
+                Stock <i [class]="getSortIcon('quantity')"></i>
+              </th>
+              <th (click)="sort('price')">
+                Price <i [class]="getSortIcon('price')"></i>
+              </th>
+              <th (click)="sort('isActive')">
+                Status <i [class]="getSortIcon('isActive')"></i>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredItems">
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="product-img">
+                    <img [src]="item.imageUrl || 'assets/images/placeholder.jpg'" alt="{{ item.name }}">
+                  </div>
+                  <div class="ms-3">
+                    <h6 class="mb-0">{{ item.name }}</h6>
+                    <small class="text-muted">{{ item.description | slice:0:50 }}{{ item.description.length > 50 ? '...' : '' }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>{{ item.category }}</td>
+              <td>
+                <span [ngClass]="{
+                  'text-danger': item.quantity <= 5,
+                  'text-warning': item.quantity > 5 && item.quantity <= 10,
+                  'text-success': item.quantity > 10
+                }">
+                  <i [ngClass]="{
+                    'fas fa-exclamation-circle': item.quantity <= 5,
+                    'fas fa-exclamation-triangle': item.quantity > 5 && item.quantity <= 10,
+                    'fas fa-check-circle': item.quantity > 10
+                  }"></i>
+                  {{ item.quantity }}
+                </span>
+              </td>
+              <td>${{ item.price.toFixed(2) }}</td>
+              <td>
+                <span class="badge rounded-pill" [ngClass]="item.isActive ? 'bg-success' : 'bg-danger'">
+                  {{ item.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <button 
+                  class="btn btn-sm" 
+                  [ngClass]="item.isActive ? 'btn-outline-danger' : 'btn-outline-success'"
+                  (click)="toggleStatus(item)">
+                  {{ item.isActive ? 'Deactivate' : 'Activate' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- No items found -->
+  <div *ngIf="!isLoading && filteredItems.length === 0" class="text-center my-5">
+    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+    <h5>No inventory items found</h5>
+    <p class="text-muted">Try changing your search filters or request new stock.</p>
+    <button class="btn btn-primary mt-2" routerLink="/sales-clerk/distribution-requests">Request Stock</button>
+  </div>
+</div>
