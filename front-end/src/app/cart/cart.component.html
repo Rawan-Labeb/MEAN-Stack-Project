@@ -37,7 +37,14 @@
               <div class="row">{{ item.product.description }}</div>
             </div>
             <div class="col">
-              <button (click)="increaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8593;</button>
+              <button 
+  (click)="increaseQuantity(item)" 
+  class="btn btn-outline-secondary btn-sm quantity-btn"
+  [disabled]="item.quantity >= item.subInventoryQuantity">
+  &#8593;
+</button>
+
+              <!-- <button (click)="increaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8593;</button> -->
               <span class="border" style="font-weight: bold; color: #00003f; margin: auto;">{{ item.quantity }}</span>
               <button (click)="decreaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8595;</button>
             </div>
