@@ -129,7 +129,7 @@
       <app-add-branch-cashier 
         [show]="showAddModal" 
         (close)="showAddModal = false" 
-        (saved)="onCashierSaved()">
+        (saved)="onCashierSaved($event)">
       </app-add-branch-cashier>
 
       <app-edit-branch-cashier

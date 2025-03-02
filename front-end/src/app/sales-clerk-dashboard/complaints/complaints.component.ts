@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComplaintsService, Complaint } from '../services/complaints.service';
+import { AuthServiceService } from '../../_services/auth-service.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-complaints',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './complaints.component.html',
   styleUrls: ['./complaints.component.css']
 })
@@ -18,20 +20,65 @@ export class ComplaintsComponent implements OnInit {
   loading = false;
   error = '';
   successMessage = '';
+  
+  // User info
+  isOnlineBranch = false;
+  clerkId = '';
+  branchId: string | null = null;
 
   constructor(
-    private complaintsService: ComplaintsService
+    private complaintsService: ComplaintsService,
+    private authService: AuthServiceService
   ) {}
 
   ngOnInit(): void {
-    this.loadComplaints();
+    this.getUserInfo();
+  }
+
+  getUserInfo(): void {
+    const token = this.authService.getToken();
+    if (!token) {
+      this.error = 'Authentication required. Please log in.';
+      return;
+    }
+    
+    this.authService.decodeToken(token).subscribe({
+      next: (decoded) => {
+        if (decoded) {
+          this.clerkId = decoded.sub || decoded.id;
+          this.branchId = decoded.branchId;
+          
+          // Check if this is an online branch (branchId is null)
+          this.isOnlineBranch = this.branchId === null;
+          
+          console.log('User details:', { 
+            clerkId: this.clerkId, 
+            branchId: this.branchId,
+            isOnlineBranch: this.isOnlineBranch 
+          });
+          
+          if (this.isOnlineBranch) {
+            // Only load complaints for online branch clerks
+            this.loadComplaints();
+          } else {
+            this.error = 'Complaints are only available for online branch clerks.';
+          }
+        } else {
+          this.error = 'Invalid user session. Please log in again.';
+        }
+      },
+      error: (err) => {
+        this.error = 'Failed to decode authentication token.';
+        console.error('Token decode error:', err);
+      }
+    });
   }
 
   loadComplaints(): void {
     this.loading = true;
     this.error = '';
-    this.successMessage = '';
     
+    // The auth interceptor will automatically add the token to the request
     this.complaintsService.getComplaints().subscribe({
       next: (data) => {
         this.complaints = data;
@@ -64,6 +111,7 @@ export class ComplaintsComponent implements OnInit {
     this.error = '';
     this.successMessage = '';
     
+    // Auth interceptor will handle token
     this.complaintsService.updateComplaintStatus(complaintId, newStatus).subscribe({
       next: (response) => {
         // Update local data
@@ -99,10 +147,11 @@ export class ComplaintsComponent implements OnInit {
   }
 
   refreshComplaints(): void {
-    this.loadComplaints();
+    if (this.isOnlineBranch) {
+      this.loadComplaints();
+    }
   }
 
-  // Add these two methods to fix the errors
   dismissSuccess(): void {
     this.successMessage = '';
   }

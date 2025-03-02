@@ -1,179 +1,247 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-
-// Models
-interface InventoryItem {
-  _id: string;
-  name: string;
-  description: string;
-  quantity: number;
-  category: string;
-}
-
-interface DistributionRequest {
-  _id: string;
-  mainInventory: {
-    _id: string;
-    name: string;
-  };
-  branchManager: string;
-  requestedQuantity: number;
-  status: 'pending' | 'approved' | 'rejected';
-  message?: string;
-  createdAt: Date;
-}
+import { ClerkDistributionService } from '../services/clerk-distribution.service';
+import { SubInventoryService } from '../../_services/sub-inventory.service';
+import { AuthServiceService } from '../../_services/auth-service.service';
+import { HttpClientModule } from '@angular/common/http';
+import { DistReq } from '../../_models/dist-req.model';
 
 @Component({
   selector: 'app-distribution-requests',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './distribution-requests.component.html',
   styleUrls: ['./distribution-requests.component.css']
 })
 export class DistributionRequestsComponent implements OnInit {
-  // Branch manager ID (will be extracted from token in real implementation)
-  branchManagerId: string = '67b129216e1b912065196f93'; // Static for now
+  // User data
+  clerkId: string = '';
+  branchId: string | null = null;
   
-  // Form fields
-  selectedInventory: string = '';
+  // Form data
+  selectedSubInventoryId: string = '';
   requestQuantity: number | null = null;
   requestMessage: string = '';
   
-  // Filter
+  // Selected item details
+  selectedSubInventoryItem: any = null;
+  
+  // Response messages
+  errorMessage: string = '';
+  successMessage: string = '';
+  
+  // Loading state
+  isLoading: boolean = false;
+  
+  // Data from API
+  subInventoryItems: any[] = [];
+  myRequests: DistReq[] = [];
+  filteredRequests: DistReq[] = [];
+  
+  // Filter values
   statusFilter: string = 'all';
   
-  // Static data for UI demonstration
-  inventoryItems: InventoryItem[] = [
-    {
-      _id: '1',
-      name: 'Chanel No. 5',
-      description: 'Iconic fragrance with aldehydic floral notes',
-      quantity: 50,
-      category: 'Women\'s Perfume'
-    },
-    {
-      _id: '2',
-      name: 'Dior Sauvage',
-      description: 'Fresh and bold masculine fragrance',
-      quantity: 35,
-      category: 'Men\'s Perfume'
-    },
-    {
-      _id: '3',
-      name: 'Acqua di Gio',
-      description: 'Light and airy marine-inspired fragrance',
-      quantity: 20,
-      category: 'Men\'s Perfume'
-    },
-    {
-      _id: '4',
-      name: 'Marc Jacobs Daisy',
-      description: 'Fresh and feminine with notes of wild berries',
-      quantity: 15,
-      category: 'Women\'s Perfume'
-    },
-    {
-      _id: '5',
-      name: 'Versace Eros',
-      description: 'Bold and intense with mint and vanilla',
-      quantity: 10,
-      category: 'Men\'s Perfume'
-    }
-  ];
-  
-  distributionRequests: DistributionRequest[] = [
-    {
-      _id: 'req12345678901234567890',
-      mainInventory: {
-        _id: '1',
-        name: 'Chanel No. 5'
-      },
-      branchManager: '67b129216e1b912065196f93',
-      requestedQuantity: 10,
-      status: 'pending',
-      createdAt: new Date(2023, 11, 15)
-    },
-    {
-      _id: 'req23456789012345678901',
-      mainInventory: {
-        _id: '2',
-        name: 'Dior Sauvage'
-      },
-      branchManager: '67b129216e1b912065196f93',
-      requestedQuantity: 5,
-      status: 'approved',
-      message: 'Urgent need for holiday season',
-      createdAt: new Date(2023, 10, 20)
-    },
-    {
-      _id: 'req34567890123456789012',
-      mainInventory: {
-        _id: '3',
-        name: 'Acqua di Gio'
-      },
-      branchManager: '67b129216e1b912065196f93',
-      requestedQuantity: 15,
-      status: 'rejected',
-      message: 'Need more stock for the weekend sale',
-      createdAt: new Date(2023, 9, 10)
-    }
-  ];
-  
-  filteredRequests: DistributionRequest[] = [];
-  
+  constructor(
+    private distService: ClerkDistributionService,
+    private subInventoryService: SubInventoryService,
+    private authService: AuthServiceService
+  ) { }
+
   ngOnInit(): void {
-    // Initialize filtered requests
-    this.applyFilters();
+    this.getUserInfo();
+  }
+  
+  getUserInfo(): void {
+    const token = this.authService.getToken();
+    if (!token) {
+      this.errorMessage = 'Authentication required. Please log in.';
+      return;
+    }
+    
+    this.authService.decodeToken(token).subscribe({
+      next: (decoded) => {
+        if (decoded) {
+          this.clerkId = decoded.sub || decoded.id;
+          this.branchId = decoded.branchId;
+          console.log('User details:', { clerkId: this.clerkId, branchId: this.branchId });
+          
+          // Load sub-inventory and previous requests
+          if (this.branchId) {
+            this.loadSubInventory();
+          } else {
+            this.errorMessage = 'Branch ID not available.';
+          }
+          this.loadMyRequests();
+        } else {
+          this.errorMessage = 'Invalid user session. Please log in again.';
+        }
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to decode authentication token.';
+        console.error('Token decode error:', err);
+      }
+    });
+  }
+  
+  loadSubInventory(): void {
+    if (!this.branchId) {
+      return;
+    }
+    
+    this.isLoading = true;
+    this.subInventoryService.getActiveSubInventoriesByBranchId(this.branchId).subscribe({
+      next: (data) => {
+        this.subInventoryItems = data;
+        console.log('Sub-inventory items:', this.subInventoryItems);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Failed to load your inventory: ${err.message}`;
+      }
+    });
+  }
+  
+  loadMyRequests(): void {
+    if (!this.clerkId) {
+      this.errorMessage = 'User ID not available.';
+      return;
+    }
+    
+    this.isLoading = true;
+    this.distService.getClerkRequests(this.clerkId).subscribe({
+      next: (data) => {
+        this.myRequests = data;
+        this.applyFilters();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Failed to load your requests: ${err.message}`;
+      }
+    });
+  }
+  
+  onProductSelection(): void {
+    const selectedItem = this.subInventoryItems.find(item => item._id === this.selectedSubInventoryId);
+    if (selectedItem) {
+      this.selectedSubInventoryItem = selectedItem;
+      console.log('Selected item:', selectedItem);
+    } else {
+      this.selectedSubInventoryItem = null;
+    }
   }
   
   submitRequest(): void {
-    if (!this.selectedInventory || !this.requestQuantity) {
+    if (!this.selectedSubInventoryItem || !this.requestQuantity || this.requestQuantity <= 0) {
+      this.errorMessage = 'Please select a product and enter a valid quantity.';
       return;
     }
     
-    // Find inventory item
-    const selectedItem = this.inventoryItems.find(item => item._id === this.selectedInventory);
-    
-    if (!selectedItem) {
+    if (!this.clerkId) {
+      this.errorMessage = 'User ID not available. Please log in again.';
       return;
     }
     
-    // Create new request (static implementation)
-    const newRequest: DistributionRequest = {
-      _id: 'req' + Math.random().toString(36).substring(2, 15),
-      mainInventory: {
-        _id: selectedItem._id,
-        name: selectedItem.name
-      },
-      branchManager: this.branchManagerId,
+    // Make sure we have a mainInventory ID to reference
+    if (!this.selectedSubInventoryItem.mainInventory) {
+      this.errorMessage = 'Cannot determine main inventory for this product.';
+      return;
+    }
+    
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    
+    const requestData = {
+      mainInventory: this.selectedSubInventoryItem.mainInventory,
+      branchManager: this.clerkId,
       requestedQuantity: this.requestQuantity,
-      status: 'pending',
-      message: this.requestMessage,
-      createdAt: new Date()
+      message: this.requestMessage || undefined
     };
     
-    // Add to requests array (in real implementation, this would be an API call)
-    this.distributionRequests.unshift(newRequest);
-    this.applyFilters();
-    
-    // Reset form
-    this.selectedInventory = '';
-    this.requestQuantity = null;
-    this.requestMessage = '';
-    
-    // Show success message
-    alert('Distribution request submitted successfully!');
+    this.distService.createRequest(requestData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.successMessage = `Request for ${this.selectedSubInventoryItem.product?.name} submitted successfully!`;
+        
+        // Reset form
+        this.selectedSubInventoryId = '';
+        this.selectedSubInventoryItem = null;
+        this.requestQuantity = null;
+        this.requestMessage = '';
+        
+        // Refresh requests list
+        this.loadMyRequests();
+        
+        // Auto-hide success message
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Failed to submit request: ${err.message}`;
+      }
+    });
   }
   
   applyFilters(): void {
     if (this.statusFilter === 'all') {
-      this.filteredRequests = [...this.distributionRequests];
+      this.filteredRequests = [...this.myRequests];
     } else {
-      this.filteredRequests = this.distributionRequests.filter(
-        request => request.status === this.statusFilter
+      this.filteredRequests = this.myRequests.filter(req => 
+        req.status === this.statusFilter
       );
     }
+  }
+  
+  // Get product name for display in request history
+  getProductName(request: any): string {
+    // First try to get from the populated data if available
+    if (request.mainInventory && request.mainInventory.product && request.mainInventory.product.name) {
+      return request.mainInventory.product.name;
+    }
+    
+    // If not populated, try to match with our local data
+    const mainInventoryId = 
+      typeof request.mainInventory === 'string' ? 
+      request.mainInventory : 
+      (request.mainInventory && request.mainInventory._id);
+      
+    if (mainInventoryId) {
+      const matchingItem = this.subInventoryItems.find(
+        item => item.mainInventory === mainInventoryId
+      );
+      
+      if (matchingItem && matchingItem.product && matchingItem.product.name) {
+        return matchingItem.product.name;
+      }
+    }
+    
+    return 'Unknown Product';
+  }
+  
+  dismissError(): void {
+    this.errorMessage = '';
+  }
+  
+  dismissSuccess(): void {
+    this.successMessage = '';
+  }
+  
+  // Format status for display
+  getStatusBadgeClass(status: string): string {
+    switch(status) {
+      case 'pending': return 'bg-warning text-dark';
+      case 'approved': return 'bg-success';
+      case 'rejected': return 'bg-danger';
+      default: return 'bg-secondary';
+    }
+  }
+  
+  refreshRequests(): void {
+    this.loadMyRequests();
   }
 }

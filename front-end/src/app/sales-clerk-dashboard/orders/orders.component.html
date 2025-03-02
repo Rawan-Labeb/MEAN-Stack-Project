@@ -2,7 +2,32 @@
   <div class="row mb-4">
     <div class="col">
       <h2>Order Management</h2>
-      <p class="text-muted">View and manage customer orders</p>
+      <p class="text-muted">
+        {{ isOnlineBranch ? 'Online Store Orders' : 'In-Store Orders for your Branch' }}
+      </p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" (click)="loadOrders()" [disabled]="loading">
+        <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+      </button>
+    </div>
+  </div>
+  
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="clearMessages()" aria-label="Close"></button>
+  </div>
+  
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="clearMessages()" aria-label="Close"></button>
+  </div>
+  
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="d-flex justify-content-center my-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
   </div>
   
@@ -36,17 +61,23 @@
               <th>Date</th>
               <th>Items</th>
               <th>Total</th>
+              <th>Type</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let order of filteredOrders">
-              <td>{{ order.orderNumber }}</td>
-              <td>{{ order.customerName }}</td>
+              <td>{{ order.orderNumber || (order._id | slice:0:8) }}</td>
+              <td>{{ order.customerName || 'Customer' }}</td>
               <td>{{ order.createdAt | date:'medium' }}</td>
               <td>{{ order.items.length }}</td>
-              <td>${{ order.totalAmount.toFixed(2) }}</td>
+              <td>${{ formatPrice(order.totalAmount) }}</td>
+              <td>
+                <span class="badge" [class.bg-secondary]="order.isOfflineOrder" [class.bg-info]="!order.isOfflineOrder">
+                  {{ getOrderTypeLabel(order) }}
+                </span>
+              </td>
               <td>
                 <span class="badge"
                   [class.bg-warning]="order.status === 'pending'"
@@ -58,23 +89,40 @@
                 </span>
               </td>
               <td>
-                <div class="btn-group">
+                <div class="dropdown">
                   <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     Actions
                   </button>
                   <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'pending'); $event.preventDefault()">Set as Pending</a></li>
-                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'processing'); $event.preventDefault()">Set as Processing</a></li>
-                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'shipped'); $event.preventDefault()">Set as Shipped</a></li>
-                    <li><a class="dropdown-item" href="#" (click)="updateStatus(order._id, 'delivered'); $event.preventDefault()">Set as Delivered</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#" (click)="updateStatus(order._id, 'cancelled'); $event.preventDefault()">Cancel Order</a></li>
+                    <!-- Only show relevant status changes -->
+                    <li *ngIf="order.status !== 'pending' && isStatusChangeAllowed(order._id, 'pending')">
+                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'pending')">Set as Pending</a>
+                    </li>
+                    <li *ngIf="order.status !== 'processing' && isStatusChangeAllowed(order._id, 'processing')">
+                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'processing')">Set as Processing</a>
+                    </li>
+                    <li *ngIf="order.status !== 'shipped' && isStatusChangeAllowed(order._id, 'shipped')">
+                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'shipped')">Set as Shipped</a>
+                    </li>
+                    <li *ngIf="order.status !== 'delivered' && isStatusChangeAllowed(order._id, 'delivered')">
+                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'delivered')">Set as Delivered</a>
+                    </li>
+                    <li *ngIf="order.status !== 'cancelled' && isStatusChangeAllowed(order._id, 'cancelled')">
+                      <hr class="dropdown-divider">
+                      <a class="dropdown-item text-danger" href="javascript:void(0)" (click)="updateStatus(order._id, 'cancelled')">Cancel Order</a>
+                    </li>
+                    <li *ngIf="!isStatusChangeAllowed(order._id, 'cancelled')">
+                      <span class="dropdown-item text-muted">No actions available</span>
+                    </li>
                   </ul>
                 </div>
               </td>
             </tr>
-            <tr *ngIf="filteredOrders.length === 0">
-              <td colspan="7" class="text-center">No orders found</td>
+            <tr *ngIf="filteredOrders.length === 0 && !loading">
+              <td colspan="8" class="text-center py-4">
+                <i class="bi bi-bag-x fs-1 text-muted"></i>
+                <p class="text-muted mt-2">No orders found</p>
+              </td>
             </tr>
           </tbody>
         </table>

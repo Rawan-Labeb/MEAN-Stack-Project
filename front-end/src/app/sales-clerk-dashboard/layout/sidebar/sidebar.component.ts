@@ -22,7 +22,7 @@ export class SidebarComponent implements OnInit {
     { path: './distribution-requests', icon: 'fas fa-truck-loading', title: 'Stock Requests' },
     { path: './orders', icon: 'fas fa-shopping-cart', title: 'Orders' },
     // Add Branch Cashiers to the menu items
-    { path: './branch-cashiers', icon: 'fas fa-people', title: 'Branch Cashiers' }
+    { path: './branch-cashiers', icon: 'fas fa-users', title: 'Branch Cashiers' }
   ];
 
   constructor() { }

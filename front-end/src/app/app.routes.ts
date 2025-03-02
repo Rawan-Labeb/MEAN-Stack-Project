@@ -9,8 +9,6 @@ import { CatalogComponent } from './catalog/catalog.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { ProductDetailsComponent } from './product-details/product-details.component';
 import { NotFoundComponent } from './not-found/not-found.component';
-// import { RegisterComponent } from './authentication/register/register.component';
-// import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
 import { canLoginSuperAdminGuard } from './_guards/can-login-super-admin.guard';
@@ -20,6 +18,8 @@ import { CartCheckoutGuard } from './cart/_guards/cart-checkout.guard';
 import { CashierGuard } from './cachier/_guard/cashier.guard'
 import { SalesClerkDashboardComponent } from './sales-clerk-dashboard/sales-clerk-dashboard.component';
 import { sellerGuard } from './_guards/seller.guard';
+import { authGuard } from './_guards/auth.guard'; 
+import { salesClerkGuard } from './_guards/sales-clerk.guard'; 
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -44,7 +44,8 @@ export const routes: Routes = [
   {
     path: "sales-clerk", 
     loadChildren: () => import("./sales-clerk-dashboard/sales-clerk-dashboard.routes")
-      .then(s => s.SALES_CLERK_ROUTES)
+      .then(s => s.SALES_CLERK_ROUTES),
+    canActivate: [salesClerkGuard] 
   },
   {path:"**",component:NotFoundComponent},
   {

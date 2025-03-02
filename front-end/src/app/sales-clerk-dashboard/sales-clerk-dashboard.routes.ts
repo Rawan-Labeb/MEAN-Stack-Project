@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { SalesClerkDashboardComponent } from './sales-clerk-dashboard.component';
 import { DashboardHomeComponent } from './dashboard-home/dashboard-home.component';
 import { OrdersComponent } from './orders/orders.component';
-import { BranchProductsComponent } from './branch-products/branch-products.component';
 import { DistributionRequestsComponent } from './distribution-requests/distribution-requests.component';
 import { ComplaintsComponent } from './complaints/complaints.component';
 import { SubInventoryComponent } from './sub-inventory/sub-inventory.component';
@@ -23,7 +22,8 @@ export const SALES_CLERK_ROUTES: Routes = [
       },
       { path: 'home', component: DashboardHomeComponent },
       { path: 'orders', component: OrdersComponent },
-      { path: 'products', component: BranchProductsComponent },
+      // Redirect 'products' route to sub-inventory since we're consolidating
+      { path: 'products', redirectTo: 'sub-inventory', pathMatch: 'full' },
       { path: 'distribution-requests', component: DistributionRequestsComponent },
       { path: 'sub-inventory', component: SubInventoryComponent },
       { path: 'complaints', component: ComplaintsComponent }

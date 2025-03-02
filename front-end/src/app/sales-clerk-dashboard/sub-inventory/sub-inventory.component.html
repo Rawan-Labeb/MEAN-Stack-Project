@@ -1,11 +1,33 @@
 <div class="container-fluid">
-  <h2 class="mb-4">Sub-Inventory Management</h2>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Sub-Inventory Management</h2>
+    <button class="btn btn-primary" (click)="refreshStock()">
+      <i class="bi bi-arrow-clockwise me-2"></i>Refresh Stock
+    </button>
+  </div>
+  
+  <!-- Success and error messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" aria-label="Close" (click)="dismissSuccess()"></button>
+  </div>
+  
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" aria-label="Close" (click)="dismissError()"></button>
+  </div>
+
+  <!-- Branch type indicator -->
+  <div class="alert" [ngClass]="isOnlineBranch ? 'alert-info' : 'alert-primary'" role="alert">
+    <i class="bi" [ngClass]="isOnlineBranch ? 'bi-globe' : 'bi-shop'"></i>
+    <strong class="ms-2">{{ isOnlineBranch ? 'Online Branch' : 'Physical Branch' }}</strong>
+  </div>
   
   <!-- Controls and filters -->
   <div class="row mb-4">
     <div class="col-md-6">
       <div class="input-group">
-        <span class="input-group-text"><i class="fas fa-search"></i></span>
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
         <input 
           type="text" 
           class="form-control" 
@@ -22,12 +44,6 @@
         <option value="inactive">Inactive Only</option>
       </select>
     </div>
-    
-    <div class="col-md-3 text-end">
-      <button class="btn btn-primary">
-        <i class="fas fa-sync-alt me-2"></i>Refresh Stock
-      </button>
-    </div>
   </div>
   
   <!-- Loading indicator -->
@@ -39,25 +55,28 @@
   </div>
   
   <!-- Inventory Table -->
-  <div *ngIf="!isLoading" class="card">
+  <div *ngIf="!isLoading && filteredItems.length > 0" class="card">
+    <div class="card-header bg-light">
+      <h5 class="card-title mb-0">Inventory Items</h5>
+    </div>
     <div class="card-body">
       <div class="table-responsive">
         <table class="table table-hover">
           <thead>
             <tr>
-              <th (click)="sort('name')">
+              <th (click)="sort('name')" style="cursor: pointer;">
                 Product Name <i [class]="getSortIcon('name')"></i>
               </th>
-              <th (click)="sort('category')">
+              <th (click)="sort('category')" style="cursor: pointer;">
                 Category <i [class]="getSortIcon('category')"></i>
               </th>
-              <th (click)="sort('quantity')">
+              <th (click)="sort('quantity')" style="cursor: pointer;">
                 Stock <i [class]="getSortIcon('quantity')"></i>
               </th>
-              <th (click)="sort('price')">
+              <th (click)="sort('price')" style="cursor: pointer;">
                 Price <i [class]="getSortIcon('price')"></i>
               </th>
-              <th (click)="sort('isActive')">
+              <th (click)="sort('isActive')" style="cursor: pointer;">
                 Status <i [class]="getSortIcon('isActive')"></i>
               </th>
               <th>Actions</th>
@@ -67,10 +86,13 @@
             <tr *ngFor="let item of filteredItems">
               <td>
                 <div class="d-flex align-items-center">
-                  <div class="product-img">
-                    <img [src]="item.imageUrl || 'assets/images/placeholder.jpg'" alt="{{ item.name }}">
-                  </div>
-                  <div class="ms-3">
+                  <img 
+                    [src]="item.imageUrl" 
+                    (error)="item.imageUrl = 'assets/images/placeholder.jpg'" 
+                    alt="{{ item.name }}"
+                    class="img-thumbnail me-2" 
+                    style="width: 50px; height: 50px; object-fit: cover;">
+                  <div>
                     <h6 class="mb-0">{{ item.name }}</h6>
                     <small class="text-muted">{{ item.description | slice:0:50 }}{{ item.description.length > 50 ? '...' : '' }}</small>
                   </div>
@@ -84,9 +106,9 @@
                   'text-success': item.quantity > 10
                 }">
                   <i [ngClass]="{
-                    'fas fa-exclamation-circle': item.quantity <= 5,
-                    'fas fa-exclamation-triangle': item.quantity > 5 && item.quantity <= 10,
-                    'fas fa-check-circle': item.quantity > 10
+                    'bi bi-exclamation-triangle-fill': item.quantity <= 5,
+                    'bi bi-exclamation-triangle': item.quantity > 5 && item.quantity <= 10,
+                    'bi bi-check-circle-fill': item.quantity > 10
                   }"></i>
                   {{ item.quantity }}
                 </span>
@@ -101,6 +123,7 @@
                 <button 
                   class="btn btn-sm" 
                   [ngClass]="item.isActive ? 'btn-outline-danger' : 'btn-outline-success'"
+                  [disabled]="isLoading"
                   (click)="toggleStatus(item)">
                   {{ item.isActive ? 'Deactivate' : 'Activate' }}
                 </button>
@@ -113,8 +136,8 @@
   </div>
   
   <!-- No items found -->
-  <div *ngIf="!isLoading && filteredItems.length === 0" class="text-center my-5">
-    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+  <div *ngIf="!isLoading && !error && filteredItems.length === 0" class="text-center my-5">
+    <i class="bi bi-box2 fs-1 text-muted mb-3"></i>
     <h5>No inventory items found</h5>
     <p class="text-muted">Try changing your search filters or request new stock.</p>
     <button class="btn btn-primary mt-2" routerLink="/sales-clerk/distribution-requests">Request Stock</button>

@@ -5,22 +5,8 @@ import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AddBranchCashierComponent } from './add-branch-cashier/add-branch-cashier.component';
 import { EditBranchCashierComponent } from './edit-branch-cashier/edit-branch-cashier.component';
-
-// Model for cashier users
-interface Cashier {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  branch: {
-    _id: string;
-    branchName: string;
-  };
-  contactNo: string;
-  image: string;
-  isActive: boolean;
-  role: string;
-}
+import { CashierService, Cashier } from '../../services/cashier.service';
+import { AuthServiceService } from '../../../_services/auth-service.service';
 
 @Component({
   selector: 'app-branch-cashiers',
@@ -36,56 +22,13 @@ interface Cashier {
   styleUrls: ['./branch-cashiers.component.css']
 })
 export class BranchCashiersComponent implements OnInit {
-  // Static data for demonstration
-  cashiers: Cashier[] = [
-    {
-      _id: '1',
-      firstName: 'John',
-      lastName: 'Smith',
-      email: 'john.smith@example.com',
-      branch: { _id: 'b1', branchName: 'Downtown Branch' },
-      contactNo: '555-1234',
-      image: 'assets/images/avatars/avatar1.jpg',
-      isActive: true,
-      role: 'cashier'
-    },
-    {
-      _id: '2',
-      firstName: 'Sarah',
-      lastName: 'Johnson',
-      email: 'sarah.j@example.com',
-      branch: { _id: 'b1', branchName: 'Downtown Branch' },
-      contactNo: '555-5678',
-      image: 'assets/images/avatars/avatar2.jpg',
-      isActive: true,
-      role: 'cashier'
-    },
-    {
-      _id: '3',
-      firstName: 'Michael',
-      lastName: 'Brown',
-      email: 'michael.b@example.com',
-      branch: { _id: 'b1', branchName: 'Downtown Branch' },
-      contactNo: '555-9012',
-      image: 'assets/images/avatars/avatar3.jpg',
-      isActive: false,
-      role: 'cashier'
-    },
-    {
-      _id: '4',
-      firstName: 'Emily',
-      lastName: 'Davis',
-      email: 'emily.d@example.com',
-      branch: { _id: 'b1', branchName: 'Downtown Branch' },
-      contactNo: '555-3456',
-      image: 'assets/images/avatars/avatar4.jpg',
-      isActive: true,
-      role: 'cashier'
-    }
-  ];
-
+  // Data
+  cashiers: Cashier[] = [];
   filteredCashiers: Cashier[] = [];
+  
+  // UI State
   loading = false;
+  errorMessage = '';
   searchTerm: string = '';
   sortColumn: keyof Cashier = 'firstName';
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -94,11 +37,60 @@ export class BranchCashiersComponent implements OnInit {
   showEditModal = false;
   selectedCashier: Cashier | null = null;
   
-  constructor(private cdr: ChangeDetectorRef) {}
+  // User Info
+  branchId: string | null = null;
+  clerkRole: string = '';
+  
+  constructor(
+    private cashierService: CashierService,
+    private authService: AuthServiceService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    // Initialize with all cashiers
-    this.filteredCashiers = [...this.cashiers];
+    this.getUserInfo();
+  }
+
+  getUserInfo(): void {
+    const token = this.authService.getToken();
+    if (!token) {
+      this.errorMessage = 'Authentication required. Please log in.';
+      return;
+    }
+    
+    this.authService.decodeToken(token).subscribe({
+      next: (decoded) => {
+        if (decoded) {
+          this.branchId = decoded.branchId || null;
+          this.clerkRole = decoded.role || '';
+          this.loadCashiers();
+        } else {
+          this.errorMessage = 'Invalid user session. Please log in again.';
+        }
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to decode authentication token.';
+        console.error('Token decode error:', err);
+      }
+    });
+  }
+
+  loadCashiers(): void {
+    this.loading = true;
+    this.errorMessage = '';
+    
+    this.cashierService.getCashiers(this.branchId || '').subscribe({
+      next: (data) => {
+        this.cashiers = data;
+        this.applyFilters();
+        this.loading = false;
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = `Failed to load cashiers: ${err.message}`;
+        console.error('Error loading cashiers:', err);
+      }
+    });
   }
 
   get activeCashiersCount(): number {
@@ -128,23 +120,46 @@ export class BranchCashiersComponent implements OnInit {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.cashiers = this.cashiers.filter(c => c._id !== id);
-        this.filteredCashiers = this.filteredCashiers.filter(c => c._id !== id);
-        Swal.fire('Deleted!', 'Cashier has been deleted.', 'success');
+        this.loading = true;
+        
+        this.cashierService.deleteCashier(id).subscribe({
+          next: () => {
+            this.cashiers = this.cashiers.filter(c => c._id !== id);
+            this.applyFilters();
+            this.loading = false;
+            Swal.fire('Deleted!', 'Cashier has been deleted.', 'success');
+          },
+          error: (err) => {
+            this.loading = false;
+            Swal.fire('Error!', `Failed to delete cashier: ${err.message}`, 'error');
+          }
+        });
       }
     });
   }
 
   toggleCashierStatus(cashier: Cashier): void {
-    cashier.isActive = !cashier.isActive;
-    this.applyFilters();
+    const newStatus = !cashier.isActive;
+    this.loading = true;
     
-    const status = cashier.isActive ? 'activated' : 'deactivated';
-    Swal.fire({
-      title: 'Status Updated',
-      text: `Cashier has been ${status}`,
-      icon: 'success',
-      timer: 1500
+    this.cashierService.toggleCashierStatus(cashier._id, newStatus).subscribe({
+      next: (updatedCashier) => {
+        cashier.isActive = newStatus;
+        this.applyFilters();
+        this.loading = false;
+        
+        const status = newStatus ? 'activated' : 'deactivated';
+        Swal.fire({
+          title: 'Status Updated',
+          text: `Cashier has been ${status}`,
+          icon: 'success',
+          timer: 1500
+        });
+      },
+      error: (err) => {
+        this.loading = false;
+        Swal.fire('Error!', `Failed to update cashier status: ${err.message}`, 'error');
+      }
     });
   }
 
@@ -193,15 +208,15 @@ export class BranchCashiersComponent implements OnInit {
     this.applyFilters();
   }
 
-  onCashierSaved(): void {
+  onCashierSaved(newCashier: any = null): void {
     this.showAddModal = false;
-    // In a real app, this would refresh the cashier list
+    this.loadCashiers();  // Refresh the list to include the new cashier
     Swal.fire('Success', 'Cashier added successfully', 'success');
   }
 
   onCashierUpdated(): void {
     this.showEditModal = false;
-    // In a real app, this would refresh the cashier list
+    this.loadCashiers();  // Refresh the list to get the updated data
     Swal.fire('Success', 'Cashier updated successfully', 'success');
   }
 }

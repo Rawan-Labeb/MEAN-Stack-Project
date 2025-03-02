@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SubInventoryService } from '../../_services/sub-inventory.service';
+import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthServiceService } from '../../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
 
-interface SubInventoryItem {
+interface SubInventoryDisplayItem {
   _id: string;
   name: string;
   description: string;
@@ -12,91 +17,157 @@ interface SubInventoryItem {
   isActive: boolean;
   imageUrl: string;
   createdAt: Date;
+  subInventoryId: string; // ID of the sub inventory record
+  productId: string; // ID of the product
 }
 
 @Component({
   selector: 'app-sub-inventory',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
   templateUrl: './sub-inventory.component.html',
   styleUrls: ['./sub-inventory.component.css']
 })
 export class SubInventoryComponent implements OnInit {
-  subInventoryItems: SubInventoryItem[] = [];
-  filteredItems: SubInventoryItem[] = [];
+  subInventoryItems: SubInventoryDisplayItem[] = [];
+  filteredItems: SubInventoryDisplayItem[] = [];
   searchTerm: string = '';
   statusFilter: string = 'all';
   sortColumn: string = 'name';
   sortDirection: 'asc' | 'desc' = 'asc';
   isLoading: boolean = true;
+  error: string = '';
+  successMessage: string = '';
+  
+  // User related properties
+  branchId: string | null = null;
+  branchName: string = '';
+  isOnlineBranch: boolean = false;
+  clerkId: string = '';
+
+  constructor(
+    private subInventoryService: SubInventoryService,
+    private authService: AuthServiceService,
+    private cookieService: CookieService
+  ) {}
 
   ngOnInit(): void {
-    this.loadSubInventory();
+    this.initializeUserData();
+  }
+
+  initializeUserData(): void {
+    this.isLoading = true;
+    const token = this.authService.getToken();
+    
+    if (token) {
+      this.authService.decodeToken(token).subscribe(decoded => {
+        if (decoded) {
+          this.clerkId = decoded.id || decoded.sub;
+          this.branchId = decoded.branchId;
+          
+          // For online branches, there might be a special branch ID
+          // If not, we try to get it from localStorage
+          if (!this.branchId) {
+            this.branchId = decoded.onlineBranchId || localStorage.getItem('branchId');
+          }
+          
+          this.branchName = decoded.branchName || '';
+          this.isOnlineBranch = !decoded.branchId; // Online branch if original branchId is null
+          
+          console.log('User details:', {
+            clerkId: this.clerkId,
+            branchId: this.branchId,
+            branchName: this.branchName,
+            isOnline: this.isOnlineBranch
+          });
+          
+          // Now load sub-inventory based on the clerk's branch
+          this.loadSubInventory();
+        } else {
+          this.error = 'Invalid user session. Please log in again.';
+          this.isLoading = false;
+        }
+      });
+    } else {
+      this.error = 'Authentication token not found. Please log in.';
+      this.isLoading = false;
+    }
   }
 
   loadSubInventory(): void {
-    // Static data for now
-    setTimeout(() => {
-      this.subInventoryItems = [
-        {
-          _id: '1',
-          name: 'Chanel No. 5',
-          description: 'Iconic fragrance with aldehydic floral notes',
-          category: 'Women\'s Perfume',
-          quantity: 8,
-          price: 120,
-          isActive: true,
-          imageUrl: 'assets/images/products/chanel5.jpg',
-          createdAt: new Date(2023, 5, 10)
+    this.isLoading = true;
+    this.error = '';
+    
+    // Always get branch ID either from token or from localStorage as fallback
+    const branchId = this.branchId || localStorage.getItem('branchId');
+    
+    if (branchId) {
+      // Branch ID available - use this endpoint (doesn't require auth per controller)
+      console.log(`Loading inventory by branch ID: ${branchId}`);
+      this.subInventoryService.getActiveSubInventoriesByBranchId(branchId).subscribe({
+        next: (data: any[]) => {
+          this.handleInventoryData(data);
         },
-        {
-          _id: '2',
-          name: 'Dior Sauvage',
-          description: 'Fresh and bold masculine fragrance',
-          category: 'Men\'s Perfume',
-          quantity: 12,
-          price: 95,
-          isActive: true,
-          imageUrl: 'assets/images/products/dior-sauvage.jpg',
-          createdAt: new Date(2023, 6, 15)
-        },
-        {
-          _id: '3',
-          name: 'Acqua di Gio',
-          description: 'Light and airy marine-inspired fragrance',
-          category: 'Men\'s Perfume',
-          quantity: 5,
-          price: 85,
-          isActive: false,
-          imageUrl: 'assets/images/products/acqua-di-gio.jpg',
-          createdAt: new Date(2023, 7, 20)
-        },
-        {
-          _id: '4',
-          name: 'Marc Jacobs Daisy',
-          description: 'Fresh and feminine with notes of wild berries',
-          category: 'Women\'s Perfume',
-          quantity: 3,
-          price: 78,
-          isActive: true,
-          imageUrl: 'assets/images/products/marc-jacobs-daisy.jpg',
-          createdAt: new Date(2023, 8, 5)
-        },
-        {
-          _id: '5',
-          name: 'Versace Eros',
-          description: 'Bold and intense with mint and vanilla',
-          category: 'Men\'s Perfume',
-          quantity: 7,
-          price: 90,
-          isActive: true,
-          imageUrl: 'assets/images/products/versace-eros.jpg',
-          createdAt: new Date(2023, 9, 12)
-        }
-      ];
+        error: this.handleError.bind(this)
+      });
+    } 
+    else {
+      // If no branch ID available, show an error
+      this.error = 'Could not determine your branch. Please contact support.';
+      this.isLoading = false;
+      
+      // Try to log branch information for debugging
+      console.error('Branch information missing:', {
+        decodedBranchId: this.branchId,
+        localStorageBranchId: localStorage.getItem('branchId'),
+        branchName: this.branchName,
+        isOnlineBranch: this.isOnlineBranch
+      });
+    }
+  }
+
+  private handleInventoryData(data: any[]): void {
+    // Process received inventory data
+    if (Array.isArray(data) && data.length > 0) {
+      this.subInventoryItems = this.transformSubInventoryData(data);
       this.filteredItems = [...this.subInventoryItems];
       this.isLoading = false;
-    }, 1000);
+    } else {
+      // Handle empty inventory case
+      this.subInventoryItems = [];
+      this.filteredItems = [];
+      this.isLoading = false;
+      console.log('No inventory items found or empty response');
+    }
+  }
+
+  private handleError(err: any): void {
+    console.error('Error loading sub-inventory:', err);
+    this.error = `Failed to load inventory items: ${err.message || 'Unknown error'}`;
+    this.isLoading = false;
+  }
+
+  // Transform API data to our display format
+  transformSubInventoryData(data: any[]): SubInventoryDisplayItem[] {
+    return data.map(item => {
+      // Handle both nested and flat data structures
+      const product = item.product || item;
+      return {
+        _id: product._id || item._id,
+        name: product.name || 'Unknown Product',
+        description: product.description || '',
+        category: product.category?.name || 'Uncategorized',
+        quantity: item.quantity || 0,
+        price: product.price || 0,
+        isActive: item.isActive !== undefined ? item.isActive : true,
+        imageUrl: product.images && product.images.length > 0 
+          ? product.images[0] 
+          : 'assets/images/placeholder.jpg',
+        createdAt: new Date(item.createdAt || Date.now()),
+        subInventoryId: item._id, // The actual sub-inventory record ID
+        productId: product._id  // The product ID
+      };
+    });
   }
 
   applyFilters(): void {
@@ -147,18 +218,49 @@ export class SubInventoryComponent implements OnInit {
 
   getSortIcon(column: string): string {
     if (this.sortColumn !== column) {
-      return 'fas fa-sort';
+      return 'bi bi-sort-alpha-down';
     }
-    return this.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    return this.sortDirection === 'asc' ? 'bi bi-sort-up' : 'bi bi-sort-down';
   }
 
-  toggleStatus(item: SubInventoryItem): void {
-    item.isActive = !item.isActive;
+  toggleStatus(item: SubInventoryDisplayItem): void {
+    this.isLoading = true;
     
-    // In a real implementation, you'd call an API to update the status
-    // For now, just show an alert
-    const status = item.isActive ? 'activated' : 'deactivated';
-    alert(`${item.name} has been ${status}`);
+    if (item.isActive) {
+      // Deactivate - requires auth per controller
+      this.subInventoryService.deactiveSubInventory(item.subInventoryId).subscribe({
+        next: (response) => {
+          item.isActive = false;
+          this.isLoading = false;
+          this.successMessage = `${item.name} has been deactivated`;
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (err) => {
+          console.error('Error deactivating item:', err);
+          this.error = `Failed to deactivate item: ${err.message || 'Unknown error'}`;
+          this.isLoading = false;
+        }
+      });
+    } else {
+      // Activate - requires auth per controller
+      this.subInventoryService.activeSubInventory(item.subInventoryId).subscribe({
+        next: (response) => {
+          item.isActive = true;
+          this.isLoading = false;
+          this.successMessage = `${item.name} has been activated`;
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (err) => {
+          console.error('Error activating item:', err);
+          this.error = `Failed to activate item: ${err.message || 'Unknown error'}`;
+          this.isLoading = false;
+        }
+      });
+    }
+  }
+
+  refreshStock(): void {
+    this.loadSubInventory();
   }
 
   onSearch(): void {
@@ -167,5 +269,25 @@ export class SubInventoryComponent implements OnInit {
 
   onStatusFilterChange(): void {
     this.applyFilters();
+  }
+
+  // Simple method to show a success message
+  private showSuccessMessage(message: string): void {
+    // Create a transient success message that auto-clears
+    this.error = ''; // Clear any existing errors
+    this.successMessage = message;
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
+  }
+
+  dismissError(): void {
+    this.error = '';
+  }
+
+  dismissSuccess(): void {
+    this.successMessage = '';
   }
 }
