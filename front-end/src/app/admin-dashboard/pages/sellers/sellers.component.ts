@@ -11,14 +11,17 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AddSellerComponent } from './add-seller/add-seller.component';
 import { EditSellerComponent } from './edit-seller/edit-seller.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-sellers',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddSellerComponent,EditSellerComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddSellerComponent,EditSellerComponent,NgxPaginationModule],
   templateUrl: './sellers.component.html',
   styleUrl: './sellers.component.css'
 })
 export class SellersComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
 users: User[] =[]
     filteredUsers: User[] = [];
     loading = false;

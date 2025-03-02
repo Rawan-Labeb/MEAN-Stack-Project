@@ -11,14 +11,17 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DetailsOfflineOrderComponent } from './details-offline-order/details-offline-order.component';
 import { ProductService } from 'src/app/_services/product.service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-offline-order',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,DetailsOfflineOrderComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,DetailsOfflineOrderComponent,NgxPaginationModule],
   templateUrl: './offline-order.component.html',
   styleUrl: './offline-order.component.css'
 })
 export class OfflineOrderComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
   branchId=''
   orderOfflines: OrderOffline[] =[]
       filteredOrderOfflines: OrderOffline[] = [];

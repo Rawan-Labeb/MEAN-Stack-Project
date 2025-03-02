@@ -11,14 +11,17 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AddBranchComponent } from './add-branch/add-branch.component';
 import { EditBranchComponent } from './edit-branch/edit-branch.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-branch',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddBranchComponent,EditBranchComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddBranchComponent,EditBranchComponent,NgxPaginationModule],
   templateUrl: './branch.component.html',
   styleUrl: './branch.component.css'
 })
 export class BranchComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
     branches: Branch[] =[]
       filteredBranches: Branch[] = [];
       loading = false;

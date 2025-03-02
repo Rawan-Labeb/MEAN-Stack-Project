@@ -29,14 +29,51 @@
     transform: translate(-50%, -50%);
     text-align: center;
   } */
-  .chart {
+  /* .chart {
     width: 50px;
-  }
+  } */
   /* ngx-charts-line-chart, 
 ngx-charts-bar-vertical, 
 ngx-charts-pie-chart {
   display: block;
   margin-bottom: 30px;
 } */
+
+.charts-container {
+  display: flex; /* يستخدم لتنسيق العناصر في صف واحد */
+  justify-content: space-between; /* يترك مسافة بين المخططين */
+  gap: 20px; /* يضيف مسافة بين المخططات */
+  flex-wrap: wrap; /* يجعلهم يلتفون إذا لم يكن هناك مساحة كافية */
+}
+
+.chart-container {
+  flex: 1; /* يسمح لكل مخطط بأخذ نفس الحجم */
+  min-width: 200px; /* يمنع المخطط من أن يصبح صغيرًا جدًا */
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 5px 10px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 30px;
+}
+
+.chart-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 10px 15px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* تكبير عناوين المخططات */
+h2 {
+  font-size: 20px; /* غيري الحجم حسب الحاجة */
+  font-weight: bold;
+}
+
+/* تكبير النصوص داخل الرسوم البيانية */
+.chart,.xAxis,.yAxis,.xAxisLabel text {
+  font-size: 16px !important; /* تحكم في حجم الخط داخل المخططات */
+  font-weight: bold;
+}
+
+
 
   

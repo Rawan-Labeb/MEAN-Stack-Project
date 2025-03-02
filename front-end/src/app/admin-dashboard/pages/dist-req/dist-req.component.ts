@@ -11,14 +11,17 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ProductService } from 'src/app/_services/product.service';
 import { BranchService } from 'src/app/_services/branch.service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-dist-req',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,NgxPaginationModule],
   templateUrl: './dist-req.component.html',
   styleUrl: './dist-req.component.css'
 })
 export class DistReqComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
   distReqs: DistReq[] =[]
       filteredDistReqs: DistReq[] = [];
       loading = false;
