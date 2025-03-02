@@ -21,23 +21,42 @@
     font-size: 2rem;
     position: relative;
   }
-  
-  /* .page__content-data {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  } */
-  /* .chart {
-    width: 50px;
-  } */
-  /* ngx-charts-line-chart, 
-ngx-charts-bar-vertical, 
-ngx-charts-pie-chart {
-  display: block;
+
+.charts-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.chart-container {
+  flex: 1;
+  min-width: 200px;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 5px 10px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   margin-bottom: 30px;
-} */
+}
+
+.chart-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 10px 15px 20px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
+.chart,.xAxis,.yAxis,.xAxisLabel text {
+  font-size: 16px !important;
+  font-weight: bold;
+}
+
+
 
 .charts-container {
   display: flex; /* يستخدم لتنسيق العناصر في صف واحد */
