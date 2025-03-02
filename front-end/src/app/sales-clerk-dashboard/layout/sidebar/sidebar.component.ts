@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -9,7 +9,43 @@ import { RouterModule } from '@angular/router';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent {
-  @Input() isOnlineBranch = false;
-  @Input() isSidebarOpen = true;
+export class SidebarComponent implements OnInit {
+  @Input() isOnlineBranch: boolean = false;
+  @Input() isSidebarOpen: boolean = true;
+  
+  branchName: string = "Main Store";
+  branchType: string = "Online";
+  
+  menuItems = [
+    { path: './home', icon: 'fas fa-home', title: 'Dashboard' },
+    { path: './sub-inventory', icon: 'fas fa-boxes', title: 'Sub Inventory' },
+    { path: './distribution-requests', icon: 'fas fa-truck-loading', title: 'Stock Requests' },
+    { path: './orders', icon: 'fas fa-shopping-cart', title: 'Orders' },
+    // Add Branch Cashiers to the menu items
+    { path: './branch-cashiers', icon: 'fas fa-people', title: 'Branch Cashiers' }
+  ];
+
+  constructor() { }
+
+  ngOnInit(): void {
+    // This would typically come from a service or parent component
+    // For now, we're setting it statically
+    // Check if this is an online branch
+    if (this.isOnlineBranch) {
+      this.branchType = 'Online Branch';
+      this.branchName = 'Online Store';
+      
+      // Add complaints menu item for online branches only
+      this.menuItems.push({
+        path: './complaints',
+        icon: 'fas fa-comments',
+        title: 'Complaints'
+      });
+    }
+  }
+  
+  logout(): void {
+    // Implement logout functionality
+    console.log('Logout clicked');
+  }
 }

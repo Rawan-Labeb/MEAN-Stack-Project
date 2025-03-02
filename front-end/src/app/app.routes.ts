@@ -44,7 +44,7 @@ export const routes: Routes = [
   {
     path: "sales-clerk", 
     loadChildren: () => import("./sales-clerk-dashboard/sales-clerk-dashboard.routes")
-      .then(s => s.salesClerkDashboardRoutes)
+      .then(s => s.SALES_CLERK_ROUTES)
   },
   {path:"**",component:NotFoundComponent},
   {

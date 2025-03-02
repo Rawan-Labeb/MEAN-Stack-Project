@@ -6,13 +6,21 @@ import { BranchProductsComponent } from './branch-products/branch-products.compo
 import { DistributionRequestsComponent } from './distribution-requests/distribution-requests.component';
 import { ComplaintsComponent } from './complaints/complaints.component';
 import { SubInventoryComponent } from './sub-inventory/sub-inventory.component';
+import { BranchCashiersComponent } from './pages/branch-cashiers/branch-cashiers.component';
 
-export const salesClerkDashboardRoutes: Routes = [
+export const SALES_CLERK_ROUTES: Routes = [
   {
     path: '',
     component: SalesClerkDashboardComponent,
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      {
+        path: '',
+        component: DashboardHomeComponent
+      },
+      {
+        path: 'branch-cashiers',
+        component: BranchCashiersComponent
+      },
       { path: 'home', component: DashboardHomeComponent },
       { path: 'orders', component: OrdersComponent },
       { path: 'products', component: BranchProductsComponent },
@@ -22,3 +30,6 @@ export const salesClerkDashboardRoutes: Routes = [
     ]
   }
 ];
+
+// Add this line to export the routes with the name that app.routes.ts expects
+export const salesClerkDashboardRoutes = SALES_CLERK_ROUTES;
