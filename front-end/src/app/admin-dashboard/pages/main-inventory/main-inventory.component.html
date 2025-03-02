@@ -1,0 +1,126 @@
+<div class="container-fluid page">
+    <div class="d-flex page__box p-3 mt-2">MainInventories</div>
+    <div class="page__content shadow p-3 position-relative">
+      <div>
+        <div>
+          <div class="container-fluid p-4">
+            <div class="col-md-3 text-center">
+              <div class="card bg-primary text-white">
+                <div class="card-body">
+                  <h5 class="card-title">Total MainInventories</h5>
+                  <p class="card-text display-4">{{mainInventories.length}}</p>
+                </div>
+              </div>
+            </div>
+            <!-- ***********************************************************************-->
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h3 class="mb-0"></h3>
+                </div>
+                <div class="col-auto">
+                  <!-- <button class="btn btn-primary" (click)="openAddModal()">
+                    Add MainInventory
+                  </button> -->
+                  <!-- <app-add-main-inventory 
+                    [show]="showAddModal" 
+                    [mainInventoryData]="mainInventoryData" 
+                    (close)="showAddModal = false" 
+                    (saved)="onMainInventorySaved()">
+                  </app-add-main-inventory> -->
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div class="row mb-3 justify-content-between">
+                <div class="col-md-4">
+                  <input type="text" 
+                          class="form-control" 
+                          [(ngModel)]="searchTerm" 
+                          (input)="onSearch()"
+                          placeholder="Search mainInventories...">
+                </div>
+                <div class="col-md-3">
+                  <!-- <select class="form-select" 
+                          [(ngModel)]="statusFilter" 
+                          (change)="onStatusFilterChange()">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select> -->
+                </div>
+              </div>
+  
+              <!-- <app-edit-main-inventory
+                [show]="showEditModal" 
+                [mainInventoryData]="mainInventoryData" 
+                (updated)="onMainInventoryUpdated()" 
+                (close)="showEditModal = false">
+              </app-edit-main-inventory> -->
+        
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th (click)="sort('product')" style="cursor: pointer" class="justify-content-between">
+                        Name
+                        <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
+                      </th>
+                      <th>Price</th>
+                      <th>Count</th>
+                      <th>Seller</th>
+                      <th>Category</th>
+                      <th>Qty</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let mainInventory of filteredMainInventories">
+                      <td><img class="image" src="{{mainInventory?.product!.images[0]}}" alt="">{{mainInventory?.product?.name}}</td>
+                      <td>{{mainInventory?.product?.price}}</td>
+                      <td>{{mainInventory?.product?.noOfSale}}</td>
+                      <td>{{mainInventory?.product?.sellerId?.firstName}} {{mainInventory?.product?.sellerId?.lastName}}</td>
+                      <td>{{mainInventory?.product?.categoryId?.name}}</td>
+                      <td>{{mainInventory.quantity}}</td>
+                      <td>{{mainInventory.lastUpdated}}</td>
+                      <!-- <td>
+                        <span class="badge" [ngClass]="user.isActive ? 'bg-success' : 'bg-danger'">
+                          {{user.isActive ? ' Active ' : 'Inactive'}}
+                        </span>
+                      </td> -->
+                      <td>
+                        <button [matMenuTriggerFor]="menu" class="border-0" style="background: none;">
+                          <mat-icon style="vertical-align: middle;">more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu" class="bg-white ">
+                          <!-- <button mat-menu-item (click)="openEditModal(user)">
+                            <mat-icon>edit</mat-icon>
+                            Update
+                          </button> -->
+                          <button mat-menu-item (click)="deleteMainInventory(mainInventory!._id)">
+                            <mat-icon>delete</mat-icon>
+                            Delete
+                          </button>
+                          <button mat-menu-item (click)="createSubInventory(mainInventory._id,mainInventory.product._id)">
+                            <mat-icon>store</mat-icon>
+                            subInventory
+                          </button>
+                          <!-- <button mat-menu-item (click)="toggleUserStatus(user)">
+                            <mat-icon>{{ user.isActive ? 'close' : 'check' }}</mat-icon>
+                            {{ user.isActive ? 'Inactive' : 'Active' }}
+                          </button>      -->
+                        </mat-menu>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

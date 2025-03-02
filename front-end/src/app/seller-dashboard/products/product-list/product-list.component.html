@@ -1,0 +1,68 @@
+<div class="container">
+  <div class="table-controls mb-3">
+    <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm" (input)="onSearch()">
+    <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="fas fa-plus"></i> Add Product
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <table *ngIf="!loading && !error" class="table table-striped">
+    <thead>
+      <tr>
+        <th (click)="sort('name')">Name <i [class]="getSortIcon('name')"></i></th>
+        <th (click)="sort('price')">Price <i [class]="getSortIcon('price')"></i></th>
+        <th (click)="sort('quantity')">Quantity <i [class]="getSortIcon('quantity')"></i></th>
+        <th (click)="sort('isActive')">Status <i [class]="getSortIcon('isActive')"></i></th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of filteredProducts">
+        <td>{{ product.name }}</td>
+        <td>{{ product.price | currency }}</td>
+        <td>{{ product.quantity }}</td>
+        <td>
+          <span [class]="product.isActive ? 'badge bg-success' : 'badge bg-danger'">
+            {{ product.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-warning me-2" (click)="openEditModal(product)">Edit</button>
+          <app-delete-product 
+            [productId]="product._id || ''" 
+            (deleted)="loadProducts()">
+          </app-delete-product>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <app-add-product 
+    [show]="showAddModal"
+    [productData]="productData"
+    (close)="showAddModal = false"
+    (saved)="onProductSaved()">
+  </app-add-product>
+
+  <app-edit-product
+    [show]="showEditModal"
+    [product]="editingProduct"
+    (closeModal)="showEditModal = false"
+    (productUpdated)="onProductUpdated()">
+  </app-edit-product>
+</div>
