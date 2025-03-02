@@ -11,14 +11,17 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AddCashierComponent } from './add-cashier/add-cashier.component';
 import { EditCashierComponent } from './edit-cashier/edit-cashier.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-cashier',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddCashierComponent,EditCashierComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddCashierComponent,EditCashierComponent,NgxPaginationModule],
   templateUrl: './cashier.component.html',
   styleUrl: './cashier.component.css'
 })
 export class CashierComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
   users: User[] =[]
         filteredUsers: User[] = [];
         loading = false;

@@ -11,13 +11,16 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ProductService } from 'src/app/_services/product.service';
 import { forkJoin } from 'rxjs';
+import { NgxPaginationModule } from 'ngx-pagination';
 @Component({
   selector: 'app-sub-inventory',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,NgxPaginationModule],
   templateUrl: './sub-inventory.component.html',
   styleUrl: './sub-inventory.component.css'
 })
 export class SubInventoryComponent implements OnInit, OnDestroy {
+  currentPage = 1;
+  itemsPerPage = 10;
   branchName=''
   subInventories: SubInventory[] =[]
       filteredSubInventories: SubInventory[] = [];

@@ -14,14 +14,18 @@ import { UpdateProductComponent } from './update-product/update-product.componen
 import { MainInventoryService } from 'src/app/_services/main-inventory.service';
 import {ProductReviewService} from '../../../_services/product-review.service'
 import { ProdReviewComponent } from "./prod-review/prod-review.component";
+import { NgxPaginationModule } from 'ngx-pagination';
+
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule, RouterModule, MatIconModule, MatMenuModule, AddProductComponent, UpdateProductComponent, ProdReviewComponent],
+  imports: [CommonModule, FormsModule, RouterModule, MatIconModule, MatMenuModule, AddProductComponent, UpdateProductComponent, ProdReviewComponent,NgxPaginationModule],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent implements OnInit, OnDestroy {
+  currentPage = 1;
+  itemsPerPage = 10;
   reviewData: any;
   showReviewModal = false;
   products: Product[] = [];

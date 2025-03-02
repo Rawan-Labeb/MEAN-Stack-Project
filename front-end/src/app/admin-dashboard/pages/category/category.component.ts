@@ -11,13 +11,16 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AddCategoryComponent } from './add-category/add-category.component';
 import { EditCategoryComponent } from './edit-category/edit-category.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 @Component({
   selector: 'app-category',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddCategoryComponent,EditCategoryComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddCategoryComponent,EditCategoryComponent,NgxPaginationModule],
   templateUrl: './category.component.html',
   styleUrl: './category.component.css'
 })
 export class CategoryComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
   categories: Category[] =[]
       filteredCategories: Category[] = [];
       loading = false;
