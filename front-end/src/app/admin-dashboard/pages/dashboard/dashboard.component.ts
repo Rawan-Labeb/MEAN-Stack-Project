@@ -25,7 +25,6 @@ export class DashboardComponent {
     { "name": "Orders", "value": 120 },
     { "name": "Users", "value": 80 }
   ];
-
   constructor() {
     this.multi = [
       {
