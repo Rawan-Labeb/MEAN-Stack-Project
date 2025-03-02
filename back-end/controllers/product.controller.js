@@ -11,7 +11,8 @@ const {
     activeProduct,
     deactiveProduct,
     deleteProduct,
-    getProductsByCategory
+    getProductsByCategory,
+    getProductsBySeller
 } = require("./../services/product.service")
 
 const {authenticaiton} = require("./../middlewares/authentication.middleware") 
@@ -155,6 +156,20 @@ router.get("/getProductsByCategory/:id",authenticaiton, authorize("manager"), as
         res.status(500).send(error.message);
     }
 })
+
+
+router.get("/getProductBySellerId/:id", authenticaiton, authorize("seller"), async (req, res) => {
+    try{
+        const result = await getProductsBySeller(req.params.id);
+        if (!result.success)
+            return res.status(400).json(result.message);
+
+        return res.status(200).json(result.message);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
 
 
 module.exports = router;

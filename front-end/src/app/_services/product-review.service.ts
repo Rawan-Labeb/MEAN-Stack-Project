@@ -36,16 +36,16 @@ export class ProductReviewService {
 
   deleteReviewById (id:any)
   {
-    return this.http.get(`${this.apiUrl}/deleteReview/:${id}`)
+    return this.http.delete(`${this.apiUrl}/deleteReview/${id}`)
   }
   
   getReviewById (id:any)
   {
-    return this.http.get(`${this.apiUrl}/getReviewById/:${id}`)
+    return this.http.get(`${this.apiUrl}/getReviewById/${id}`)
   }
 
   getReviewsByUserId (id:any)
   {
-    return this.http.get(`${this.apiUrl}/getReviewsByUser/:${id}`)
+    return this.http.get(`${this.apiUrl}/getReviewsByUser/${id}`)
   }
 }
