@@ -21,34 +21,17 @@
     font-size: 2rem;
     position: relative;
   }
-  
-  /* .page__content-data {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  } */
-  /* .chart {
-    width: 50px;
-  } */
-  /* ngx-charts-line-chart, 
-ngx-charts-bar-vertical, 
-ngx-charts-pie-chart {
-  display: block;
-  margin-bottom: 30px;
-} */
 
 .charts-container {
-  display: flex; /* يستخدم لتنسيق العناصر في صف واحد */
-  justify-content: space-between; /* يترك مسافة بين المخططين */
-  gap: 20px; /* يضيف مسافة بين المخططات */
-  flex-wrap: wrap; /* يجعلهم يلتفون إذا لم يكن هناك مساحة كافية */
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .chart-container {
-  flex: 1; /* يسمح لكل مخطط بأخذ نفس الحجم */
-  min-width: 200px; /* يمنع المخطط من أن يصبح صغيرًا جدًا */
+  flex: 1;
+  min-width: 200px;
   padding: 20px;
   background: white;
   border-radius: 10px;
@@ -62,15 +45,14 @@ ngx-charts-pie-chart {
   box-shadow: 10px 15px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* تكبير عناوين المخططات */
 h2 {
-  font-size: 20px; /* غيري الحجم حسب الحاجة */
+  font-size: 20px;
   font-weight: bold;
 }
 
-/* تكبير النصوص داخل الرسوم البيانية */
+
 .chart,.xAxis,.yAxis,.xAxisLabel text {
-  font-size: 16px !important; /* تحكم في حجم الخط داخل المخططات */
+  font-size: 16px !important;
   font-weight: bold;
 }
 

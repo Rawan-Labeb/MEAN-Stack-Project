@@ -5,226 +5,281 @@
       <div>
         <div class="container-fluid p-4">
           <div class="charts-container">
-          <div class="chart-container">
-            <h2>Vertical Bar Chart</h2>
-            <ngx-charts-bar-vertical class="chart"
-              [view]="view"
-              [scheme]="'cool'"
-              [results]="chartData"
-              [xAxis]="true"
-              [yAxis]="true"
-              [legend]="true"
-              [showDataLabel]="true">
-            </ngx-charts-bar-vertical>
-          </div>
-          
-          <div class="chart-container">
-            <h2>Line Chart</h2>
-            <ngx-charts-line-chart class="chart"
-              [view]="view"
-              [scheme]="'cool'"
-              [results]="multi"
-              [gradient]="gradient"
-              [xAxis]="showXAxis"
-              [yAxis]="showYAxis"
-              [legend]="showLegend"
-              [showXAxisLabel]="showXAxisLabel"
-              [xAxisLabel]="xAxisLabel"
-              [showYAxisLabel]="showYAxisLabel"
-              [yAxisLabel]="yAxisLabel">
-            </ngx-charts-line-chart>
-          </div>
-          </div>
-          <div class="charts-container">
-          <div class="chart-container">
-            <h2>Multi-Series Bar Chart</h2>
-            <ngx-charts-bar-vertical-stacked class="chart"
-              [view]="view"
-              [scheme]="'cool'"
-              [results]="multi"
-              [gradient]="gradient"
-              [xAxis]="showXAxis"
-              [yAxis]="showYAxis"
-              [legend]="showLegend"
-              [showXAxisLabel]="showXAxisLabel"
-              [xAxisLabel]="xAxisLabel"
-              [showYAxisLabel]="showYAxisLabel"
-              [yAxisLabel]="yAxisLabel">
-            </ngx-charts-bar-vertical-stacked>
-          </div>
-          
-          
-          
-          <div class="chart-container">
-            <h2>Pie Chart</h2>
-            <ngx-charts-pie-chart class="chart"
-              [view]="view"
-              [scheme]="'cool'"
-              [results]="chartData"
-              [legend]="showLegend"
-              [labels]="true"
-              [doughnut]="true">
-            </ngx-charts-pie-chart>
-          </div>
+            <div class="chart-container">
+              <h2>Vertical Bar Chart</h2>
+              <ngx-charts-bar-vertical class="chart"
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="chartData"
+                [xAxis]="true"
+                [yAxis]="true"
+                [legend]="true"
+                [showDataLabel]="true">
+              </ngx-charts-bar-vertical>
+            </div>
+            
+            <div class="chart-container">
+              <h2>Line Chart</h2>
+              <ngx-charts-line-chart class="chart"
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="multi"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="xAxisLabel"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="yAxisLabel">
+              </ngx-charts-line-chart>
+            </div>
           </div>
           <div class="charts-container">
-          <div class="chart-container">
-  <h2>Branch Sales</h2>
-  <ngx-charts-bar-vertical
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="branchSales"
-    [gradient]="gradient"
-    [xAxis]="showXAxis"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [xAxisLabel]="'Branches'"
-    [showYAxisLabel]="showYAxisLabel"
-    [yAxisLabel]="'Sales'">
-  </ngx-charts-bar-vertical>
-</div>
+            <div class="chart-container">
+              <h2>Multi-Series Bar Chart</h2>
+              <ngx-charts-bar-vertical-stacked class="chart"
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="multi"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="xAxisLabel"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="yAxisLabel">
+              </ngx-charts-bar-vertical-stacked>
+            </div>
+            
+            
+            
+            <div class="chart-container">
+              <h2>Pie Chart</h2>
+              <ngx-charts-pie-chart class="chart"
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="chartData"
+                [legend]="showLegend"
+                [labels]="true"
+                [doughnut]="true">
+              </ngx-charts-pie-chart>
+            </div>
+          </div>
+          <div class="charts-container">
+            <div class="chart-container">
+              <h2>Branch Sales</h2>
+              <ngx-charts-bar-vertical
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="branchSales"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="'Branches'"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="'Sales'">
+              </ngx-charts-bar-vertical>
+            </div>
 
-<div  class="chart-container">
-  <h2>Best Selling Products</h2>
-  <ngx-charts-pie-chart
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="bestSellingProducts"
-    [legend]="showLegend"
-    [labels]="true"
-    [doughnut]="true">
-  </ngx-charts-pie-chart>
-</div>
-</div>
-<div class="charts-container">
-<div  class="chart-container">
-  <h2>Least Selling Products</h2>
-  <ngx-charts-pie-chart
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="leastSellingProducts"
-    [legend]="showLegend"
-    [labels]="true"
-    [doughnut]="false">
-  </ngx-charts-pie-chart>
-</div>
+            <div  class="chart-container">
+              <h2>Best Selling Products</h2>
+              <ngx-charts-pie-chart
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="bestSellingProducts"
+                [legend]="showLegend"
+                [labels]="true"
+                [doughnut]="true">
+              </ngx-charts-pie-chart>
+            </div>
+          </div>
+          <div class="charts-container">
+            <div  class="chart-container">
+              <h2>Least Selling Products</h2>
+              <ngx-charts-pie-chart
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="leastSellingProducts"
+                [legend]="showLegend"
+                [labels]="true"
+                [doughnut]="false">
+              </ngx-charts-pie-chart>
+            </div>
 
-<div  class="chart-container">
-  <h2>Top Sellers</h2>
-  <ngx-charts-bar-horizontal
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="bestSellers"
-    [gradient]="gradient"
-    [xAxis]="showXAxis"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [xAxisLabel]="'Sales'"
-    [showYAxisLabel]="showYAxisLabel"
-    [yAxisLabel]="'Sellers'">
-  </ngx-charts-bar-horizontal>
-</div>
-</div>
-<div class="charts-container">
-<div  class="chart-container">
-  <h2>Lowest Performing Sellers</h2>
-  <ngx-charts-bar-horizontal
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="leastSellers"
-    [gradient]="gradient"
-    [xAxis]="showXAxis"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [xAxisLabel]="'Sales'"
-    [showYAxisLabel]="showYAxisLabel"
-    [yAxisLabel]="'Sellers'">
-  </ngx-charts-bar-horizontal>
-</div>
+            <div  class="chart-container">
+              <h2>Top Sellers</h2>
+              <ngx-charts-bar-horizontal
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="bestSellers"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="'Sales'"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="'Sellers'">
+              </ngx-charts-bar-horizontal>
+            </div>
+          </div>
+          <div class="charts-container">
+            <div  class="chart-container">
+              <h2>Lowest Performing Sellers</h2>
+              <ngx-charts-bar-horizontal
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="leastSellers"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="'Sales'"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="'Sellers'">
+              </ngx-charts-bar-horizontal>
+            </div>
 
-<div  class="chart-container">
-  <h2>Product Distribution Across Branches</h2>
-  <ngx-charts-bar-horizontal-stacked
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="productDistribution"
-    [gradient]="gradient"
-    [xAxis]="showXAxis"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [xAxisLabel]="'Number of Products'"
-    [showYAxisLabel]="showYAxisLabel"
-    [yAxisLabel]="'Branches'">
-  </ngx-charts-bar-horizontal-stacked>
-</div>
-</div>
-<div class="charts-container">
+            <div  class="chart-container">
+              <h2>Product Distribution Across Branches</h2>
+              <ngx-charts-bar-horizontal-stacked
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="productDistribution"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="'Number of Products'"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="'Branches'">
+              </ngx-charts-bar-horizontal-stacked>
+            </div>
+          </div>
+          <div class="charts-container">
+            <div  class="chart-container">
+              <h2>Online vs. Offline Sales</h2>
+              <ngx-charts-pie-chart
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="onlineOfflineSales"
+                [legend]="showLegend"
+                [labels]="true"
+                [doughnut]="true">
+              </ngx-charts-pie-chart>
+            </div>
 
-<div  class="chart-container">
-  <h2>Online vs. Offline Sales</h2>
-  <ngx-charts-pie-chart
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="onlineOfflineSales"
-    [legend]="showLegend"
-    [labels]="true"
-    [doughnut]="true">
-  </ngx-charts-pie-chart>
-</div>
+            <div  class="chart-container">
+              <h2>Inventory Levels Per Branch</h2>
+              <ngx-charts-bar-vertical
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="inventoryLevels"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="'Branches'"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="'Inventory'">
+              </ngx-charts-bar-vertical>
+            </div>
+          </div>
+          <div class="charts-container">
+            <div  class="chart-container">
+              <h2>Monthly Performance Per Branch</h2>
+              <ngx-charts-line-chart
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="monthlyPerformance"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="'Month'"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="'Sales'">
+              </ngx-charts-line-chart>
+            </div>
+            <div class="chart-container">
+              <h2>Area Chart</h2>
+              <ngx-charts-area-chart
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="multi"
+                [gradient]="gradient"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="xAxisLabel"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="yAxisLabel">
+              </ngx-charts-area-chart>
+            </div>            
+          </div>  
+          <div class="charts-container">
+            <div class="chart-container">
+              <h2>Gauge Chart</h2>
+              <ngx-charts-gauge
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="gaugeData"
+                [min]="0"
+                [max]="100"
+                [legend]="showLegend">
+              </ngx-charts-gauge>
+            </div>
+            
+            <div class="chart-container">
+              <h2>Bubble Chart</h2>
+              <ngx-charts-bubble-chart
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="bubbleChartData"
+                [xAxis]="showXAxis"
+                [yAxis]="showYAxis"
+                [legend]="showLegend"
+                [showXAxisLabel]="showXAxisLabel"
+                [xAxisLabel]="xAxisLabel"
+                [showYAxisLabel]="showYAxisLabel"
+                [yAxisLabel]="yAxisLabel">
+              </ngx-charts-bubble-chart>
+            </div>             
+          </div> 
+          <div class="charts-container">
+            <div class="chart-container">
+              <h2>Heat Map</h2>
+              <ngx-charts-heat-map
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="heatMapData"
+                [gradient]="gradient"
+                [legend]="showLegend">
+              </ngx-charts-heat-map>
+            </div>
+            
+            
+            <div class="chart-container">
+              <h2>Sankey Diagram</h2>
+              <ngx-charts-sankey
+                [view]="view"
+                [scheme]="'cool'"
+                [results]="sankeyData"
+                [gradient]="gradient"
+                >
+              </ngx-charts-sankey>
+            </div>                         
+          </div> 
 
-<div  class="chart-container">
-  <h2>Inventory Levels Per Branch</h2>
-  <ngx-charts-bar-vertical
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="inventoryLevels"
-    [gradient]="gradient"
-    [xAxis]="showXAxis"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [xAxisLabel]="'Branches'"
-    [showYAxisLabel]="showYAxisLabel"
-    [yAxisLabel]="'Inventory'">
-  </ngx-charts-bar-vertical>
-</div>
-</div>
-<div class="charts-container">
-
-<div  class="chart-container">
-  <h2>Monthly Performance Per Branch</h2>
-  <ngx-charts-line-chart
-    [view]="view"
-    [scheme]="'cool'"
-    [results]="monthlyPerformance"
-    [gradient]="gradient"
-    [xAxis]="showXAxis"
-    [yAxis]="showYAxis"
-    [legend]="showLegend"
-    [showXAxisLabel]="showXAxisLabel"
-    [xAxisLabel]="'Month'"
-    [showYAxisLabel]="showYAxisLabel"
-    [yAxisLabel]="'Sales'">
-  </ngx-charts-line-chart>
-</div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-          
-          
         </div>
       </div>
     </div>

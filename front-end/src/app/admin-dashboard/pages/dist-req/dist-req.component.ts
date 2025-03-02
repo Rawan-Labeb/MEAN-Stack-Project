@@ -230,7 +230,7 @@ export class DistReqComponent implements OnInit, OnDestroy{
         if (this.searchTerm) {
           const searchLower = this.searchTerm.toLowerCase();
           filtered = filtered.filter(distReq => 
-            distReq.branchManager.firstName.toLowerCase().includes(searchLower) 
+            distReq.branchDetails.branchName.toLowerCase().includes(searchLower) 
           );
         }
     

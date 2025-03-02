@@ -138,10 +138,10 @@ complaints: Complaint[] =[]
       if (this.searchTerm) {
         const searchLower = this.searchTerm.toLowerCase();
         filtered = filtered.filter(complaint => 
-          new Date(complaint.createdAt).toLocaleDateString().toLowerCase().includes(searchLower)
+          complaint.email?.toLowerCase().includes(searchLower)
         );
       }
-  
+
       if (this.statusFilter !== 'all') {
         filtered = filtered.filter(complaint => complaint.status === this.statusFilter);
       }

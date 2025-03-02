@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProductService } from '../../../_services/product.service';
 import { Product } from '../../../_models/product.model';
 import Swal from 'sweetalert2';
@@ -15,6 +15,8 @@ import { MainInventoryService } from 'src/app/_services/main-inventory.service';
 import {ProductReviewService} from '../../../_services/product-review.service'
 import { ProdReviewComponent } from "./prod-review/prod-review.component";
 import { NgxPaginationModule } from 'ngx-pagination';
+import { AuthServiceService } from 'src/app/_services/auth-service.service';
+import { UserService } from 'src/app/_services/user.service';
 
 
 @Component({
@@ -24,6 +26,11 @@ import { NgxPaginationModule } from 'ngx-pagination';
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent implements OnInit, OnDestroy {
+  userData: any = null;
+  userId: string='';
+  user:any=null
+  loadings = false;
+  errors: string | null = null;
   currentPage = 1;
   itemsPerPage = 10;
   reviewData: any;
@@ -45,11 +52,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
   productData: Product = this.getInitialProductData();
 
   constructor(private productService: ProductService, private cdr: ChangeDetectorRef ,
-    private mainInventoryService:MainInventoryService,private productReviewService: ProductReviewService) {}
+    private mainInventoryService:MainInventoryService,private productReviewService: ProductReviewService,
+  private router: Router,private authService: AuthServiceService,
+      private UserService: UserService) {}
 
   ngOnInit(): void {
     this.loadProducts();
     this.subscribeToProductUpdates();
+    this.getUserFromToken();
+    this.loadUser();
   }
 
   getInitialProductData(): Product {
@@ -64,7 +75,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       isActive: true,
       quantity: 0,
       distributedItems: 0,
-      sellerId: {_id:'679bd13b5503613c0a14eb9b',firstName:'',lastName:''},
+      sellerId:this.user,
       categoryId: {_id:'',name:''},
       createdAt: new Date(),
       updatedAt: new Date()
@@ -81,6 +92,38 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  getUserFromToken() {
+    const token = this.authService.getToken();
+    if (token) {
+      try {
+        this.authService.decodeToken(token).subscribe(decodedData => {
+          this.userData = decodedData;
+          console.log('admine', this.userData);
+          this.userId = this.userData?.sub||'';
+        });
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
+    }
+  }
+
+  async loadUser(): Promise<void> {
+        this.loadings = true;
+        this.errors = null;
+        
+        try {
+          const data = await firstValueFrom(this.UserService.getUserById(this.userId));
+          this.user = data
+          this.cdr.detectChanges();
+        } catch (error) {
+          console.error('❌ Error loading user', error);
+          this.errors = 'Failed to load user';
+        } finally {
+          this.loadings = false;
+          this.cdr.detectChanges();
+        }
+      }
 
   async loadProducts(): Promise<void> {
     this.loading = true;
@@ -200,7 +243,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         const quantityRequested = Number(result.value);
-        this.productService.createProdReq(product, seller, "67ba0e63dc1b0f8d419f6d9e", quantityRequested).subscribe({
+        this.productService.createProdReq(product, seller, this.userId, quantityRequested).subscribe({
           next: () => {
             Swal.fire({
               title: 'Success!',
