@@ -133,44 +133,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  applyFilters(): void {
-    let filtered = [...this.products];
-
-    if (this.searchTerm) {
-      const searchLower = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(searchLower) || 
-        product.description?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(product => 
-        product.isActive === (this.statusFilter === 'active')
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      const aValue = a[this.sortColumn];
-      const bValue = b[this.sortColumn];
-      
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return this.sortDirection === 'asc' 
-          ? aValue.localeCompare(bValue) 
-          : bValue.localeCompare(aValue);
-      }
-      
-      // For numbers or other types
-      const aNum = Number(aValue);
-      const bNum = Number(bValue);
-      return this.sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
-    });
-
-    this.filteredProducts = filtered;
-    this.cdr.detectChanges();
-  }
-
   onSearch(): void {
     this.applyFilters();
   }

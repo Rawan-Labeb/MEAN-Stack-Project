@@ -25,6 +25,7 @@ export interface ProductFormData {
   isActive: boolean;
   categoryId: string;
   sellerId: string;
+  images?: string[]; 
 }
 
 export interface Product {
