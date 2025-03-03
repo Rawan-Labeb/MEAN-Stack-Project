@@ -79,8 +79,8 @@ export class OrderService {
                 error: err => observer.error(err)
               });
           } else {
-            // Get offline orders for this branch
-            this.http.get<any>(`${this.apiUrlOffline}/getAllOrdersByBranchId/${branchId}`)
+           
+            this.http.get<any>(`${this.apiUrlOffline}/getOfflineOrdersByBranchId/${branchId}`)
               .pipe(
                 map(this.mapOfflineOrders),
                 catchError(this.handleError)
