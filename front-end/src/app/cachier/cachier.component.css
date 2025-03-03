@@ -24,9 +24,9 @@ body {
 
 .app-container {
   display: flex;
-  height: 100vh;
+  height: 10vh;
   width: 100%;
-  margin-bottom: 300px;
+  margin-bottom: 1000px !important;
 }
 
 /* Sidebar */
@@ -75,6 +75,7 @@ body {
   flex-grow: 1;
   padding: 20px;
   margin-top: 50px !important;
+  margin-bottom: 400px;
 }
 
 .app-content-header {

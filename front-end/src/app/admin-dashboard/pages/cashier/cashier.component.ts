@@ -75,7 +75,7 @@ export class CashierComponent implements OnInit, OnDestroy{
         
           try {
             const data = await firstValueFrom(this.UserService.getUsersBasedOnRole('cashier'));
-            this.users = [...data]; // لا حاجة لاستخدام map() إذا لم تكن هناك تعديلات
+            this.users = [...data]; 
         
             this.filteredUsers = [...this.users];
             this.applyFilters();
@@ -83,7 +83,7 @@ export class CashierComponent implements OnInit, OnDestroy{
             console.error('❌ Error loading clerks:', error);
           } finally {
             this.loading = false;
-            this.cdr.detectChanges(); // تحديث واجهة المستخدم بعد أي حالة
+            this.cdr.detectChanges(); 
           }
         }
         
