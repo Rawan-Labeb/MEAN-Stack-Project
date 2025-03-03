@@ -54,7 +54,10 @@ export class AppComponent implements OnInit {
       this.userRole = role;
     });
   }
-  isAdminRoute(): boolean {
-    return this.router.url.startsWith('/admin');
+  isDashboardRoute(): boolean {
+    const url = this.router.url;
+    return url.startsWith('/admin') || 
+           url.startsWith('/seller') || 
+           url.startsWith('/sales-clerk');
   }
 }

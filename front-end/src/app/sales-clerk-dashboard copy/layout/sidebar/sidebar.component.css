@@ -1,0 +1,281 @@
+/* Sidebar styling */
+.sidebar {
+  height: 100%;
+  width: 250px;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  background-color: #004080;
+  overflow-x: hidden;
+  padding-top: 20px;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+}
+
+.sidebar.close {
+  width: 78px;
+}
+
+.logo-details {
+  height: 60px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+}
+
+.logo-details i {
+  font-size: 28px;
+  color: #fff;
+  min-width: 40px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.logo-details .logo_name {
+  font-size: 18px;
+  color: #fff;
+  font-weight: 600;
+  margin-left: 12px;
+  transition: 0.3s ease;
+  white-space: nowrap;
+}
+
+.sidebar.close .logo-details .logo_name {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar .toggle-btn {
+  position: absolute;
+  right: 15px;
+  cursor: pointer;
+  height: 25px;
+  width: 25px;
+  text-align: center;
+  line-height: 25px;
+}
+
+.sidebar .nav-links {
+  height: calc(100% - 60px);
+  padding: 0;
+  margin-top: 10px;
+  list-style: none;
+  overflow: auto;
+}
+
+.sidebar .nav-links::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar .nav-links li {
+  position: relative;
+  list-style: none;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-links li:hover {
+  background: #003366;
+}
+
+.sidebar .nav-links li a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #fff;
+  padding: 10px 15px;
+}
+
+.sidebar .nav-links li a i {
+  min-width: 40px;
+  text-align: center;
+  font-size: 18px;
+  color: #fff;
+}
+
+.sidebar .nav-links li a .link_name {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  white-space: nowrap;
+  transition: 0.3s ease;
+}
+
+.sidebar.close .nav-links li a .link_name {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar .nav-links li .sub-menu {
+  padding: 6px 6px 6px 20px;
+  margin-top: -10px;
+  background: #003366;
+  display: none;
+}
+
+.sidebar .nav-links li.showSubMenu .sub-menu {
+  display: block;
+}
+
+.sidebar .nav-links li .sub-menu a {
+  color: #fff;
+  font-size: 15px;
+  padding: 5px 0;
+  white-space: nowrap;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-links li .sub-menu a:hover {
+  opacity: 1;
+}
+
+.sidebar.close .nav-links li .sub-menu {
+  position: absolute;
+  left: 100%;
+  top: -10px;
+  padding: 10px 15px;
+  border-radius: 0 6px 6px 0;
+  opacity: 0;
+  display: none;
+  pointer-events: none;
+  transition: 0s;
+}
+
+.sidebar.close .nav-links li:hover .sub-menu {
+  top: 0;
+  opacity: 1;
+  pointer-events: auto;
+  transition: all 0.3s ease;
+}
+
+.sidebar .nav-links li .sub-menu.blank {
+  opacity: 1;
+  pointer-events: auto;
+  padding: 3px 20px 6px 16px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar .nav-links li:hover .sub-menu.blank {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Profile section */
+.sidebar .profile-details {
+  position: fixed;
+  bottom: 0;
+  width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #003366;
+  padding: 12px 0;
+  transition: all 0.3s ease;
+}
+
+.sidebar.close .profile-details {
+  width: 78px;
+  background: none;
+}
+
+.sidebar .profile-details .profile-content {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar .profile-details img {
+  height: 40px;
+  width: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 10px 0 15px;
+}
+
+.sidebar .profile-details .name-job {
+  white-space: nowrap;
+}
+
+.sidebar .profile-details .profile_name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.sidebar .profile-details .job {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.sidebar.close .profile-details .profile_name,
+.sidebar.close .profile-details .job {
+  display: none;
+}
+
+.sidebar .profile-details .bx-log-out {
+  cursor: pointer;
+  color: #fff;
+  font-size: 20px;
+  margin-right: 15px;
+}
+
+/* Active link styling */
+.sidebar .nav-links li a.active {
+  background-color: #1a62b1;
+}
+
+.sidebar .nav-links li a.active i,
+.sidebar .nav-links li a.active .link_name {
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.close {
+    transform: translateX(-100%);
+  }
+}
+
+.sidebar-header {
+  padding: 10px 15px 20px;
+  text-align: center;
+}
+
+.sidebar-header h3 {
+  color: white;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.nav-item {
+  padding: 0;
+}
+
+.nav-link {
+  padding: 10px 15px;
+  color: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.nav-link.active {
+  background-color: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.nav-link i {
+  margin-right: 10px;
+  font-size: 1.1em;
+}

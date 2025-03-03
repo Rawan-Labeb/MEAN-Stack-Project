@@ -1,0 +1,147 @@
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col">
+      <h2>Customer Complaints</h2>
+      <p class="text-muted">Manage customer complaints for your online branch.</p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" (click)="refreshComplaints()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="dismissSuccess()" aria-label="Close"></button>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="dismissError()" aria-label="Close"></button>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="text-center my-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading complaints...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center">
+          <label class="me-2">Filter by status:</label>
+          <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+            <option value="all">All Complaints</option>
+            <option value="new">New</option>
+            <option value="in-progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div [class]="selectedComplaint ? 'col-md-8' : 'col-md-12'">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Complaints List</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let complaint of filteredComplaints">
+                    <td>{{ complaint.customerName }}</td>
+                    <td>{{ complaint.subject }}</td>
+                    <td>{{ complaint.createdAt | date:'mediumDate' }}</td>
+                    <td>
+                      <span class="badge"
+                        [class.bg-danger]="complaint.status === 'new'"
+                        [class.bg-warning]="complaint.status === 'in-progress'"
+                        [class.bg-success]="complaint.status === 'resolved'">
+                        {{ complaint.status }}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-info me-1" (click)="viewComplaint(complaint)">View</button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="filteredComplaints.length === 0">
+                    <td colspan="5" class="text-center">No complaints found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4" *ngIf="selectedComplaint">
+        <div class="card">
+          <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Complaint Details</h5>
+            <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="closeDetails()"></button>
+          </div>
+          <div class="card-body">
+            <h5>{{ selectedComplaint.subject }}</h5>
+            <p class="text-muted mb-3">
+              Submitted by {{ selectedComplaint.customerName }}<br>
+              <small>{{ selectedComplaint.customerEmail }}</small><br>
+              <small>{{ selectedComplaint.createdAt | date:'medium' }}</small>
+            </p>
+            <div class="mb-3">
+              <label class="form-label">Status</label>
+              <div class="d-flex">
+                <button class="btn btn-sm me-2" 
+                  [class.btn-outline-danger]="selectedComplaint.status !== 'new'"
+                  [class.btn-danger]="selectedComplaint.status === 'new'"
+                  [disabled]="loading"
+                  (click)="updateStatus(selectedComplaint._id, 'new')">
+                  New
+                </button>
+                <button class="btn btn-sm me-2" 
+                  [class.btn-outline-warning]="selectedComplaint.status !== 'in-progress'"
+                  [class.btn-warning]="selectedComplaint.status === 'in-progress'"
+                  [disabled]="loading"
+                  (click)="updateStatus(selectedComplaint._id, 'in-progress')">
+                  In Progress
+                </button>
+                <button class="btn btn-sm" 
+                  [class.btn-outline-success]="selectedComplaint.status !== 'resolved'"
+                  [class.btn-success]="selectedComplaint.status === 'resolved'"
+                  [disabled]="loading"
+                  (click)="updateStatus(selectedComplaint._id, 'resolved')">
+                  Resolved
+                </button>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Message</label>
+              <div class="p-3 bg-light rounded">
+                {{ selectedComplaint.message }}
+              </div>
+            </div>
+            <div *ngIf="selectedComplaint.updatedAt" class="text-muted small">
+              Last updated: {{ selectedComplaint.updatedAt | date:'medium' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

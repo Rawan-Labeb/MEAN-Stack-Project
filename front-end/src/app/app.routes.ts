@@ -9,18 +9,17 @@ import { CatalogComponent } from './catalog/catalog.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { ProductDetailsComponent } from './product-details/product-details.component';
 import { NotFoundComponent } from './not-found/not-found.component';
-// import { RegisterComponent } from './authentication/register/register.component';
-// import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
-//import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
+import { SellerDashboardComponent } from './seller-dashboard copy/seller-dashboard.component';
 import { canLoginSuperAdminGuard } from './_guards/can-login-super-admin.guard';
 import { CachierComponent } from './cachier/cachier.component';
 import { CartCachierComponent } from './cachier/cart-cachier/cart-cachier.component';
 import { CartCheckoutGuard } from './cart/_guards/cart-checkout.guard';
 import { CashierGuard } from './cachier/_guard/cashier.guard'
-
-
-
+import { SalesClerkDashboardComponent } from './sales-clerk-dashboard copy/sales-clerk-dashboard.component';
+import { sellerGuard } from './_guards/seller.guard';
+import { authGuard } from './_guards/auth.guard'; 
+import { salesClerkGuard } from './_guards/sales-clerk.guard'; 
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
@@ -36,19 +35,23 @@ export const routes: Routes = [
   {path:"catalog",component:CatalogComponent},
   {path:"catalog/details/:id",component:ProductDetailsComponent},
   {path:"contact",component:ContactUsComponent},
-  // {path:"login",component:LoginComponent},
-  // {path:"register",component:RegisterComponent},
-  // {path:"userprofile",component:UserProfileComponent},
-  //{path:"sellerdashboard",component:SellerDashboardComponent},
-  //{path:"sellerdashboard", loadChildren:()=>import("./seller-dashboard/seller-dashboard.routes").then(s=>s.SELLER_DASHBOARD_ROUTES)},
+  {
+    path: "seller", 
+    loadChildren: () => import("./seller-dashboard copy/seller-dashboard.routes")
+      .then(s => s.SELLER_DASHBOARD_ROUTES),
+    canActivate: [sellerGuard]
+  },
+  {
+    path: "sales-clerk", 
+    loadChildren: () => import("./sales-clerk-dashboard copy/sales-clerk-dashboard.routes")
+      .then(s => s.SALES_CLERK_ROUTES),
+    canActivate: [salesClerkGuard] 
+  },
   {path:"**",component:NotFoundComponent},
   {
     path: 'login',
     component: LoginComponent
   },
-
-  // { path: '', redirectTo: 'seller', pathMatch: 'full' },
-  
 ];
 
 
