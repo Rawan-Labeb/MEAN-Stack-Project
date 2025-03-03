@@ -3,6 +3,9 @@ import { HttpClient,HttpHeaders } from '@angular/common/http';
 import { Observable ,Subject} from 'rxjs';
 import { Complaint } from '../_models/contact.model';
 import { tap} from 'rxjs/operators';
+import { AuthServiceService } from '../_services/auth-service.service';
+import { CookieService } from 'ngx-cookie-service';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -60,4 +63,32 @@ export class ContactService {
       onComplaintUpdate(): Observable<Complaint> {
           return this.complaintUpdated.asObservable();
       }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProductRequestService {
+  private apiUrl = 'http://localhost:5000/prodReq';
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthServiceService,
+    private cookieService: CookieService
+  ) {}
+
+  getProductRequestsBySeller(sellerId: string): Observable<any> {
+    const token = this.cookieService.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.get(`${this.apiUrl}/getProdReqForSeller/${sellerId}`, { headers });
+  }
+
+  updateRequestStatus(id: string, status: string, message: string): Observable<any> {
+    const token = this.cookieService.get('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+    return this.http.post(`${this.apiUrl}/updateProdReqStatusAndMsg/${id}`, 
+      { status, message }, 
+      { headers }
+    );
+  }
 }
