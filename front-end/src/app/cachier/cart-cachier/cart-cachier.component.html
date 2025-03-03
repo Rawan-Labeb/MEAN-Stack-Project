@@ -24,13 +24,13 @@
   
           <div class="row border-top border-bottom" *ngFor="let item of cartItems">
             <div class="row main align-items-center">
-              <div class="col-2">
+              <!-- <div class="col-2">
                 <img class="img-fluid" [src]="item.image" alt="Product Image"/>
-              </div>
+              </div> -->
               <div class="col">
                 <div class="row text-muted" style="font-weight: bold; color: #00003f;">{{ item.product.name }}</div>
                 <div class="row" style="font-weight: bold; color: #00003f;">&euro; {{ item.price }}</div>
-                <div class="row">{{ item.product.description }}</div>
+                <!-- <div class="row">{{ item.product.description }}</div> -->
               </div>
               <div class="col">
                 <button (click)="increaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8593;</button>
