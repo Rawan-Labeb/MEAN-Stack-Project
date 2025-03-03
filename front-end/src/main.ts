@@ -12,7 +12,7 @@ import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 // Import the functional interceptor correctly
-import { sellerAuthInterceptor } from './app/seller-dashboard/interceptors/seller-auth.interceptor';
+import { sellerAuthInterceptor } from './app/seller-dashboard copy/interceptors/seller-auth.interceptor';
 
 if (environment.production) {
   enableProdMode();
