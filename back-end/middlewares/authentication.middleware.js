@@ -1,43 +1,27 @@
 const {verifyToken, decodedToken} = require("../utils/jwttoken.manager");
 
-const authenticaiton = async (req, res, next) => {
+const authenticaiton = async (req, res, next) => 
+{
     try {
-    const token = req.headers.authorization?.split(' ')[1];
-    console.log('Checking authentication token:', token ? 'Present' : 'Missing');
-
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded token:', decoded);
-
-    const user = await User.findById(decoded.id);
-    console.log('User details:', {
-      id: user._id,
-      role: user.role,
-      isActive: user.isActive,
-      email: user.email
-    });
-
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+        // because the token consists of two parts: Bearer and another token 
+        const token = req.headers.authorization.split(" ")[1];
+        console.log(token);
+        // if the token is not verified => will return an issue => go to catch
+        const isValid = verifyToken(token);
+        console.log(isValid);
+        if (!isValid) {
+            throw new Error("Invalid token");
         }
-
-    if (!user.isActive) {
-      return res.status(401).json({ message: 'Can not make this operation User Not Active' });
-    }
-
-    req.user = user;
+        const claims = decodedToken(token);
+        req.user = claims;
         next();
 
     } catch (error) {
-    console.error('Authentication error:', error);
-    res.status(401).json({ message: 'Authentication failed' });
+        res.status(401).json({message: "Unauthenticated"});
+    }
 }
-};
+
 
 module.exports = {
     authenticaiton
 }
-
