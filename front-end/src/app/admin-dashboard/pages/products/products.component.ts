@@ -26,6 +26,8 @@ import { UserService } from 'src/app/_services/user.service';
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent implements OnInit, OnDestroy {
+  reviewData: any;
+  showReviewModal = false;
   userData: any = null;
   userId: string='';
   user:any=null
@@ -33,8 +35,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
   errors: string | null = null;
   currentPage = 1;
   itemsPerPage = 10;
-  reviewData: any;
-  showReviewModal = false;
   products: Product[] = [];
   filteredProducts: Product[] = [];
   loading = false;
