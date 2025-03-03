@@ -7,7 +7,7 @@
   left: 0;
   height: 100%;
   width: 260px;
-  background: #00004d; /* Dark blue color */
+  background: #004080; /* Changed from #00004d to #004080 */
   z-index: 100;
   transition: all 0.5s ease;
 }
@@ -63,7 +63,7 @@
 }
 
 .sidebar .nav-links li:hover {
-  background: #000066;
+  background: #003366; /* Changed from #000066 to #003366 */
 }
 
 .sidebar .nav-links li .icon-link {
@@ -109,7 +109,7 @@
 .sidebar .nav-links li .sub-menu {
   padding: 6px 6px 14px 80px;
   margin-top: -10px;
-  background: #000066;
+  background: #003366; /* Changed from #000066 to #003366 */
   display: none;
 }
 
@@ -175,7 +175,7 @@
 
 .sidebar .nav-links li.active,
 .sidebar .nav-links li a.active {
-  background: #000066;
+  background: #003366; /* Changed from #000066 to #003366 */
 }
 
 /* Update the profile-details class */
@@ -186,7 +186,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end; /* Changed from space-between to flex-end */
-  background: #000066;
+  background: #003366; /* Changed from #000066 to #003366 */
   padding: 12px 15px; /* Added horizontal padding */
   transition: all 0.5s ease;
 }

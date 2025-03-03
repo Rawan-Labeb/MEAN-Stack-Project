@@ -1,5 +1,5 @@
 .footer {
-  background: linear-gradient(to right, #000066, #00004d);
+  background: linear-gradient(to right, #004080, #003366); /* Changed from #000066/#00004d to #004080/#003366 */
   color: white;
   padding: 2rem 0;
   margin-top: auto;

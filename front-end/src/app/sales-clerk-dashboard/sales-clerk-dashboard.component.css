@@ -17,6 +17,11 @@
   padding: 20px;
   background-color: #f5f7fb;
   overflow-x: hidden;
+  min-height: calc(100vh - 120px); 
+}
+
+app-footer {
+  display: block; 
 }
 
 /* Style for collapsed sidebar */
