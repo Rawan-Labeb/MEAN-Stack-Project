@@ -35,10 +35,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
   loading = false;
   showAddModal = false;
   showEditModal = false;
+  showDeleteModal = false;
   editingProduct: Product | null = null;
   selectedFiles: File[] = [];
   error: string | null = null;
   private destroy$ = new Subject<void>();
+  categoryFilter: string = '';
+  sortBy: string = 'name';
+  selectedProduct: Product | null = null;
 
   productData: ProductFormData = {
     name: '',
@@ -74,11 +78,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Update the loadProducts method
   loadProducts(): void {
     this.loading = true;
     this.error = null;
     
-    this.productService.getAllProducts()
+    // Use the new method to get only seller's own products
+    this.productService.getSellerOwnProducts()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: Product[]) => {
@@ -110,6 +116,16 @@ export class ProductListComponent implements OnInit, OnDestroy {
       filtered = filtered.filter(product => 
         product.isActive === (this.statusFilter === 'active')
       );
+    }
+
+    if (this.categoryFilter) {
+      filtered = filtered.filter(product => {
+        if (typeof product.categoryId === 'string') {
+          return product.categoryId === this.categoryFilter;
+        } else {
+          return product.categoryId?._id === this.categoryFilter;
+        }
+      });
     }
 
     // Apply sorting
@@ -204,8 +220,55 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
+  
+
+  onAddClicked(): void {
+    console.log('Opening add product modal');
+    this.showAddModal = true;
+  }
+
+  onEditClicked(product: Product): void {
+    this.selectedProduct = product;
+    this.showEditModal = true;
+  }
+
+  onDeleteClicked(product: Product): void {
+    this.selectedProduct = product;
+    this.showDeleteModal = true;
+  }
+
+  onProductAdded(product: Product): void {
+    this.showAddModal = false;
+    this.loadProducts(); // Reload products to include the new one
+  }
+
   onProductUpdated(): void {
-    this.closeEditModal();
-    this.loadProducts();
+    this.showEditModal = false;
+    this.loadProducts(); // Reload products to reflect changes
+  }
+
+  onProductDeleted(): void {
+    this.showDeleteModal = false;
+    this.loadProducts(); // Reload products to remove the deleted one
+  }
+
+  // Filter and sort methods
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+
+  onCategoryChange(category: string): void {
+    this.categoryFilter = category;
+    this.applyFilters();
+  }
+
+  onSortChange(sortOption: string): void {
+    this.sortBy = sortOption;
+    this.applyFilters();
+  }
+
+  toggleSortDirection(): void {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.applyFilters();
   }
 }

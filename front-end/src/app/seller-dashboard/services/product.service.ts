@@ -300,6 +300,35 @@ export class ProductService {
     );
   }
 
+  
+  getSellerOwnProducts(): Observable<Product[]> {
+    // The auth interceptor will automatically add the token
+    return this.authService.decodeToken(this.authService.getToken()).pipe(
+      switchMap(decoded => {
+        if (!decoded) {
+          console.error('Could not decode token');
+          return throwError(() => new Error('Authentication failed'));
+        }
+        
+        // Use the id from the decoded token
+        const sellerId = decoded.id || decoded._id || decoded.sub;
+        
+        if (!sellerId) {
+          console.error('No seller ID found in token');
+          return throwError(() => new Error('No seller ID found'));
+        }
+        
+        // Call the API endpoint with seller ID
+        console.log(`Getting products for seller: ${sellerId}`);
+        return this.http.get<Product[]>(`${this.apiUrl}/product/getProductBySellerId/${sellerId}`);
+      }),
+      catchError(error => {
+        console.error('Error getting seller products:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   // Notification methods
   notifyProductUpdate(): void {
     this.productUpdateSubject.next();

@@ -100,13 +100,16 @@ export class AddProductComponent implements OnInit {
     });
   }
 
+  // Fix the method that was causing the "patchValue" error
   onImagesUploaded(uploadedUrls: string[]): void {
-    console.log('Received uploaded image URLs:', uploadedUrls);
-    const currentImages = this.productForm.get('images')?.value || [];
-    
     if (uploadedUrls && uploadedUrls.length > 0) {
+      // Get current images from form
+      const currentImages = this.productForm.get('images')?.value || [];
+      
       // Combine existing images with new ones
       const updatedImages = [...currentImages, ...uploadedUrls];
+      
+      // Use productForm (not productData) to call patchValue
       this.productForm.patchValue({ images: updatedImages });
     }
   }
