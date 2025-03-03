@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
-<<<<<<< HEAD
 import { Product, ProductFormData } from '../../models/product.model';
 import { DeleteProductComponent } from '../delete-product/delete-product.component';
 import { AddProductComponent } from '../add-product/add-product.component';
@@ -44,9 +43,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
     name: '',
     price: 0,
     quantity: 0,
+    images:[],
     description: '',
     isActive: true,
-    supplierId: '679bf428745c9d962586960e',
     categoryId: '679bf428745c9d962586960c',
     sellerId: '679bd316017427c66ece2617'
   };
@@ -78,7 +77,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     
-    firstValueFrom(this.productService.getProducts())
+    firstValueFrom(this.productService.getAllProducts())
       .then(data => {
         console.log('Products loaded:', data); // Debug log
         this.products = [...data]; // Create new array reference
@@ -160,9 +159,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
       name: '',
       price: 0,
       quantity: 0,
+      images:[],
       description: '',
       isActive: true,
-      supplierId: '679bf428745c9d962586960e',
       categoryId: '679bf428745c9d962586960c',
       sellerId: '679bd316017427c66ece2617'
     };
@@ -177,8 +176,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
       quantity: product.quantity,
       description: product.description || '',
       isActive: product.isActive,
-      supplierId: product.supplierId,
-      categoryId: product.categoryId || '679bf428745c9d962586960c',
+      images:product.images,
+      categoryId: product.categoryId._id || '679bf428745c9d962586960c',
       sellerId: product.sellerId || '679bd316017427c66ece2617'
     };
     this.showEditModal = true;

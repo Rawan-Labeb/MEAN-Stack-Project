@@ -13,14 +13,17 @@ import { DetailsOrderComponent } from './details-order/details-order.component';
 import { ProductService } from 'src/app/_services/product.service';
 import { SubInventoryService } from 'src/app/_services/sub-inventory.service';
 import { switchMap } from 'rxjs/operators';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-orders',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,DetailsOrderComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,DetailsOrderComponent,NgxPaginationModule],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })
 export class OrdersComponent  implements OnInit, OnDestroy {
+  currentPage = 1;
+  itemsPerPage = 10;
     orders: Order[] =[]
         filteredOrders: Order[] = [];
         loading = false;

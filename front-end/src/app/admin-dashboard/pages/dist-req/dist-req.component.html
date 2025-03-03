@@ -58,7 +58,7 @@
                           class="form-control" 
                           [(ngModel)]="searchTerm" 
                           (input)="onSearch()"
-                          placeholder="Search Date...">
+                          placeholder="Search Branch...">
                 </div>
                 <div class="col-md-3">
                   <select class="form-select" 
@@ -90,7 +90,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let distReq of filteredDistReqs">
+                    <tr *ngFor="let distReq of filteredDistReqs | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
                       <td><img class="image" src="{{distReq?.productDetails!.images[0]}}" alt="">{{distReq.productDetails.name}}</td>
                       <td>{{distReq.branchManager.firstName}} {{distReq.branchManager.lastName}}</td>
                       <td>{{distReq.branchDetails.branchName}}</td>
@@ -129,6 +129,7 @@
                     </tr>
                   </tbody>
                 </table>
+                <pagination-controls class="text-center" (pageChange)="currentPage = $event"></pagination-controls>
               </div>
             </div>
           </div>

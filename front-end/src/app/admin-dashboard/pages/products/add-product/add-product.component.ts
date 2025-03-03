@@ -31,7 +31,7 @@ export class AddProductComponent implements OnInit {
     isActive: true,
     quantity: 0,
     distributedItems: 0,
-    sellerId: {_id:'679bd13b5503613c0a14eb9b',firstName:'',lastName:''},
+    sellerId: {_id:'',firstName:'',lastName:''},
     categoryId:  {_id:'',name:''},
     createdAt: new Date(),
     updatedAt: new Date()
@@ -77,7 +77,7 @@ export class AddProductComponent implements OnInit {
         isActive: this.productData.isActive ?? true,
         quantity: this.productData.quantity ?? 0,
         distributedItems: this.productData.distributedItems ?? 0,
-        sellerId: this.productData.sellerId|| '679bd13b5503613c0a14eb9b',
+        sellerId: this.productData.sellerId|| '',
         categoryId: this.productData.categoryId || '',
         createdAt: this.productData.createdAt ?? new Date(),
         updatedAt: this.productData.updatedAt ?? new Date()

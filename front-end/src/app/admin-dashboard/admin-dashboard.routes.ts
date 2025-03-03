@@ -35,7 +35,7 @@ export const adminDashboardRoutes: Routes = [
         { path: 'mainInventories', component: MainInventoryComponent },
         { path: 'branches', component: BranchComponent },
         { path: 'subInventory/:branchName', component: SubInventoryComponent },
-        { path: 'orders/:_id', component: OfflineOrderComponent },
+        { path: 'offlineOrders/:_id', component: OfflineOrderComponent },
         { path: 'distReq', component: DistReqComponent },
 
     ]},  

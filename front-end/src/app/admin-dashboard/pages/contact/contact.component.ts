@@ -9,14 +9,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-contact',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,NgxPaginationModule],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.css'
 })
 export class ContactComponent implements OnInit, OnDestroy {
+  currentPage = 1;
+  itemsPerPage = 10;
 complaints: Complaint[] =[]
     filteredComplaints: Complaint[] = [];
     loading = false;
@@ -135,10 +138,10 @@ complaints: Complaint[] =[]
       if (this.searchTerm) {
         const searchLower = this.searchTerm.toLowerCase();
         filtered = filtered.filter(complaint => 
-          new Date(complaint.createdAt).toLocaleDateString().toLowerCase().includes(searchLower)
+          complaint.email?.toLowerCase().includes(searchLower)
         );
       }
-  
+
       if (this.statusFilter !== 'all') {
         filtered = filtered.filter(complaint => complaint.status === this.statusFilter);
       }

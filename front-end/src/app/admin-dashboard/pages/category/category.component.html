@@ -94,7 +94,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let category of filteredCategories">
+                    <tr *ngFor="let category of filteredCategories | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
                       <td><img class="image" src="{{category.image}}" alt="">{{category.name}}</td>
                       <td>{{category.description}}</td>
                       <td>{{category.createdAt}}</td>
@@ -125,6 +125,7 @@
                     </tr>
                   </tbody>
                 </table>
+                <pagination-controls class="text-center" (pageChange)="currentPage = $event"></pagination-controls>
               </div>
             </div>
           </div>
