@@ -18,7 +18,7 @@ import { CartCachierComponent } from './cachier/cart-cachier/cart-cachier.compon
 import { UserRoleService } from './_services/user-role.service';
 import { RequestChangePasswordComponent } from './authentication/request-change-password/request-change-password.component';
 import { ResetPasswordComponent } from './authentication/change-password/change-password.component';
-import { SellerDashboardComponent } from "./seller-dashboard/seller-dashboard.component";
+//import { SellerDashboardComponent } from "./seller-dashboard/seller-dashboard.component";
 // import { HeaderComponent } from "./admin-dashboard/core/header/header.component";
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';

@@ -12,7 +12,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 // import { RegisterComponent } from './authentication/register/register.component';
 // import { UserProfileComponent } from './user-profile/user-profile.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
-import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
+//import { SellerDashboardComponent } from './seller-dashboard/seller-dashboard.component';
 import { canLoginSuperAdminGuard } from './_guards/can-login-super-admin.guard';
 import { CachierComponent } from './cachier/cachier.component';
 import { CartCachierComponent } from './cachier/cart-cachier/cart-cachier.component';
