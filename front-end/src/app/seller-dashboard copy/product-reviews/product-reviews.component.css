@@ -1,0 +1,35 @@
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffc107;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.star {
+  color: #ffc107; /* Yellow color for filled stars */
+  font-size: 1rem;
+}
+
+.star.empty {
+  color: #e4e5e9; /* Gray color for empty stars */
+}
+
+.rating-number {
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.review-date {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.bx {
+  margin-right: 2px;
+}
+
