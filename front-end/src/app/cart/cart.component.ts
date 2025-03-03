@@ -363,7 +363,9 @@ removeItem(subInventoryId: string): void {
   });
 }
 
-  
+isOutOfStock(item: any): boolean {
+  return item.quantity === 0;
+}
 
   getTotalPrice(): number {
     return this.cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -434,8 +436,6 @@ removeItem(subInventoryId: string): void {
   //     }
   //   });
   // }
-  isOutOfStock(item: any): boolean {
-    return item.quantity === 0;
-  }
+ 
 
 }
