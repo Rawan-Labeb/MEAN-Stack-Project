@@ -22,25 +22,15 @@ export class ProductRequestsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.authService.decodeToken(token).subscribe({
-        next: (decoded: any) => {
-          if (decoded && decoded.id) {
-            this.loadRequests(decoded.id, token);
-          }
-        },
-        error: (error: Error) => {
-          console.error('Token decode error:', error);
-          Swal.fire('Error', 'Authentication error', 'error');
-        }
-      });
-    }
+
+    // Simplified initialization - the service now handles getting the token and ID
+    this.loadRequests();
   }
 
-  loadRequests(sellerId: string, token: string): void {
+  loadRequests(): void {
     this.loading = true;
-    this.productRequestService.getProductRequestsBySeller(sellerId, token)
+    // No longer need to pass sellerId and token - service handles that
+    this.productRequestService.getProductRequestsBySeller()
       .subscribe({
         next: (requests: ProductRequest[]) => {
           this.requests = requests;
@@ -55,12 +45,6 @@ export class ProductRequestsComponent implements OnInit {
   }
 
   updateStatus(requestId: string, status: 'approved' | 'rejected', defaultMessage: string): void {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      Swal.fire('Error', 'Authentication required', 'error');
-      return;
-    }
-
     Swal.fire({
       title: `${status === 'approved' ? 'Approve' : 'Reject'} Request`,
       input: 'text',
@@ -70,7 +54,8 @@ export class ProductRequestsComponent implements OnInit {
       confirmButtonText: status === 'approved' ? 'Approve' : 'Reject',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.productRequestService.updateRequestStatus(requestId, status, result.value, token)
+        // No longer need to pass token - service handles that
+        this.productRequestService.updateRequestStatus(requestId, status, result.value)
           .subscribe({
             next: (updatedRequest: ProductRequest) => {
               const index = this.requests.findIndex(r => r._id === requestId);
