@@ -4,6 +4,9 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 09d7042cddbf7351ce774f73693b63b02de41b4c
 import { Product, ProductFormData } from '../../models/product.model';
 import { DeleteProductComponent } from '../delete-product/delete-product.component';
 import { AddProductComponent } from '../add-product/add-product.component';
@@ -44,9 +47,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
     name: '',
     price: 0,
     quantity: 0,
+<<<<<<< HEAD
     description: '',
     isActive: true,
     supplierId: '679bf428745c9d962586960e',
+=======
+    images:[],
+    description: '',
+    isActive: true,
+>>>>>>> 09d7042cddbf7351ce774f73693b63b02de41b4c
     categoryId: '679bf428745c9d962586960c',
     sellerId: '679bd316017427c66ece2617'
   };
@@ -78,7 +87,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     
+<<<<<<< HEAD
     firstValueFrom(this.productService.getProducts())
+=======
+    firstValueFrom(this.productService.getAllProducts())
+>>>>>>> 09d7042cddbf7351ce774f73693b63b02de41b4c
       .then(data => {
         console.log('Products loaded:', data); // Debug log
         this.products = [...data]; // Create new array reference
@@ -160,9 +173,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
       name: '',
       price: 0,
       quantity: 0,
+<<<<<<< HEAD
       description: '',
       isActive: true,
       supplierId: '679bf428745c9d962586960e',
+=======
+      images:[],
+      description: '',
+      isActive: true,
+>>>>>>> 09d7042cddbf7351ce774f73693b63b02de41b4c
       categoryId: '679bf428745c9d962586960c',
       sellerId: '679bd316017427c66ece2617'
     };
@@ -177,8 +196,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
       quantity: product.quantity,
       description: product.description || '',
       isActive: product.isActive,
+<<<<<<< HEAD
       supplierId: product.supplierId,
       categoryId: product.categoryId || '679bf428745c9d962586960c',
+=======
+      images:product.images,
+      categoryId: product.categoryId._id || '679bf428745c9d962586960c',
+>>>>>>> 09d7042cddbf7351ce774f73693b63b02de41b4c
       sellerId: product.sellerId || '679bd316017427c66ece2617'
     };
     this.showEditModal = true;

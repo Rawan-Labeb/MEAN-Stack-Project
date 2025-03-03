@@ -96,7 +96,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let branch of filteredBranches">
+                    <tr *ngFor="let branch of filteredBranches | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
                       <td>{{branch.branchName}}</td>
                       <td>{{branch.location}}</td>
                       <td>{{branch.contactNumber}}</td>
@@ -133,6 +133,7 @@
                     </tr>
                   </tbody>
                 </table>
+                <pagination-controls class="text-center" (pageChange)="currentPage = $event"></pagination-controls>
               </div>
             </div>
           </div>

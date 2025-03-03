@@ -11,14 +11,17 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AddSalesClerkComponent } from './add-sales-clerk/add-sales-clerk.component';
 import { EditSalesClerkComponent } from './edit-sales-clerk/edit-sales-clerk.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-sales-clerk',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddSalesClerkComponent,EditSalesClerkComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddSalesClerkComponent,EditSalesClerkComponent,NgxPaginationModule],
   templateUrl: './sales-clerk.component.html',
   styleUrl: './sales-clerk.component.css'
 })
 export class SalesClerkComponent implements OnInit, OnDestroy {
+  currentPage = 1;
+  itemsPerPage = 10;
   users: User[] =[]
       filteredUsers: User[] = [];
       loading = false;

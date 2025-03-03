@@ -98,7 +98,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let subInventory of filteredSubInventories">
+                    <tr *ngFor="let subInventory of filteredSubInventories | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
                         <td><img class="image" src="{{subInventory?.product!.images[0]}}" alt="">{{subInventory?.product?.name}}</td>
                         <td>{{subInventory?.product?.price}}</td>
                         <td>{{subInventory?.product?.noOfSale}}</td>
@@ -141,6 +141,7 @@
                     </tr>
                   </tbody>
                 </table>
+                <pagination-controls class="text-center" (pageChange)="currentPage = $event"></pagination-controls>
               </div>
             </div>
           </div>

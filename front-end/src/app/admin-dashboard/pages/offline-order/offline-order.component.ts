@@ -11,15 +11,22 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DetailsOfflineOrderComponent } from './details-offline-order/details-offline-order.component';
 import { ProductService } from 'src/app/_services/product.service';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { BranchService } from 'src/app/_services/branch.service';
 
 @Component({
   selector: 'app-offline-order',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,DetailsOfflineOrderComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,DetailsOfflineOrderComponent,NgxPaginationModule],
   templateUrl: './offline-order.component.html',
   styleUrl: './offline-order.component.css'
 })
 export class OfflineOrderComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
   branchId=''
+  branchName=''
+  loadings = false;
+  errors: string | null = null;
   orderOfflines: OrderOffline[] =[]
       filteredOrderOfflines: OrderOffline[] = [];
       loading = false;
@@ -35,7 +42,8 @@ export class OfflineOrderComponent implements OnInit, OnDestroy{
       private destroy$ = new Subject<void>();
       orderOfflineData: OrderOffline = this.getInitialOrderOfflineData();
       constructor(private orderOfflineService: OrderOfflineService , private cdr: ChangeDetectorRef,
-        private route: ActivatedRoute,private productService:ProductService) {}
+        private route: ActivatedRoute,private productService:ProductService,
+      private branchService: BranchService) {}
     
       ngOnInit(): void {
         this.route.paramMap.subscribe(params => {
@@ -78,7 +86,6 @@ export class OfflineOrderComponent implements OnInit, OnDestroy{
         this.destroy$.next();
         this.destroy$.complete();
       }
-  
     
       async loadOrderOfflines(): Promise<void> {
         this.loading = true;
@@ -87,6 +94,8 @@ export class OfflineOrderComponent implements OnInit, OnDestroy{
         try {
           const data = await firstValueFrom(this.orderOfflineService.getOfflineOrdersByBranchId(this.branchId));
           this.orderOfflines =[...data]
+          const data2=await firstValueFrom(this.branchService.getBranchById(this.branchId))
+          this.branchName=data2.branchName
       
           this.filteredOrderOfflines = [...this.orderOfflines];
       
@@ -126,21 +135,19 @@ export class OfflineOrderComponent implements OnInit, OnDestroy{
         if (this.searchTerm) {
           const searchLower = this.searchTerm.toLowerCase();
           filtered = filtered.filter(orderOffline => 
-            new Date(orderOffline.date).toLocaleDateString().toLowerCase().includes(searchLower)
+            new Date(orderOffline.date).toISOString().includes(searchLower)
           );
         }
     
         if (this.statusFilter !== 'all') {
-          filtered = filtered.filter(orderOffline => 
-            orderOffline.status === this.statusFilter
-          );
+          filtered = filtered.filter(order => order.status === this.statusFilter);
         }
         
     
         filtered.sort((a, b) => {
-          const direction = this.sortDirection === 'asc' ? 1 : -1;
-          return String(a[this.sortColumn]).localeCompare(String(b[this.sortColumn])) * direction;
-        });
+        const direction = this.sortDirection === 'asc' ? 1 : -1;
+        return String(a[this.sortColumn]).localeCompare(String(b[this.sortColumn])) * direction;
+      });
     
         this.filteredOrderOfflines = [...filtered];
         this.cdr.detectChanges();
@@ -174,15 +181,12 @@ export class OfflineOrderComponent implements OnInit, OnDestroy{
           this.orderOfflineData = { ...orderOffline };
         
           try {
-            // تنفيذ جميع طلبات المنتجات بشكل متوازي
             const productRequests = this.orderOfflineData.items.map(item =>
               this.productService.getProductById(item.subInventoryId.product).toPromise()
             );
         
-            // انتظار كل الطلبات مع بعض
             const products = await Promise.all(productRequests);
-        
-            // ربط المنتجات بالعناصر
+
             this.orderOfflineData.items.forEach((item:any, index) => {
               item.productDetails = products[index];
             });

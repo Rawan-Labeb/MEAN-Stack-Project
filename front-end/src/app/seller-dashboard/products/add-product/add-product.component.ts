@@ -19,7 +19,7 @@ export class AddProductComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
-  productForm!: FormGroup;
+  productData!: FormGroup;
   categories: Category[] = [];
   loading = false;
 
@@ -43,7 +43,7 @@ export class AddProductComponent implements OnInit {
   }
 
   private initForm(): void {
-    this.productForm = this.fb.group({
+    this.productData = this.fb.group({
       name: ['', [Validators.required]],
       description: ['', [Validators.required]],
       price: [0, [Validators.required, Validators.min(0)]],
@@ -70,7 +70,7 @@ export class AddProductComponent implements OnInit {
 
   onImagesUploaded(uploadedUrls: string[]): void {
     console.log('Received uploaded image URLs:', uploadedUrls);
-    const currentImages = this.productForm.get('images')?.value || [];
+    const currentImages = this.productData.get('images')?.value || [];
     
     if (currentImages.length + uploadedUrls.length > this.MAX_IMAGES) {
       Swal.fire('Error', `Maximum ${this.MAX_IMAGES} images allowed`, 'error');
@@ -80,7 +80,7 @@ export class AddProductComponent implements OnInit {
     if (uploadedUrls && uploadedUrls.length > 0) {
       // Combine existing images with new ones
       const updatedImages = [...currentImages, ...uploadedUrls];
-      this.productForm.patchValue({ images: updatedImages });
+      this.productData.patchValue({ images: updatedImages });
     }
   }
 
@@ -102,8 +102,8 @@ export class AddProductComponent implements OnInit {
   onSubmit(): void {
     if (!this.validateForm()) return;
 
-    if (this.productForm.valid) {
-      const formValues = this.productForm.value;
+    if (this.productData.valid) {
+      const formValues = this.productData.value;
       const submitData: ProductSubmitData = {
         name: formValues.name.trim(),
         description: formValues.description.trim(),
@@ -135,7 +135,7 @@ export class AddProductComponent implements OnInit {
   }
 
   private validateForm(): boolean {
-    const formValues = this.productForm.value;
+    const formValues = this.productData.value;
 
     if (!formValues.images || formValues.images.length === 0) {
       Swal.fire('Error', 'At least one image is required', 'error');
@@ -162,7 +162,7 @@ export class AddProductComponent implements OnInit {
   }
 
   private resetForm(): void {
-    this.productForm.reset({
+    this.productData.reset({
       name: '',
       description: '',
       price: 0,
@@ -187,8 +187,8 @@ export class AddProductComponent implements OnInit {
   removeImage(index: number): void {
     this.previewUrls.splice(index, 1);
     // Also remove from the actual files array if you're tracking that
-    const fileList = Array.from(this.productForm.get('images')?.value || []);
+    const fileList = Array.from(this.productData.get('images')?.value || []);
     fileList.splice(index, 1);
-    this.productForm.patchValue({ images: fileList });
+    this.productData.patchValue({ images: fileList });
   }
 }
