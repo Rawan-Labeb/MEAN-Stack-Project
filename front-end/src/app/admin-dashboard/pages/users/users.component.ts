@@ -11,13 +11,16 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AddUserComponent } from './add-user/add-user.component';
 import { EditUserComponent } from './edit-user/edit-user.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 @Component({
   selector: 'app-users',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddUserComponent,EditUserComponent],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,AddUserComponent,EditUserComponent,NgxPaginationModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
 export class UsersComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
   users: User[] =[]
     filteredUsers: User[] = [];
     loading = false;

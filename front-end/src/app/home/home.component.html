@@ -61,7 +61,7 @@
         <div class="row">
           <div class="col-md-3" *ngFor="let product of bestSales">
             <div class="card cardProduct shadow-sm">
-              <img [src]="product.productImage" class="card-img-top" alt="{{ product.productName }}"  />
+              <img [src]="product?.productImage[0]" class="card-img-top" alt="{{ product.productName }}"  />
               <div class="card-body">
                 <h5 class="card-title">{{ product.productName }}</h5>
                 <p class="fw-bold">${{ product.productPrice.toFixed(2) }}</p>
@@ -128,7 +128,7 @@
       <div class="row">
         <div class="col-md-3" *ngFor="let product of newArrivalsD">
           <div class="card cardProduct shadow-sm">
-            <img [src]="product.productImage" class="card-img-top" alt="{{ product.productName }}" />
+            <img [src]="product.productImage[0]" class="card-img-top" alt="{{ product.productName }}" />
             <div class="card-body">
               <h5 class="card-title">{{ product.productName }}</h5>
               <p class="fw-bold">${{ product.productPrice.toFixed(2) }}</p>

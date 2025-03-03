@@ -9,13 +9,6 @@ export interface Seller {
   user_id?: string;
 }
 
-export interface Supplier {
-  _id: string;
-  companyName: string;
-  email: string;
-  contactNo: string;
-}
-
 export interface Category {
   _id: string;
   name: string;

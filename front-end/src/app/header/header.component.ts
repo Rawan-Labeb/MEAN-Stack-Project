@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServiceService } from '../_services/auth-service.service';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of } from 'rxjs';
 // >>>>>>>>> import { CartService } from '../cart/service/cart.service';
 
 @Component({
@@ -18,11 +18,49 @@ export class HeaderComponent implements OnInit {
 
   //>>>>>>>>> cartItems: any[] = []; 
 
+  // ngOnInit(): void {
+  //   const token = this.authSer.getToken();
+  //   if (token) {
+  //     this.authSer.decodeToken(token).subscribe({
+  //       next: (data) => {
+  //         console.log(data);
+  //         console.log(data.role);
+  //         this.userRole = data.role;
+  //       },
+  //       error: (err) => {
+  //         console.error('Error decoding token:', err);
+  //       }
+  //     });
+  //   }
+  // }
+
+  async ngOnInit(): Promise<void> {
+    await this.loadUserRole();
+  }
+
+  async loadUserRole(): Promise<void> {
+    const token = this.authSer.getToken();
+    if (token) {
+      try {
+        const data = await firstValueFrom(this.authSer.decodeToken(token)); // 🔥 تحويل الـ Observable إلى Promise
+        console.log(data);
+        console.log(data.role);
+        this.userRole = data.role;
+        this.cdRef.detectChanges(); // 🛠 تحديث القالب بعد التغيير
+      } catch (err) {
+        console.error('❌ Error decoding token:', err);
+      }
+    }
+  }
+
+
+
 
   constructor(
     public cookieSer:CookieService,
     public router:Router,
     public authSer:AuthServiceService,
+    private cdRef: ChangeDetectorRef
  //>>>>>>>>>>   private cartService: CartService
   )
   {
@@ -33,42 +71,50 @@ export class HeaderComponent implements OnInit {
   userData: any = null; 
 
       
-  ngOnInit(): void {
+  // ngOnInit(): void {
 
-    const token = this.getToken();
-    if (!token) {
-      console.error('No token found');
-      return;
+    // const token = this.getToken();
+    // if (!token) {
+    //   console.error('No token found');
+    //   return;
       
-    }
+    // }
     
+    // this.authSer.decodeToken(this.authSer.getToken()).subscribe({
+    //   next:(data)=>{
+    //     console.log(data)
+    //     console.log(data.role)
+    //     this.userRole = data.role;
+    //   }
+    // })
    
   
-    this.decodeUserToken(token).subscribe({
-      next: (data: any) => {
-        if (data && data.role) {
-          this.userRole = data.role;
-          console.log('User Role:', this.userRole);
+    // this.decodeUserToken(token).subscribe({
+    //   next: (data: any) => {
+    //     console.log(data.role)
+    //     if (data && data.role) {
+    //       this.userRole = data.role;
+    //       console.log('User Role:', this.userRole);
           
-        } else {
-          console.error('Invalid or missing role in token');
-        }
+    //     } else {
+    //       console.error('Invalid or missing role in token');
+    //     }
   
-        if (data && data.email) {
-          this.userEmail = data.email;
-          console.log('User Email:', this.userEmail);
+    //     if (data && data.email) {
+    //       this.userEmail = data.email;
+    //       console.log('User Email:', this.userEmail);
   
-          // Fetch additional user data by email
-          this.fetchUserDataByEmail();
-        } else {
-          console.error('Invalid or missing email in token');
-        }
-        // >>>>>>>>this.loadCart();
-      },
+    //       // Fetch additional user data by email
+    //       this.fetchUserDataByEmail();
+    //     } else {
+    //       console.error('Invalid or missing email in token');
+    //     }
+    //     // >>>>>>>>this.loadCart();
+    //   },
       
-      error: (err: any) => console.error('Error decoding token', err)
-    });
-  }
+    //   error: (err: any) => console.error('Error decoding token', err)
+    // });
+// }
   // >>>>>>> loadCart(): void {
   //   const userId = this.cookieSer.get('userId'); 
   //   if (!userId) return;
@@ -91,20 +137,20 @@ export class HeaderComponent implements OnInit {
   //   });
   // }
   
-  getToken(): string {
-    return this.cookieSer.get('token'); 
-  }
+  // getToken(): string {
+  //   return this.cookieSer.get('token'); 
+  // }
 
-  decodeUserToken(token: string): Observable<any> {
-    try {
-      const decoded = this.authSer.decodeToken(token);
-      console.log('Decoded Token:', decoded);
-      return of(decoded); 
-    } catch (error) {
-      console.error('Invalid token', error);
-      return of(null); 
-    }
-  }
+  // decodeUserToken(token: string): Observable<any> {
+  //   try {
+  //     const decoded = this.authSer.decodeToken(token);
+  //     console.log('Decoded Token:', decoded);
+  //     return of(decoded); 
+  //   } catch (error) {
+  //     console.error('Invalid token', error);
+  //     return of(null); 
+  //   }
+  // }
   LogOut(): void {
     this.authSer.logout();
     this.router.navigateByUrl('');

@@ -3,20 +3,20 @@
       <button mat-icon-button (click)="toggleSidebar()">
         <mat-icon>menu</mat-icon>
       </button>
-      <div  class="row ml-auto">
+      <div  class="row ml-auto">    
         <ul class="row m-0 align-items-center">
           <li>
             <button mat-button [matMenuTriggerFor]="menu" class="user mt-2 d-flex align-items-center">
-              <img src="download.jpg" alt="" class="user-image" />
-              User Name
+              <img src="../../../../assets/download.jpg" alt="" class="user-image" />
+              {{ user?.firstName}} {{ user?.lastName}}
               <mat-icon class="user-image-icon">keyboard_arrow_down</mat-icon>
             </button>
             <mat-menu #menu="matMenu" class="bg-white">
-              <button mat-menu-item>
+              <!-- <button mat-menu-item>
                 <mat-icon>person</mat-icon>
                 profile
-              </button>
-              <button mat-menu-item>
+              </button> -->
+              <button mat-menu-item (click)="logout()">
                 <mat-icon>exit_to_app</mat-icon>
                 Logout
               </button>
@@ -24,5 +24,8 @@
           </li>
         </ul>
       </div>
+      <button mat-button [routerLink]="'/home'" class="user mt-2 text-primary">
+        Home<mat-icon>arrow_right</mat-icon>
+      </button> 
     </mat-toolbar-row>
   </mat-toolbar>

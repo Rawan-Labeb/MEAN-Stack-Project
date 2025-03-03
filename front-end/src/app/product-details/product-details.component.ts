@@ -386,7 +386,8 @@ decreaseQuantity(): void {
   }
 }
   
-  // Add the product to the cart
+//   Add the product to the cart
+
 // addToCart(): void {
 //   if (this.cookieSer.check("token"))
 //   {

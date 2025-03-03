@@ -8,7 +8,8 @@ const {
     activeProduct,
     deactiveProduct,
     deleteProduct,
-    getProductsByCategory
+    getProductsByCategory,
+    getProductsBySeller
 } = require('../repos/product.repo');
 
 const {
@@ -173,6 +174,26 @@ module.exports.getProductsByCategory = async (categoryId) => {
 }
 
 
+module.exports.getProductsBySeller = async (sellerId) => {
+    try
+    {
+        const userChk = await getUserById(sellerId);
+
+        if (!userChk.success)
+            return {success: false, message: userChk.message};
+
+        const prodForSeller = await getProductsBySeller(sellerId);
+
+        return {success: true, message: prodForSeller};
+
+
+    }catch (error)
+    {
+        return {success:false, message: error.message};
+    }
+}
+
+
 const validateOnCreateAndUpdate = async (productData) => {
     
     // Check if name is present and is a non-empty string
@@ -197,15 +218,13 @@ const validateOnCreateAndUpdate = async (productData) => {
         return {valid: false, message: "No Category With That Id"}
 
     const chkSeller = await getUserById(productData.sellerId);
-
-    console.log(chkSeller);
     
     if (!chkSeller.success)
         return {valid:false, message: chkSeller.message};
 
     if (chkSeller.message.role == 'seller')
     {
-        if (!chkSeller.isActive)
+        if (!chkSeller.message.isActive)
             return {valid: false, message: "Can not make this operation User Not Active"}
     }
 
@@ -229,100 +248,3 @@ const validateProdId = async (id) => {
     return {valid: true, message: chkProd};
 }
 
-// const productService = {
-//     getAllProducts: async () => {
-//         try {
-//             const products = await productRepo.getAllProducts();
-//             return { success: true, message: products };
-
-//             // return { success: true, data: products };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     },
-
-
-//     getProductById: async (id) => {
-//         try {
-//             const product = await productRepo.getProductById(id);
-//             if (!product) {
-//                 return { success: false, message: 'Product not found' };
-//             }
-//             return { success: true, data: product };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     },
-
-//     createProduct: async (productData) => {
-//         try {
-//             const product = await productRepo.createProduct(productData);
-//             return { success: true, data: product };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     },
-
-//     searchProducts: async (name) => {
-//         try {
-//             const query = { 
-//                 name: { $regex: name, $options: 'i' },
-//                 isActive: true 
-//             };
-//             const products = await productRepo.searchProducts(query);
-//             return { success: true, data: products };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     },
-
-//     getProductsByPriceRange: async (min, max) => {
-//         try {
-//             const query = { isActive: true };
-//             if (min || max) {
-//                 query.price = {};
-//                 if (min) query.price.$gte = Number(min);
-//                 if (max) query.price.$lte = Number(max);
-//             }
-//             const products = await productRepo.getProductsByPriceRange(query);
-//             return { success: true, data: products };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     },
-
-//     getProductsByCategories: async (categories) => {
-//         try {
-//             const products = await productRepo.getProductsByCategories(categories);
-//             return { success: true, data: products };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     },
-
-//     updateProduct: async (id, productData) => {
-//         try {
-//             const product = await productRepo.updateProduct(id, productData);
-//             if (!product) {
-//                 return { success: false, message: 'Product not found' };
-//             }
-//             return { success: true, data: product };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     },
-
-//     deleteProduct: async (id) => {
-//         try {
-//             const result = await productRepo.deleteProduct(id);
-//             if (!result) {
-//                 return { success: false, message: 'Product not found' };
-//             }
-//             return { success: true, message: 'Product deleted successfully' };
-//         } catch (error) {
-//             return { success: false, message: error.message };
-//         }
-//     }
-// };
-
-// module.exports = productService;

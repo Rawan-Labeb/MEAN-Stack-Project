@@ -120,7 +120,7 @@
                 </app-prod-review>
 
                 <tbody>
-                  <tr *ngFor="let product of filteredProducts">
+                  <tr *ngFor="let product of filteredProducts | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
                     <td><img class="image" src="{{product.images[0]}}" alt="">{{product.name}}</td>
                     <td>{{product.categoryId.name}}</td>
                     <td>{{product.sellerId.firstName}} {{product.sellerId.lastName}}</td>
@@ -177,6 +177,7 @@
                   </tr>
                 </tbody>
               </table>
+              <pagination-controls class="text-center" (pageChange)="currentPage = $event"></pagination-controls>
             </div>
           </div>
         </div>

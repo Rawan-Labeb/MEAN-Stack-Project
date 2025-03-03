@@ -107,7 +107,7 @@ export class AddProductComponent implements OnInit {
     if (uploadedUrls && uploadedUrls.length > 0) {
       // Combine existing images with new ones
       const updatedImages = [...currentImages, ...uploadedUrls];
-      this.productForm.patchValue({ images: updatedImages });
+      this.productData.patchValue({ images: updatedImages });
     }
   }
 

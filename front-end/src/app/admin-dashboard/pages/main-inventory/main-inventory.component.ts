@@ -12,14 +12,17 @@ import { takeUntil } from 'rxjs/operators';
 import { SubInventoryService } from 'src/app/_services/sub-inventory.service';
 import { BranchService } from 'src/app/_services/branch.service';
 import { ProductService } from 'src/app/_services/product.service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-main-inventory',
-  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule],
+  imports: [CommonModule,FormsModule,RouterModule,MatIconModule,MatMenuModule,NgxPaginationModule],
   templateUrl: './main-inventory.component.html',
   styleUrl: './main-inventory.component.css'
 })
 export class MainInventoryComponent implements OnInit, OnDestroy{
+  currentPage = 1;
+  itemsPerPage = 10;
   mainInventories: MainInventory[] =[]
       filteredMainInventories: MainInventory[] = [];
       loading = false;
