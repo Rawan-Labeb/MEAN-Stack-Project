@@ -5,7 +5,14 @@
   
   .table th {
     background-color: #f8f9fa;
+  }
+  
+  .sortable {
     cursor: pointer;
+  }
+  
+  .sortable:hover {
+    background-color: #e9ecef;
   }
   
   .table th i {
@@ -13,7 +20,8 @@
   }
   
   .badge {
-    padding: 0.5em 0.75em;
+    font-size: 85%;
+    padding: 0.35em 0.65em;
   }
   
   .form-control, .form-select {
@@ -98,4 +106,17 @@
     100% {
       background-position: -200% 0;
     }
+  }
+
+  /* Limit description length to prevent table distortion */
+  .text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+  }
+
+  /* Style for the action buttons */
+  .btn-group .btn {
+    padding: 0.25rem 0.5rem;
   }

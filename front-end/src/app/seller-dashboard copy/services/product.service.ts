@@ -1,269 +1,291 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, Subject, throwError, of } from 'rxjs';
-import { Product, ProductFormData, ProductSubmitData } from '../models/product.model';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, Subject, throwError } from 'rxjs';
+import { Product, ProductFormData } from '../models/product.model';
 import { tap, catchError, map, switchMap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
 import { AuthServiceService } from '../../_services/auth-service.service';
-import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
   private apiUrl = 'http://localhost:5000'; 
-  private productUpdated = new Subject<Product>();
   private productUpdateSubject = new Subject<void>();
+  productUpdates$ = this.productUpdateSubject.asObservable();
 
   constructor(
     private http: HttpClient,
-    private authService: AuthServiceService,
-    private cookieService: CookieService
+    private authService: AuthServiceService
   ) {}
 
-  private getSellerId(): Observable<string> {
-    const token = this.cookieService.get('token');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-    return this.authService.decodeToken(token).pipe(
-      map(decodedToken => {
-        if (!decodedToken) {
-          throw new Error('Invalid token');
-        }
-        return decodedToken.id;
-      })
-    );
-  }
-
-  getSellerIdFromToken(): Observable<string | null> {
-    const token = localStorage.getItem('token');
-    if (token) {
-      return this.authService.decodeToken(token).pipe(
-        map(decodedToken => decodedToken ? decodedToken.id : null)
-      );
-    }
-    return of(null);
-  }
-
-  private verifyUserStatus(): Observable<boolean> {
-    const token = this.cookieService.get('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    
-    return this.http.get<any>(`${this.apiUrl}/user/status`, { headers }).pipe(
-      tap(response => console.log('User status:', response)),
-      map(response => response.isActive === true),
-      catchError(error => {
-        console.error('Error checking user status:', error);
-        return of(false);
-      })
-    );
-  }
-
-  checkUserStatus(): void {
-    const token = this.cookieService.get('token');
-    console.log('Current token:', token);
-    
-    this.authService.decodeToken(token).subscribe({
-      next: (decoded) => console.log('Decoded token:', decoded),
-      error: (err) => console.error('Token decode error:', err)
-    });
-  
-    this.verifyUserStatus().subscribe({
-      next: (isActive) => console.log('User is active:', isActive),
-      error: (err) => console.error('Status check error:', err)
-    });
-  }
-
   // Core CRUD operations
+  getProducts(): Observable<Product[]> {
+    return this.authService.decodeToken(this.authService.getToken()).pipe(
+      switchMap(decoded => {
+        if (!decoded) {
+          console.error('Could not decode token');
+          return throwError(() => new Error('Authentication failed'));
+        }
+        
+        const sellerId = decoded.id || decoded._id || decoded.sub;
+        
+        if (!sellerId) {
+          console.error('No seller ID found in token');
+          return throwError(() => new Error('No seller ID found'));
+        }
+        
+        console.log(`Getting products for seller: ${sellerId}`);
+        // Auth interceptor will add the token
+        return this.http.get<Product[]>(`${this.apiUrl}/product/getProductBySellerId/${sellerId}`);
+      }),
+      catchError(error => {
+        console.error('Error getting seller products:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
   getAllProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/product/getAllProducts`);
+    // Auth interceptor will add the token
+    return this.http.get<Product[]>(`${this.apiUrl}/product/getAllProducts`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   getActiveProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/product/getActiveProducts`);
+    return this.http.get<Product[]>(`${this.apiUrl}/product/getActiveProducts`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   getDeactivatedProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/product/getDeactivatedProducts`);
+    return this.http.get<Product[]>(`${this.apiUrl}/product/getDeactivatedProducts`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   getProductById(id: string): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/product/getProductById/${id}`);
+    return this.http.get<Product>(`${this.apiUrl}/product/getProductById/${id}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  // Create a product with file upload support
+  // Create product with file upload
   createProduct(productData: ProductFormData, files: File[] = []): Observable<any> {
     console.log('Creating product with data:', productData);
     
-    // Ensure we have the token explicitly for this call
-    const token = this.cookieService.get('token') || localStorage.getItem('token');
-    if (!token) {
-      console.error('No authentication token available');
-      return throwError(() => new Error('Authentication required'));
-    }
+    // Get the seller ID from the auth token
+    return this.authService.decodeToken(this.authService.getToken()).pipe(
+      switchMap(decoded => {
+        if (!decoded) {
+          console.error('Could not decode token');
+          return throwError(() => new Error('Authentication failed'));
+        }
+        
+        const sellerId = decoded.id || decoded._id || decoded.sub;
+        
+        if (!sellerId) {
+          console.error('No seller ID found in token');
+          return throwError(() => new Error('No seller ID found'));
+        }
+        
+        console.log('Got seller ID:', sellerId);
+        
+        // Validate number of images - minimum 3 required
+        if (files.length < 3) {
+          console.error('At least 3 images are required');
+          return throwError(() => new Error('Please upload at least 3 images'));
+        }
+        
+        // Validate maximum number of images
+        if (files.length > 8) {
+          console.error('Maximum 8 images allowed');
+          return throwError(() => new Error('Maximum 8 images are allowed'));
+        }
+        
+        // Prepare form data for file upload
+        const formData = new FormData();
+        
+        // Append all files
+        Array.from(files).forEach(file => {
+          formData.append('imageUrls', file);
+        });
+        
+        // First upload the images - auth interceptor will handle authentication
+        return this.http.post<any>(`${this.apiUrl}/upload`, formData).pipe(
+          catchError(error => {
+            console.error('Error uploading product images:', error);
+            return throwError(() => error);
+          }),
+          switchMap(uploadResult => {
+            console.log('Image upload result:', uploadResult);
+            
+            // Once images are uploaded, create the product
+            // Important: Include the sellerId in the request
+            const productToSave = {
+              name: productData.name,
+              description: productData.description,
+              price: Number(productData.price),
+              quantity: Number(productData.quantity),
+              categoryId: productData.categoryId,
+              isActive: productData.isActive !== undefined ? productData.isActive : true,
+              images: uploadResult.imageUrls || [],
+              sellerId: sellerId  // Add seller ID here
+            };
+            
+            console.log('Sending formatted product data with sellerId:', productToSave);
+            
+            // Create the product with the image URLs
+            return this.http.post<any>(`${this.apiUrl}/product/createProduct`, productToSave).pipe(
+              tap(() => this.notifyProductUpdate()),
+              catchError(error => {
+                console.error('Error creating product:', error);
+                console.error('Request body was:', productToSave);
+                return throwError(() => error);
+              })
+            );
+          })
+        );
+      })
+    );
+  }
 
-    // Format token properly for authorization - ensure Bearer has a space after it
-    const authToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-    const headers = new HttpHeaders().set('Authorization', authToken);
+  // Update the updateProduct method
+  updateProduct(id: string, productData: ProductFormData, files: File[] = []): Observable<any> {
+    // Get current number of images
+    const currentImagesCount = (productData.images || []).length;
+    const newImagesCount = files.length;
+    const totalImagesCount = currentImagesCount + newImagesCount;
     
-    console.log('Token format check:', {
-      originalToken: token.substring(0, 20) + '...',
-      formattedToken: authToken.substring(0, 20) + '...',
-      hasBearer: token.startsWith('Bearer '),
-      tokenLength: token.length
-    });
-
-    // If we have files to upload, do that first
-    if (files && files.length > 0) {
-      const formData = new FormData();
-      
-      // Append all files
-      Array.from(files).forEach(file => {
-        formData.append('imageUrls', file);
-      });
-      
-      // First upload the images
-      return this.http.post<any>(`${this.apiUrl}/upload`, formData, { headers }).pipe(
-        catchError(error => {
-          console.error('Error uploading product images:', error);
-          return throwError(() => error);
-        }),
-        switchMap(uploadResult => {
-          console.log('Image upload result:', uploadResult);
+    // Check if removing images would go below minimum (when updating existing product)
+    if (newImagesCount === 0 && currentImagesCount < 3) {
+      console.error('At least 3 images are required for the product');
+      return throwError(() => new Error('Please maintain at least 3 images for the product'));
+    }
+    
+    // Check if adding new images would exceed maximum
+    if (totalImagesCount > 8) {
+      console.error(`Total images (${totalImagesCount}) exceeds maximum of 8`);
+      return throwError(() => new Error(`You can have at most 8 images. Currently selected: ${totalImagesCount}`));
+    }
+    
+    return this.authService.decodeToken(this.authService.getToken()).pipe(
+      switchMap(decoded => {
+        if (!decoded) {
+          console.error('Could not decode token');
+          return throwError(() => new Error('Authentication failed'));
+        }
+        
+        const sellerId = decoded.id || decoded._id || decoded.sub;
+        
+        if (!sellerId) {
+          console.error('No seller ID found in token');
+          return throwError(() => new Error('No seller ID found'));
+        }
+        
+        console.log('Got seller ID for update:', sellerId);
+        
+        // If we have new files to upload, do that first
+        if (newImagesCount > 0) {
+          const formData = new FormData();
           
-          // Once images are uploaded, create the product
-          const productToSave = {
+          // Append all files
+          Array.from(files).forEach(file => {
+            formData.append('imageUrls', file);
+          });
+          
+          // First upload the images
+          return this.http.post<any>(`${this.apiUrl}/upload`, formData).pipe(
+            catchError(error => {
+              console.error('Error uploading product images:', error);
+              return throwError(() => error);
+            }),
+            switchMap(uploadResult => {
+              // Once images are uploaded, update the product
+              const productToUpdate = {
+                name: productData.name,
+                description: productData.description,
+                price: Number(productData.price),
+                quantity: Number(productData.quantity),
+                categoryId: productData.categoryId,
+                isActive: productData.isActive,
+                images: [
+                  ...(productData.images || []),
+                  ...(uploadResult.imageUrls || [])
+                ],
+                sellerId: sellerId  // Add seller ID here
+              };
+              
+              console.log('Sending formatted product update data with sellerId:', productToUpdate);
+              
+              // Update the product with the image URLs
+              return this.http.put<any>(`${this.apiUrl}/product/updateProduct/${id}`, productToUpdate).pipe(
+                tap(() => this.notifyProductUpdate()),
+                catchError(error => {
+                  console.error('Error updating product:', error);
+                  console.error('Request body was:', productToUpdate);
+                  return throwError(() => error);
+                })
+              );
+            })
+          );
+        } else {
+          // No new images to upload, update the product directly
+          const productToUpdate = {
             name: productData.name,
             description: productData.description,
-            price: productData.price,
-            quantity: productData.quantity,
+            price: Number(productData.price),
+            quantity: Number(productData.quantity),
             categoryId: productData.categoryId,
-            sellerId: productData.sellerId,
-            isActive: productData.isActive !== undefined ? productData.isActive : true,
-            images: uploadResult.imageUrls || []
+            isActive: productData.isActive,
+            images: productData.images || [],
+            sellerId: sellerId  // Add seller ID here
           };
           
-          // Create the product with the image URLs
-          return this.http.post<any>(
-            `${this.apiUrl}/product/createProduct`,
-            productToSave,
-            { headers }
-          ).pipe(
+          console.log('Sending formatted product update data (no new images) with sellerId:', productToUpdate);
+          
+          return this.http.put<any>(`${this.apiUrl}/product/updateProduct/${id}`, productToUpdate).pipe(
+            tap(() => this.notifyProductUpdate()),
             catchError(error => {
-              console.error('Error creating product:', error);
-              if (error.status === 401) {
-                console.error('Authentication error - token may be invalid or expired:', authToken);
-              }
+              console.error('Error updating product:', error);
+              console.error('Request body was:', productToUpdate);
               return throwError(() => error);
             })
           );
-        })
-      );
-    } else {
-      // No images to upload, create the product directly
-      const productToSave = {
-        name: productData.name,
-        description: productData.description,
-        price: productData.price,
-        quantity: productData.quantity,
-        categoryId: productData.categoryId,
-        sellerId: productData.sellerId,
-        isActive: productData.isActive !== undefined ? productData.isActive : true,
-        images: []
-      };
-      
-      // Log the full request details
-      console.log('Sending product creation request:', {
-        url: `${this.apiUrl}/product/createProduct`,
-        headers: {
-          'Authorization': authToken.substring(0, 30) + '...',
-          'Content-Type': 'application/json'
-        },
-        body: productToSave
-      });
-      
-      return this.http.post<any>(
-        `${this.apiUrl}/product/createProduct`,
-        productToSave,
-        { headers }
-      ).pipe(
-        catchError(error => {
-          console.error('Error creating product:', error);
-          // Log more details about the error
-          console.error('Error response details:', {
-            status: error.status,
-            statusText: error.statusText,
-            error: error.error,
-            message: error.message,
-            url: error.url
-          });
-          
-          return throwError(() => error);
-        })
-      );
-    }
-  }
-
-  // Update a product with file upload support
-  updateProduct(id: string, productData: ProductFormData, files: File[] = []): Observable<Product> {
-    const formData = new FormData();
-    
-    // Append product data
-    formData.append('name', productData.name);
-    formData.append('price', productData.price.toString());
-    formData.append('quantity', productData.quantity.toString());
-    formData.append('description', productData.description);
-    formData.append('isActive', productData.isActive.toString());
-    formData.append('categoryId', productData.categoryId);
-    formData.append('sellerId', productData.sellerId);
-    
-    // First, upload images if any
-    if (files.length > 0) {
-      return this.uploadProductImages(files).pipe(
-        switchMap(response => {
-          // Add image URLs to product data
-          if (response && response.imageUrls) {
-            formData.append('images', JSON.stringify(response.imageUrls));
-          }
-          
-          // Then update the product with image URLs
-          return this.http.put<Product>(`${this.apiUrl}/product/updateProduct/${id}`, formData).pipe(
-            tap(() => this.notifyProductUpdate()),
-            catchError(this.handleError)
-          );
-        }),
-        catchError(this.handleError)
-      );
-    }
-    
-    // No images to upload, just update the product
-    return this.http.put<Product>(`${this.apiUrl}/product/updateProduct/${id}`, formData).pipe(
-      tap(() => this.notifyProductUpdate()),
-      catchError(this.handleError)
+        }
+      })
     );
   }
 
   // Delete a product
-  deleteProduct(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/product/deleteProduct/${id}`).pipe(
+  deleteProduct(productId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/product/deleteProduct/${productId}`).pipe(
       tap(() => this.notifyProductUpdate()),
-      catchError(this.handleError)
+      catchError(error => {
+        console.error('Error deleting product:', error);
+        return throwError(() => error);
+      })
     );
   }
 
   // Activate/deactivate a product
-  activateProduct(id: string): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/product/activeProduct/${id}`, {}).pipe(
+  activateProduct(productId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/product/activeProduct/${productId}`, {}).pipe(
       tap(() => this.notifyProductUpdate()),
-      catchError(this.handleError)
+      catchError(error => {
+        console.error('Error activating product:', error);
+        return throwError(() => error);
+      })
     );
   }
 
-  deactivateProduct(id: string): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/product/deactiveProduct/${id}`, {}).pipe(
+  deactivateProduct(productId: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/product/deactiveProduct/${productId}`, {}).pipe(
       tap(() => this.notifyProductUpdate()),
-      catchError(this.handleError)
+      catchError(error => {
+        console.error('Error deactivating product:', error);
+        return throwError(() => error);
+      })
     );
   }
 
@@ -276,7 +298,7 @@ export class ProductService {
 
   // Get products by seller
   getSellerProducts(sellerId: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/product/seller/${sellerId}`).pipe(
+    return this.http.get<Product[]>(`${this.apiUrl}/product/getProductBySellerId/${sellerId}`).pipe(
       catchError(this.handleError)
     );
   }
@@ -300,9 +322,8 @@ export class ProductService {
     );
   }
 
-  
+  // Get seller's own products
   getSellerOwnProducts(): Observable<Product[]> {
-    // The auth interceptor will automatically add the token
     return this.authService.decodeToken(this.authService.getToken()).pipe(
       switchMap(decoded => {
         if (!decoded) {
@@ -310,7 +331,6 @@ export class ProductService {
           return throwError(() => new Error('Authentication failed'));
         }
         
-        // Use the id from the decoded token
         const sellerId = decoded.id || decoded._id || decoded.sub;
         
         if (!sellerId) {
@@ -318,7 +338,6 @@ export class ProductService {
           return throwError(() => new Error('No seller ID found'));
         }
         
-        // Call the API endpoint with seller ID
         console.log(`Getting products for seller: ${sellerId}`);
         return this.http.get<Product[]>(`${this.apiUrl}/product/getProductBySellerId/${sellerId}`);
       }),
@@ -334,19 +353,26 @@ export class ProductService {
     this.productUpdateSubject.next();
   }
 
-  onProductUpdate(): Observable<void> {
-    return this.productUpdateSubject.asObservable();
-  }
-
-  // Error handling
+  // Enhanced error handling
   private handleError(error: HttpErrorResponse) {
-    console.error('Error details:', {
+    console.error('API Error Details:', {
       status: error.status,
-      message: error.error,
-      headers: error.headers.keys(),
-      url: error.url
+      statusText: error.statusText,
+      url: error.url,
+      message: error.message,
+      error: error.error
     });
     
-    return throwError(() => error);
+    let errorMessage = 'An unknown error occurred';
+    
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      errorMessage = error.error?.message || `Error Code: ${error.status}, Message: ${error.message}`;
+    }
+    
+    return throwError(() => new Error(errorMessage));
   }
 }

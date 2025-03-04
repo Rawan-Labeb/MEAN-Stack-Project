@@ -1,66 +1,72 @@
-<div class="container-fluid product-list-container">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h3 mb-1">Products</h1>
-      <p class="text-muted">Manage your product inventory</p>
+<div class="container-fluid">
+  <!-- Error and loading alerts -->
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="loading" class="d-flex justify-content-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
-    <button class="btn btn-primary" (click)="openAddModal()">
-      <i class="fas fa-plus"></i> Add Product
-    </button>
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-header bg-light">
-      <div class="row align-items-center">
-        <div class="col-md-4 mb-3 mb-md-0">
-          <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-search"></i></span>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search products..."
-              [(ngModel)]="searchTerm"
-              (input)="onSearch()"
-            />
-          </div>
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
-            <option value="all">All Products</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-        <div class="col-md-5 text-md-end">
-          <span class="badge bg-primary">{{ filteredProducts.length }} products</span>
-        </div>
+  <!-- Header section -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="input-group">
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Search products..." 
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()">
+        <button class="btn btn-outline-secondary" type="button" (click)="searchTerm=''; onSearch()">
+          Clear
+        </button>
       </div>
     </div>
+    <div class="col-md-6">
+      <div class="btn-group float-end">
+        <button 
+          class="btn" 
+          [class.btn-primary]="activeFilter === 'all'"
+          [class.btn-outline-primary]="activeFilter !== 'all'"
+          (click)="filterByStatus('all')">
+          All
+        </button>
+        <button 
+          class="btn" 
+          [class.btn-primary]="activeFilter === 'active'"
+          [class.btn-outline-primary]="activeFilter !== 'active'"
+          (click)="filterByStatus('active')">
+          Active
+        </button>
+        <button 
+          class="btn" 
+          [class.btn-primary]="activeFilter === 'inactive'"
+          [class.btn-outline-primary]="activeFilter !== 'inactive'"
+          (click)="filterByStatus('inactive')">
+          Inactive
+        </button>
+      </div>
+    </div>
+  </div>
 
+  <!-- Products Table -->
+  <div class="card">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Product List</h5>
+      <button class="btn btn-primary btn-sm" (click)="openAddModal()">
+        <i class="fas fa-plus"></i> Add Product
+      </button>
+    </div>
     <div class="card-body p-0">
-      <div *ngIf="loading" class="text-center p-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p class="mt-2">Loading products...</p>
-      </div>
-
-      <div *ngIf="error" class="alert alert-danger m-3">
-        {{ error }}
-      </div>
-
-      <div *ngIf="!loading && !error && filteredProducts.length === 0" class="text-center p-5">
-        <i class="fas fa-box fa-3x text-muted mb-3"></i>
-        <h5>No products found</h5>
-        <p class="text-muted">Try adjusting your search or filters</p>
-      </div>
-
-      <div *ngIf="!loading && filteredProducts.length > 0" class="table-responsive">
+      <div class="table-responsive">
         <table class="table table-hover mb-0">
           <thead>
             <tr>
               <th (click)="sort('name')" class="sortable">
                 Product Name <i [class]="getSortIcon('name')"></i>
+              </th>
+              <th (click)="sort('description')" class="sortable">
+                Description <i [class]="getSortIcon('description')"></i>
               </th>
               <th (click)="sort('price')" class="sortable">
                 Price <i [class]="getSortIcon('price')"></i>
@@ -68,32 +74,24 @@
               <th (click)="sort('quantity')" class="sortable">
                 Stock <i [class]="getSortIcon('quantity')"></i>
               </th>
+              <th>Category</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let product of filteredProducts">
+              <td>{{ product.name }}</td>
               <td>
-                <div class="d-flex align-items-center">
-                  <div class="product-image me-2">
-                    <img [src]="product.images && product.images.length ? product.images[0] : 'assets/images/placeholder.jpg'" [alt]="product.name">
-                  </div>
-                  <div>
-                    <h6 class="mb-0">{{ product.name }}</h6>
-                    <small class="text-muted">{{ product.description | slice:0:50 }}{{ product.description && product.description.length > 50 ? '...' : '' }}</small>
-                  </div>
-                </div>
-              </td>
-              <td>${{ product.price.toFixed(2) }}</td>
-              <td>
-                <span [class.text-danger]="product.quantity < 10">
-                  {{ product.quantity }}
+                <span class="text-truncate d-inline-block" style="max-width: 200px;" [title]="product.description">
+                  {{ product.description }}
                 </span>
-                <span class="badge bg-danger ms-1" *ngIf="product.quantity < 10">Low</span>
               </td>
+              <td>${{ product.price }}</td>
+              <td>{{ product.quantity }}</td>
+              <td>{{ getCategoryName(product) }}</td>
               <td>
-                <span class="badge" [ngClass]="product.isActive ? 'bg-success' : 'bg-danger'">
+                <span class="badge" [class.bg-success]="product.isActive" [class.bg-danger]="!product.isActive">
                   {{ product.isActive ? 'Active' : 'Inactive' }}
                 </span>
               </td>
@@ -102,30 +100,41 @@
                   <button class="btn btn-sm btn-outline-primary" (click)="openEditModal(product)">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="btn btn-sm btn-outline-danger">
+                  <button class="btn btn-sm" 
+                    [class.btn-outline-warning]="product.isActive" 
+                    [class.btn-outline-success]="!product.isActive"
+                    (click)="toggleProductStatus(product)">
+                    <i [class]="product.isActive ? 'fas fa-ban' : 'fas fa-check'"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteProduct(product)">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
               </td>
+            </tr>
+            <tr *ngIf="filteredProducts.length === 0 && !loading">
+              <td colspan="7" class="text-center py-3">No products found.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
+  
+  <!-- Add Product Modal -->
+  <app-add-product
+    *ngIf="showAddModal"
+    [productData]="productData"
+    (close)="closeAddModal()"
+    (productSaved)="onProductSaved()">
+  </app-add-product>
+  
+  <!-- Edit Product Modal -->
+  <app-edit-product
+    *ngIf="showEditModal && editingProduct"
+    [product]="editingProduct"
+    [productData]="productData"
+    (close)="closeEditModal()"
+    (productUpdated)="onProductUpdated()">
+  </app-edit-product>
 </div>
-
-<app-add-product 
-  *ngIf="showAddModal"
-  [productData]="productData"
-  (close)="closeAddModal()"
-  (productSaved)="onProductSaved()">
-</app-add-product>
-
-<app-edit-product 
-  *ngIf="showEditModal && editingProduct"
-  [product]="editingProduct"
-  [productData]="productData"
-  (close)="closeEditModal()"
-  (productUpdated)="onProductUpdated()">
-</app-edit-product>
