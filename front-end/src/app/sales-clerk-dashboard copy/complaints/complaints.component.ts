@@ -99,8 +99,9 @@ export class ComplaintsComponent implements OnInit {
     if (this.statusFilter === 'all') {
       this.filteredComplaints = [...this.complaints];
     } else {
+      // Match status filter with backend format (case sensitive)
       this.filteredComplaints = this.complaints.filter(
-        complaint => complaint.status === this.statusFilter
+        complaint => complaint.status.toLowerCase() === this.statusFilter.toLowerCase()
       );
     }
   }
@@ -109,24 +110,27 @@ export class ComplaintsComponent implements OnInit {
     this.selectedComplaint = complaint;
   }
 
-  updateStatus(complaintId: string, newStatus: 'new' | 'in-progress' | 'resolved'): void {
+  updateStatus(complaintId: string, newStatus: string): void {
+    // Convert status to backend format (capitalize first letter)
+    const backendStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+    
     this.loading = true;
     this.error = '';
     this.successMessage = '';
     
     // Auth interceptor will handle token
-    this.complaintsService.updateComplaintStatus(complaintId, newStatus).subscribe({
+    this.complaintsService.updateComplaintStatus(complaintId, backendStatus).subscribe({
       next: (response) => {
         // Update local data
         const complaint = this.complaints.find(c => c._id === complaintId);
         if (complaint) {
-          complaint.status = newStatus;
+          complaint.status = backendStatus;
           complaint.updatedAt = new Date().toISOString();
         }
         
         // Update selected complaint if it's the current one
         if (this.selectedComplaint && this.selectedComplaint._id === complaintId) {
-          this.selectedComplaint = { ...this.selectedComplaint, status: newStatus, updatedAt: new Date().toISOString() };
+          this.selectedComplaint = { ...this.selectedComplaint, status: backendStatus, updatedAt: new Date().toISOString() };
         }
         
         this.applyFilters();
@@ -143,6 +147,18 @@ export class ComplaintsComponent implements OnInit {
         this.error = 'Failed to update complaint status: ' + err.message;
       }
     });
+  }
+
+  // Helper methods to get customer information
+  getCustomerName(complaint: Complaint): string {
+    if (complaint.user) {
+      return `${complaint.user.firstName} ${complaint.user.lastName}`.trim();
+    }
+    return 'Guest User';
+  }
+
+  getCustomerEmail(complaint: Complaint): string {
+    return complaint.email || 'No email provided';
   }
 
   closeDetails(): void {
