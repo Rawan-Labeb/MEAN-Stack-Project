@@ -19,7 +19,6 @@ export class SidebarComponent {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
-  // Update navigation methods to use correct paths
   navigateToProducts(): void {
     this.router.navigate(['/seller/products']);
   }
@@ -31,13 +30,15 @@ export class SidebarComponent {
   navigateToAnalytics(): void {
     this.router.navigate(['/seller/sales']);
   }
+  
+  // Remove this method if it exists
+  // navigateToReviews(): void {
+  //   this.router.navigate(['/seller/product-reviews']);
+  // }
 
   logout(): void {
-    // Clear local storage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    
-    // Navigate to login page
     this.router.navigate(['/user/login']);
   }
 }
