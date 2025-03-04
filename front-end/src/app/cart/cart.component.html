@@ -28,30 +28,25 @@
 
         <div class="row border-top border-bottom" *ngFor="let item of cartItems">
           <div class="row main align-items-center">
-            <div class="col-2">
-              <img class="img-fluid" [src]="item.image" alt="Product Image"/>
-            </div>
+            <!-- <div class="col-2">
+              <div class="row">{{ item.product.images }}</div>
+
+              <img class="img-fluid" [src]="" alt="Product Image"/>
+            </div> -->
             <div class="col">
               <div class="row text-muted" style="font-weight: bold; color: #00003f;">{{ item.product.name }}</div>
               <div class="row" style="font-weight: bold; color: #00003f;">&euro; {{ item.price }}</div>
-              <div class="row">{{ item.product.description }}</div>
+              <!-- <div class="row">{{ item.product.description }}</div> -->
             </div>
             <div class="col">
-              <button 
-  (click)="increaseQuantity(item)" 
-  class="btn btn-outline-secondary btn-sm quantity-btn"
-  [disabled]="item.quantity >= item.subInventoryQuantity">
-  &#8593;
-</button>
-
-              <!-- <button (click)="increaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8593;</button> -->
+              <button (click)="increaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8593;</button>
               <span class="border" style="font-weight: bold; color: #00003f; margin: auto;">{{ item.quantity }}</span>
               <button (click)="decreaseQuantity(item)" class="btn btn-outline-secondary btn-sm quantity-btn">&#8595;</button>
             </div>
             <button class="btn btn-sm btn-info" style="font-size: 16px;" (click)="showProductDetails(item)">
               Details
             </button>
-            <button class="close btn btn-sm" (click)="removeItem(item.subInventory)">
+            <button class="close btn btn-sm" (click)="removeItem(item.subInventory._id)">
               &#10005;
             </button>
           </div>
@@ -79,6 +74,7 @@
                 <td>{{ item.product.name }}</td>
                 <td>&euro; {{ item.price }}</td>
                 <td>{{ item.quantity }}</td>
+                
               </tr>
             </tbody>
           </table>

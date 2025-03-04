@@ -10,7 +10,12 @@
     <div class="row">
       <div class="col-md-4 summary">
         <h4>PAYMENT WAY:</h4>
-        <input type="text" class="form-control" value="Cash Only" readonly>
+
+        <label for="">Cash Only</label>
+        <input #cash type="radio" class="" value="Cash Only" name="payment" readonly>
+        
+        <label for="">Online</label>
+        <input #online type="radio" class="" value="Online" name="payment" readonly>
 
         <input id="comments" class="form-control form-control-sm" placeholder="Add a comment to your order" [(ngModel)]="comments">
         <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
@@ -18,7 +23,7 @@
           <div class="col text-right">&euro; {{ data?.Total + 5 }}</div>
         </div>
         <p>EXPECTED DELIVERY TIME: 3-5 Days</p>
-        <button (click)="placeOrder()" class="btn btn-primary btn-sm checkout" style="width: 100%;">Place Order</button>
+        <button (click)="placeOrder(cash.checked,online.checked)" class="btn btn-primary btn-sm checkout" style="width: 100%;">Place Order</button>
       </div>
       <div class="col-md-8 cart">
         <div class="title">
