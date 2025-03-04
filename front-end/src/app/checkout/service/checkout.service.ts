@@ -25,6 +25,7 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class CheckoutService {
   private apiUrl = 'http://localhost:5000/api/order';
+  private apiUrl2 = 'http://localhost:5000/api/stripe';
 
   constructor(private http: HttpClient, private cookieService: CookieService) {}
 
@@ -42,5 +43,8 @@ export class CheckoutService {
 
   createOrder(orderData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/createOrder`, orderData, { headers: this.getHeaders() });
+  }
+  connectStripe(orderData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl2}/create-checkout-session`, orderData, { headers: this.getHeaders() });
   }
 }
