@@ -48,6 +48,18 @@ module.exports.getBranchesByType = async(branchType) => {
         throw new Error("Error getting active branches: " + error.message);
     }
 }
+module.exports.getBranchesByTypeActive = async(branchType) => {
+    try{
+        const Branches = await branch.find({ type:branchType,isActive:true});
+        if (!Branches) {
+            throw new Error("not found any branches with this type");
+        }
+        return Branches;
+    }catch(error)
+    {
+        throw new Error("Error getting active branches: " + error.message);
+    }
+}
 
 module.exports.getBranchByName = async(branchName) => {
     try{

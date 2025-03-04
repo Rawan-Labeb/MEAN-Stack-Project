@@ -42,6 +42,16 @@ module.exports.getBranchesByType =async (branchType) =>
         throw new Error("Error getting branches " + error.message);
     }
 }
+module.exports.getBranchesByTypeActive =async (branchType) => 
+{
+    try{
+        const Branches = await repo.getBranchesByTypeActive(branchType);
+        return Branches;
+    }catch (error)
+    { 
+        throw new Error("Error getting branches " + error.message);
+    }
+}
 
 module.exports.getBranchByName =async (branchName) => 
 {
