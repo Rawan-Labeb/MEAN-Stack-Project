@@ -26,6 +26,9 @@ export class ComplaintsComponent implements OnInit {
   clerkId = '';
   branchId: string | null = null;
 
+  // Define the online branch ID constant
+  private readonly ONLINE_BRANCH_ID = '67b129216e1b912065196f93';
+
   constructor(
     private complaintsService: ComplaintsService,
     private authService: AuthServiceService
@@ -48,8 +51,8 @@ export class ComplaintsComponent implements OnInit {
           this.clerkId = decoded.sub || decoded.id;
           this.branchId = decoded.branchId;
           
-          // Check if this is an online branch (branchId is null)
-          this.isOnlineBranch = this.branchId === null;
+          // Updated logic: Check for specific online branch ID
+          this.isOnlineBranch = this.branchId === this.ONLINE_BRANCH_ID;
           
           console.log('User details:', { 
             clerkId: this.clerkId, 

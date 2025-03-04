@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../services/order.service';
 import { AuthServiceService } from '../../_services/auth-service.service';
 import { HttpClientModule } from '@angular/common/http';
+import { BRANCH_CONSTANTS } from '../constants/branch-constants';
 
 @Component({
   selector: 'app-orders',
@@ -16,6 +17,7 @@ export class OrdersComponent implements OnInit {
   orders: Order[] = [];
   filteredOrders: Order[] = [];
   statusFilter: string = 'all';
+  searchTerm: string = '';
   
   // Branch information
   isOnlineBranch: boolean = false;
@@ -47,8 +49,11 @@ export class OrdersComponent implements OnInit {
       next: (decoded) => {
         if (decoded) {
           this.branchId = decoded.branchId;
-          this.isOnlineBranch = this.branchId === null;
-          console.log(`User is ${this.isOnlineBranch ? 'online' : 'offline'} branch clerk`);
+          
+          // Updated logic: Check for specific online branch ID
+          this.isOnlineBranch = this.branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID;
+          
+          console.log(`User is ${this.isOnlineBranch ? 'online' : 'offline'} branch clerk with branch ID: ${this.branchId}`);
           this.loadOrders();
         } else {
           this.error = 'Invalid user session. Please log in again.';

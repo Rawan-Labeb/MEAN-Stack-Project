@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AuthServiceService } from '../../_services/auth-service.service';
+import { BRANCH_CONSTANTS } from '../constants/branch-constants';
 
 export interface OrderItem {
   product: {
@@ -45,7 +46,6 @@ export class OrderService {
     private authService: AuthServiceService
   ) { }
 
-  // Get orders based on branch type
   getOrders(): Observable<Order[]> {
     const token = this.authService.getToken();
     if (!token) {
@@ -63,9 +63,10 @@ export class OrderService {
           
           const branchId = decoded.branchId;
           
-          // If branchId is null, this is an online branch clerk
-          if (branchId === null) {
-            // Get all online orders
+          // Updated logic: Check for specific online branch ID
+          if (branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID) {
+            // This is an online branch clerk - get online orders
+            console.log('Getting online orders');
             this.http.get<any>(`${this.apiUrlOnline}/getAllOrders`)
               .pipe(
                 map(this.mapOnlineOrders),
@@ -79,7 +80,8 @@ export class OrderService {
                 error: err => observer.error(err)
               });
           } else {
-           
+            // This is an offline branch clerk - get offline orders for this branch
+            console.log(`Getting offline orders for branch: ${branchId}`);
             this.http.get<any>(`${this.apiUrlOffline}/getOfflineOrdersByBranchId/${branchId}`)
               .pipe(
                 map(this.mapOfflineOrders),
@@ -98,8 +100,7 @@ export class OrderService {
       });
     });
   }
-  
-  // Get orders by status
+
   getOrdersByStatus(status: string): Observable<Order[]> {
     const token = this.authService.getToken();
     if (!token) {
@@ -116,9 +117,9 @@ export class OrderService {
           
           const branchId = decoded.branchId;
           
-          // If branchId is null, this is an online branch clerk
-          if (branchId === null) {
-            // Get online orders by status
+          // Updated logic: Check for specific online branch ID
+          if (branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID) {
+            // Online branch - get online orders by status
             this.http.get<any>(`${this.apiUrlOnline}/getOrdersByStatus/${status}`)
               .pipe(
                 map(this.mapOnlineOrders),
@@ -132,15 +133,19 @@ export class OrderService {
                 error: err => observer.error(err)
               });
           } else {
-            // For offline orders, we need to filter client-side as there might not be a specific API
-            this.getOrders().subscribe({
-              next: allOrders => {
-                const filtered = allOrders.filter(order => order.status === status);
-                observer.next(filtered);
-                observer.complete();
-              },
-              error: err => observer.error(err)
-            });
+            // Offline branch - get offline orders by status for this branch
+            this.http.get<any>(`${this.apiUrlOffline}/getOfflineOrdersByStatus/${status}/${branchId}`)
+              .pipe(
+                map(this.mapOfflineOrders),
+                catchError(this.handleError)
+              )
+              .subscribe({
+                next: orders => {
+                  observer.next(orders);
+                  observer.complete();
+                },
+                error: err => observer.error(err)
+              });
           }
         },
         error: err => observer.error(err)
