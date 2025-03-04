@@ -15,6 +15,7 @@ import { BranchComponent } from './pages/branch/branch.component';
 import { SubInventoryComponent } from './pages/sub-inventory/sub-inventory.component';
 import { OfflineOrderComponent } from './pages/offline-order/offline-order.component';
 import { DistReqComponent } from './pages/dist-req/dist-req.component';
+import { ProdReqComponent } from './pages/prod-req/prod-req.component';
 //import { ReviewComponent } from './pages/review/review.component';
 
 
@@ -37,5 +38,6 @@ export const adminDashboardRoutes: Routes = [
         { path: 'subInventory/:branchName', component: SubInventoryComponent },
         { path: 'offlineOrders/:_id', component: OfflineOrderComponent },
         { path: 'distReq', component: DistReqComponent },
+        { path: 'prodReq', component: ProdReqComponent },
     ]},  
 ];
