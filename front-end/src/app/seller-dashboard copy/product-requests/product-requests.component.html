@@ -1,4 +1,15 @@
 <div class="container-fluid py-4">
+  <!-- Add loading and error display -->
+  <div *ngIf="loading" class="d-flex justify-content-center mb-3">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger mb-3">
+    {{ error }}
+  </div>
+
   <div class="card">
     <div class="card-header">
       <h3 class="mb-0">Product Requests</h3>
@@ -45,6 +56,10 @@
                   </button>
                 </div>
               </td>
+            </tr>
+            <!-- Show message when no requests are found -->
+            <tr *ngIf="requests.length === 0 && !loading">
+              <td colspan="7" class="text-center py-3">No product requests found.</td>
             </tr>
           </tbody>
         </table>

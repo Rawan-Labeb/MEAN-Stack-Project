@@ -38,9 +38,10 @@
           <label class="me-2">Filter by status:</label>
           <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
             <option value="all">All Complaints</option>
-            <option value="new">New</option>
-            <option value="in-progress">In Progress</option>
+            <option value="pending">Pending</option>
+            <option value="in progress">In Progress</option>
             <option value="resolved">Resolved</option>
+            <option value="rejected">Rejected</option>
           </select>
         </div>
       </div>
@@ -57,7 +58,7 @@
               <table class="table table-hover">
                 <thead>
                   <tr>
-                    <th>Customer</th>
+                    <th> Email</th>
                     <th>Subject</th>
                     <th>Date</th>
                     <th>Status</th>
@@ -66,14 +67,15 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let complaint of filteredComplaints">
-                    <td>{{ complaint.customerName }}</td>
+                    <td>{{ complaint.email }}</td>
                     <td>{{ complaint.subject }}</td>
                     <td>{{ complaint.createdAt | date:'mediumDate' }}</td>
                     <td>
                       <span class="badge"
-                        [class.bg-danger]="complaint.status === 'new'"
-                        [class.bg-warning]="complaint.status === 'in-progress'"
-                        [class.bg-success]="complaint.status === 'resolved'">
+                        [class.bg-warning]="complaint.status === 'Pending'"
+                        [class.bg-info]="complaint.status === 'In Progress'"
+                        [class.bg-success]="complaint.status === 'Resolved'"
+                        [class.bg-danger]="complaint.status === 'Rejected'">
                         {{ complaint.status }}
                       </span>
                     </td>
@@ -100,40 +102,46 @@
           <div class="card-body">
             <h5>{{ selectedComplaint.subject }}</h5>
             <p class="text-muted mb-3">
-              Submitted by {{ selectedComplaint.customerName }}<br>
-              <small>{{ selectedComplaint.customerEmail }}</small><br>
+              Submitted by: {{ selectedComplaint.email }}<br>
               <small>{{ selectedComplaint.createdAt | date:'medium' }}</small>
             </p>
             <div class="mb-3">
               <label class="form-label">Status</label>
               <div class="d-flex">
                 <button class="btn btn-sm me-2" 
-                  [class.btn-outline-danger]="selectedComplaint.status !== 'new'"
-                  [class.btn-danger]="selectedComplaint.status === 'new'"
+                  [class.btn-outline-warning]="selectedComplaint.status !== 'Pending'"
+                  [class.btn-warning]="selectedComplaint.status === 'Pending'"
                   [disabled]="loading"
-                  (click)="updateStatus(selectedComplaint._id, 'new')">
-                  New
+                  (click)="updateStatus(selectedComplaint._id, 'pending')">
+                  Pending
                 </button>
                 <button class="btn btn-sm me-2" 
-                  [class.btn-outline-warning]="selectedComplaint.status !== 'in-progress'"
-                  [class.btn-warning]="selectedComplaint.status === 'in-progress'"
+                  [class.btn-outline-info]="selectedComplaint.status !== 'In Progress'"
+                  [class.btn-info]="selectedComplaint.status === 'In Progress'"
                   [disabled]="loading"
-                  (click)="updateStatus(selectedComplaint._id, 'in-progress')">
+                  (click)="updateStatus(selectedComplaint._id, 'in progress')">
                   In Progress
                 </button>
-                <button class="btn btn-sm" 
-                  [class.btn-outline-success]="selectedComplaint.status !== 'resolved'"
-                  [class.btn-success]="selectedComplaint.status === 'resolved'"
+                <button class="btn btn-sm me-2" 
+                  [class.btn-outline-success]="selectedComplaint.status !== 'Resolved'"
+                  [class.btn-success]="selectedComplaint.status === 'Resolved'"
                   [disabled]="loading"
                   (click)="updateStatus(selectedComplaint._id, 'resolved')">
                   Resolved
                 </button>
+                <button class="btn btn-sm" 
+                  [class.btn-outline-danger]="selectedComplaint.status !== 'Rejected'"
+                  [class.btn-danger]="selectedComplaint.status === 'Rejected'"
+                  [disabled]="loading"
+                  (click)="updateStatus(selectedComplaint._id, 'rejected')">
+                  Rejected
+                </button>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Message</label>
+              <label class="form-label">Description</label>
               <div class="p-3 bg-light rounded">
-                {{ selectedComplaint.message }}
+                {{ selectedComplaint.description }}
               </div>
             </div>
             <div *ngIf="selectedComplaint.updatedAt" class="text-muted small">

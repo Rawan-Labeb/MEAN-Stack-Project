@@ -45,6 +45,9 @@ export class SubInventoryComponent implements OnInit {
   isOnlineBranch: boolean = false;
   clerkId: string = '';
 
+  // Define the online branch ID constant
+  private readonly ONLINE_BRANCH_ID = '67b129216e1b912065196f93';
+
   constructor(
     private subInventoryService: SubInventoryService,
     private authService: AuthServiceService,
@@ -65,14 +68,16 @@ export class SubInventoryComponent implements OnInit {
           this.clerkId = decoded.id || decoded.sub;
           this.branchId = decoded.branchId;
           
-          // For online branches, there might be a special branch ID
+          // Update: Check for the specific online branch ID
+          this.isOnlineBranch = this.branchId === this.ONLINE_BRANCH_ID;
+          
+          // For online branches, we might not have branch ID in some cases
           // If not, we try to get it from localStorage
-          if (!this.branchId) {
-            this.branchId = decoded.onlineBranchId || localStorage.getItem('branchId');
+          if (!this.branchId && this.isOnlineBranch) {
+            this.branchId = localStorage.getItem('branchId') || this.ONLINE_BRANCH_ID;
           }
           
           this.branchName = decoded.branchName || '';
-          this.isOnlineBranch = !decoded.branchId; // Online branch if original branchId is null
           
           console.log('User details:', {
             clerkId: this.clerkId,

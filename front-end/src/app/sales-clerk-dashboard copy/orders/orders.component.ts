@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../services/order.service';
 import { AuthServiceService } from '../../_services/auth-service.service';
 import { HttpClientModule } from '@angular/common/http';
+import { BRANCH_CONSTANTS } from '../constants/branch-constants';
+
+// Add this line to fix the bootstrap error
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-orders',
@@ -16,6 +20,7 @@ export class OrdersComponent implements OnInit {
   orders: Order[] = [];
   filteredOrders: Order[] = [];
   statusFilter: string = 'all';
+  searchTerm: string = '';
   
   // Branch information
   isOnlineBranch: boolean = false;
@@ -26,6 +31,9 @@ export class OrdersComponent implements OnInit {
   loading: boolean = false;
   error: string = '';
   successMessage: string = '';
+  
+  // Add this property
+  selectedOrder: Order | null = null;
   
   constructor(
     private orderService: OrderService,
@@ -47,8 +55,11 @@ export class OrdersComponent implements OnInit {
       next: (decoded) => {
         if (decoded) {
           this.branchId = decoded.branchId;
-          this.isOnlineBranch = this.branchId === null;
-          console.log(`User is ${this.isOnlineBranch ? 'online' : 'offline'} branch clerk`);
+          
+          // Updated logic: Check for specific online branch ID
+          this.isOnlineBranch = this.branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID;
+          
+          console.log(`User is ${this.isOnlineBranch ? 'online' : 'offline'} branch clerk with branch ID: ${this.branchId}`);
           this.loadOrders();
         } else {
           this.error = 'Invalid user session. Please log in again.';
@@ -84,17 +95,28 @@ export class OrdersComponent implements OnInit {
       this.filteredOrders = [...this.orders];
     } else {
       this.filteredOrders = this.orders.filter(
-        order => order.status === this.statusFilter
+        order => order.status.toLowerCase() === this.statusFilter.toLowerCase()
       );
     }
     
-    // Sort orders by createdAt date (newest first)
-    this.filteredOrders.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    // If search term is provided, filter by customer name or order ID
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      this.filteredOrders = this.filteredOrders.filter(order => 
+        order._id.toLowerCase().includes(searchLower) || 
+        `${order.customerDetails?.firstName} ${order.customerDetails?.lastName}`.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Sort orders by date (newest first)
+    this.filteredOrders.sort((a, b) => {
+      const dateA = new Date(a.date || '').getTime();
+      const dateB = new Date(b.date || '').getTime();
+      return dateB - dateA; // Newest first
+    });
   }
   
-  updateStatus(orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'): void {
+  updateStatus(orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'): void {
     if (!this.isStatusChangeAllowed(orderId, newStatus)) {
       this.error = 'This status change is not allowed. Please contact support.';
       setTimeout(() => this.error = '', 3000);
@@ -111,7 +133,9 @@ export class OrdersComponent implements OnInit {
         const order = this.orders.find(o => o._id === orderId);
         if (order) {
           order.status = newStatus;
-          order.updatedAt = new Date().toISOString();
+          if (order.updatedAt) {
+            order.updatedAt = new Date().toISOString();
+          }
         }
         
         this.applyFilters();
@@ -156,5 +180,16 @@ export class OrdersComponent implements OnInit {
   clearMessages(): void {
     this.error = '';
     this.successMessage = '';
+  }
+  
+  // Add this method
+  viewOrderDetails(order: Order): void {
+    this.selectedOrder = order;
+    // Assuming you have a Bootstrap modal with id 'orderDetailsModal'
+    const modalElement = document.getElementById('orderDetailsModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
   }
 }

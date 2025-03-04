@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 import { AuthServiceService } from '../../_services/auth-service.service';
 
 export interface Cashier {
@@ -41,9 +41,13 @@ export class CashierService {
     // Using the auth interceptor (no need to manually add token)
     return this.http.get<Cashier[]>(`${this.apiUrl}/getUsersBasedOnRole/cashier`)
       .pipe(
-        tap(cashiers => {
-          // Filter cashiers by branch if needed (could be done on the server side instead)
-          return cashiers.filter(cashier => !branchId || cashier.branch?._id === branchId);
+        map(cashiers => {
+          // Filter cashiers by branch
+          if (branchId) {
+            console.log(`Filtering cashiers for branch: ${branchId}`);
+            return cashiers.filter(cashier => cashier.branch?._id === branchId);
+          }
+          return cashiers;
         }),
         catchError(this.handleError)
       );

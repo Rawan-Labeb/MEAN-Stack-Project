@@ -7,6 +7,7 @@ import { AddBranchCashierComponent } from './add-branch-cashier/add-branch-cashi
 import { EditBranchCashierComponent } from './edit-branch-cashier/edit-branch-cashier.component';
 import { CashierService, Cashier } from '../../services/cashier.service';
 import { AuthServiceService } from '../../../_services/auth-service.service';
+import { BRANCH_CONSTANTS } from '../../constants/branch-constants';
 
 @Component({
   selector: 'app-branch-cashiers',
@@ -36,10 +37,12 @@ export class BranchCashiersComponent implements OnInit {
   showAddModal = false;
   showEditModal = false;
   selectedCashier: Cashier | null = null;
+  currentPage: number = 1;
   
   // User Info
   branchId: string | null = null;
   clerkRole: string = '';
+  isOnlineBranch: boolean = false;
   
   constructor(
     private cashierService: CashierService,
@@ -62,8 +65,13 @@ export class BranchCashiersComponent implements OnInit {
       next: (decoded) => {
         if (decoded) {
           this.branchId = decoded.branchId || null;
+          this.isOnlineBranch = this.branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID;
           this.clerkRole = decoded.role || '';
-          this.loadCashiers();
+          console.log(`User info - Branch ID: ${this.branchId}, Role: ${this.clerkRole}, IsOnline: ${this.isOnlineBranch}`);
+          
+          if (!this.isOnlineBranch && this.branchId) {
+            this.loadCashiers();
+          }
         } else {
           this.errorMessage = 'Invalid user session. Please log in again.';
         }
