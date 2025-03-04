@@ -1,0 +1,126 @@
+<div class="container-fluid page">
+    <div class="d-flex page__box p-3 mt-2">ProdReqs</div>
+    <div class="page__content shadow p-3 position-relative">
+      <div>
+        <div>
+          <div class="container-fluid p-4">
+            <!-- Stats Cards -->
+            <div class="row mb-4 text-center justify-content-around">
+              <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Total ProdReqs</h5>
+                    <p class="card-text display-4">{{prodReqs.length}}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Pending ProdReqs</h5>
+                    <p class="card-text display-4">{{pendingProdReqCount}}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-success text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Approved ProdReqs</h5>
+                    <p class="card-text display-4">{{approveProdReqCount}}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Rejected ProdReqs</h5>
+                    <p class="card-text display-4">{{rejectProdReqCount}}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- *********************************************************************** -->
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h3 class="mb-0"></h3>
+                </div>
+                <div class="col-auto">
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <div class="row mb-3 justify-content-between">
+                <div class="col-md-4">
+                  <input type="text" 
+                          class="form-control" 
+                          [(ngModel)]="searchTerm" 
+                          (input)="onSearch()"
+                          placeholder="Search Sellers..">
+                </div>
+                <div class="col-md-3">
+                  <select class="form-select" 
+                          [(ngModel)]="statusFilter" 
+                          (change)="onStatusFilterChange()">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Seller</th>
+                      <th>Email</th>
+                      <th>Qty</th>
+                      <th>Message</th>
+                      <th>Status</th>
+                      <th  (click)="sort('createdAt')" style="cursor: pointer" class="justify-content-between">
+                        Date
+                        <mat-icon style="vertical-align: middle;">keyboard_arrow_down</mat-icon>
+                    </th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let prodReq of filteredProdReqs | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
+                      <td><img class="image" src="{{prodReq?.product!.images[0]}}" alt="">{{prodReq.product.name}}</td>
+                      <td>{{prodReq.seller.firstName}} {{prodReq.seller.lastName}}</td>
+                      <td>{{prodReq.seller.email}}</td>
+                      <td>{{prodReq.requestedQuantity}}</td>
+                      <td>{{prodReq.message}}</td>
+                      <td>
+                        <span class="badge" 
+                        [ngClass]="{
+                        'bg-warning': prodReq.status === 'pending',
+                        'bg-success': prodReq.status === 'approved',
+                        'bg-danger': prodReq.status === 'rejected'
+                            }">
+                        {{ prodReq.status }}
+                        </span>
+                      </td>
+                      <td>{{prodReq.createdAt}}</td>
+                      <td>
+                        <button mat-menu-item (click)="deleteProdReq(prodReq._id)">
+                            <mat-icon>delete</mat-icon>
+                            Delete
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <pagination-controls class="text-center" (pageChange)="currentPage = $event"></pagination-controls>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
