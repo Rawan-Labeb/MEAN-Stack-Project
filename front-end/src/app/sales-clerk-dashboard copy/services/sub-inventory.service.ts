@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { AuthServiceService } from '../../_services/auth-service.service';
 
 export interface SubInventoryItem {
@@ -45,10 +45,33 @@ export class SubInventoryService {
       );
   }
 
-  getActiveSubInventoriesByBranchId(branchId: string): Observable<SubInventoryItem[]> {
-    return this.getSubInventoryByBranch(branchId).pipe(
-      map(items => items.filter(item => item.isActive !== false)), // Filter only active items
-      catchError(this.handleError)
+  getActiveSubInventoriesByBranchId(branchId: string): Observable<any[]> {
+    console.log(`Fetching active sub-inventories for branch: ${branchId}`);
+    
+    // First try the specific endpoint
+    return this.http.get<any[]>(`${this.apiUrl}/getSubInventoriesByBranchId/${branchId}`).pipe(
+      tap(data => console.log(`Fetched ${data.length} sub-inventory items for branch ${branchId}`)),
+      catchError(error => {
+        console.error(`Error fetching branch inventory with specific endpoint: ${error.message}`);
+        
+        // If the specific endpoint fails, try the general endpoint and filter by branch
+        console.log('Falling back to getSubInventories endpoint with client-side filtering');
+        return this.http.get<any[]>(`${this.apiUrl}/getSubInventories`).pipe(
+          map(items => {
+            const filteredItems = items.filter(item => {
+              const itemBranchId = typeof item.branchId === 'object' ? 
+                item.branchId._id : item.branchId;
+              return itemBranchId === branchId;
+            });
+            console.log(`Filtered ${items.length} items down to ${filteredItems.length} for branch ${branchId}`);
+            return filteredItems;
+          }),
+          catchError(fallbackError => {
+            console.error('Fallback method also failed:', fallbackError);
+            return throwError(() => new Error('Failed to fetch inventory data'));
+          })
+        );
+      })
     );
   }
 

@@ -1,15 +1,16 @@
 .analytics-container {
-  padding: 20px;
+  padding: 15px;
 }
 
 .card {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: none;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s;
 }
 
 .card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-5px);
 }
 
 .card-title {
@@ -26,11 +27,12 @@
 
 .card-body {
   min-height: 300px;
+  padding: 1.5rem;
 }
 
 canvas {
   width: 100% !important;
-  height: 300px !important;
+  height: 100% !important;
 }
 
 .spinner-border {

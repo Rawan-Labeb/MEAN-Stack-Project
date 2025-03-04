@@ -12,7 +12,7 @@ export interface AnalyticsData {
   summary: {
     totalOrders: number;
     totalRevenue: number;
+    totalSales: number;
     averageOrderValue: number;
-    totalSales: number;  // Added this missing property
   };
 }

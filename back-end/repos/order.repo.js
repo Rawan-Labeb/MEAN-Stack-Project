@@ -68,6 +68,44 @@ module.exports.getOrdersByCustomerAndStatus = async (customerId, status) => {
     }
 };
 
+// Add this new function to get orders by seller ID
+module.exports.getOrdersBySellerId = async (sellerId) => {
+  try {
+    // Get all orders
+    const allOrders = await Order.find({})
+      .populate({
+        path: 'items.subInventoryId',
+        populate: {
+          path: 'product',
+          select: 'name price _id sellerId images description'
+        }
+      })
+      .exec();
+    
+    // Filter orders where at least one item's product belongs to this seller
+    const sellerOrders = allOrders.filter(order => {
+      if (!order.items || order.items.length === 0) return false;
+      
+      return order.items.some(item => {
+        // If subInventoryId has been populated
+        if (item.subInventoryId && typeof item.subInventoryId === 'object') {
+          // Check if product exists and is populated
+          if (item.subInventoryId.product && typeof item.subInventoryId.product === 'object') {
+            // Match the seller ID with the product's seller ID
+            return item.subInventoryId.product.sellerId && 
+                   item.subInventoryId.product.sellerId.toString() === sellerId.toString();
+          }
+        }
+        return false;
+      });
+    });
+    
+    return sellerOrders;
+  } catch (error) {
+    console.error("Error fetching seller orders:", error);
+    throw new Error(`Error fetching seller orders: ${error.message}`);
+  }
+};
 
 
 module.exports.changeOrderStatus = async (orderId, changedStatus) => {

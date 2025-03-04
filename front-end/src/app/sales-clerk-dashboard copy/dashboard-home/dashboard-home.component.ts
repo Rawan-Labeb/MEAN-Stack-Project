@@ -103,10 +103,14 @@ export class DashboardHomeComponent implements OnInit {
   }
 
   loadDashboardData(): void {
+    // First, verify the branch ID
+    console.log(`Loading dashboard data for branch ID: ${this.branchId}`);
+
+    // Use the method from the working code
     const subInventory$ = this.branchId ? 
       this.subInventoryService.getActiveSubInventoriesByBranchId(this.branchId).pipe(
         catchError(error => {
-          console.error('Error loading sub-inventory:', error);
+          console.error(`Error loading sub-inventory for branch ${this.branchId}:`, error);
           return of([]);
         })
       ) : of([]);
@@ -121,54 +125,71 @@ export class DashboardHomeComponent implements OnInit {
     const requests$ = this.clerkId ? 
       this.distributionService.getClerkRequests(this.clerkId).pipe(
         catchError(error => {
-          console.error('Error loading distribution requests:', error);
+          console.error(`Error loading distribution requests for clerk ${this.clerkId}:`, error);
           return of([]);
         })
       ) : of([]);
+    
+    // Debug all observables
+    console.log('Starting forkJoin to load dashboard data...');
     
     forkJoin({
       inventory: subInventory$,
       orders: orders$,
       requests: requests$
-    }).subscribe(results => {
-      // Process inventory data
-      const inventory = results.inventory || [];
-      this.stats.totalProducts = inventory.length;
-      
-      // Find low stock products (less than 10 items)
-      this.lowStockProducts = this.processLowStockItems(inventory);
-      
-      // Process orders data
-      const orders = results.orders || [];
-      this.stats.totalOrders = orders.length;
-      
-      // Calculate total revenue from orders
-      this.stats.revenue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
-      
-      // Get recent orders - FIX THE TYPE ERRORS HERE
-      this.recentOrders = orders
-        .sort((a, b) => {
-          // Use nullish coalescing to handle potentially undefined dates
-          const dateA = new Date(a.createdAt || a.date || new Date()).getTime();
-          const dateB = new Date(b.createdAt || b.date || new Date()).getTime();
-          return dateB - dateA;
-        })
-        .slice(0, 5) // Take only 5 most recent orders
-        .map(order => ({
-          _id: order._id,
-          orderNumber: order.orderNumber || order._id.substring(0, 8),
-          customerName: this.getCustomerName(order), // Use the helper method
-          status: order.status as OrderStatus, // Cast to ensure type compatibility
-          itemCount: order.items?.length || 0,
-          totalAmount: order.totalPrice || 0,
-          date: order.createdAt || order.date || new Date().toISOString() // Ensure date is never undefined
-        }));
-      
-      // Process distribution requests data
-      const requests = results.requests || [];
-      this.stats.pendingRequests = requests.filter(req => req.status === 'pending').length;
-      
-      this.isLoading = false;
+    }).subscribe({
+      next: results => {
+        // Log raw results for debugging
+        console.log('Dashboard data loaded:', {
+          inventoryCount: results.inventory?.length || 0,
+          ordersCount: results.orders?.length || 0,
+          requestsCount: results.requests?.length || 0
+        });
+        
+        // Process inventory data
+        const inventory = results.inventory || [];
+        this.stats.totalProducts = inventory.length;
+        console.log(`Setting totalProducts to ${this.stats.totalProducts} from inventory array of length ${inventory.length}`);
+        
+        // Find low stock products (less than 10 items)
+        this.lowStockProducts = this.processLowStockItems(inventory);
+        
+        // Process orders data
+        const orders = results.orders || [];
+        this.stats.totalOrders = orders.length;
+        
+        // Calculate total revenue from orders
+        this.stats.revenue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
+        
+        // Get recent orders
+        this.recentOrders = orders
+          .sort((a, b) => {
+            const dateA = new Date(a.createdAt || a.date || new Date()).getTime();
+            const dateB = new Date(b.createdAt || b.date || new Date()).getTime();
+            return dateB - dateA;
+          })
+          .slice(0, 5)
+          .map(order => ({
+            _id: order._id,
+            orderNumber: order.orderNumber || order._id.substring(0, 8),
+            customerName: this.getCustomerName(order),
+            status: order.status as OrderStatus,
+            itemCount: order.items?.length || 0,
+            totalAmount: order.totalPrice || 0,
+            date: order.createdAt || order.date || new Date().toISOString()
+          }));
+        
+        // Process distribution requests data
+        const requests = results.requests || [];
+        this.stats.pendingRequests = requests.filter(req => req.status === 'pending').length;
+        
+        this.isLoading = false;
+      },
+      error: err => {
+        console.error('Error in forkJoin subscription:', err);
+        this.error = 'Failed to load dashboard data';
+        this.isLoading = false;
+      }
     });
   }
 
