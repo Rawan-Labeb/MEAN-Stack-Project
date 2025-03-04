@@ -93,10 +93,20 @@ export class OrderService {
           } else {
             // This is an offline branch clerk - get offline orders for this branch
             console.log(`Getting offline orders for branch: ${branchId}`);
+            
+            // Try the correct endpoint as defined in your routes file
             this.http.get<any>(`${this.apiUrlOffline}/getOfflineOrdersByBranchId/${branchId}`)
               .pipe(
                 map(this.mapOfflineOrders),
-                catchError(this.handleError)
+                catchError(error => {
+                  console.error('Failed to fetch offline orders:', error);
+                  
+                  if (error.status === 403) {
+                    return throwError(() => new Error('You do not have permission to view offline orders. Please contact your administrator.'));
+                  }
+                  
+                  return throwError(() => new Error('Failed to load offline orders. Please try again later.'));
+                })
               )
               .subscribe({
                 next: orders => {

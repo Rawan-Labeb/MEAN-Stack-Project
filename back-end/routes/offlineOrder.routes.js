@@ -23,7 +23,7 @@ const router = express.Router();
 router.get('/getAllOfflineOrders', authenticaiton, authorize("manager"),  getAllOfflineOrders);
 
 // Get offline orders by branch ID
-router.get('/getOfflineOrdersByBranchId/:branchId', authenticaiton, authorize("cashier"), getAllOrdersByBranchId);
+router.get('/getOfflineOrdersByBranchId/:branchId', authenticaiton, authorize("cashier,clerk"), getAllOrdersByBranchId);
 
 // Get offline order by ID
 router.get('/getOfflineOrderbyId/:orderId', authenticaiton, authorize("cashier"), getOfflineOrderById);
