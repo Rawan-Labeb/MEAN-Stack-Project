@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthServiceService } from '../_services/auth-service.service';
-import { firstValueFrom, Observable, of } from 'rxjs';
+import { empty, firstValueFrom, Observable, of } from 'rxjs';
 // >>>>>>>>> import { CartService } from '../cart/service/cart.service';
 
 @Component({
@@ -15,45 +15,43 @@ import { firstValueFrom, Observable, of } from 'rxjs';
 export class HeaderComponent implements OnInit {
   userRole:string|null=null;//='customer';
   isauthenticated:boolean=false;
+  userFirstName:string = "";
+  token:any;
+  userEmail:any;
+  userData: any = {}; 
+  branchName: string = "";
 
-  //>>>>>>>>> cartItems: any[] = []; 
+  async ngOnInit() {
+    // await this.loadUserRole();
+    // this.userFirstName = this.userData ?  this.userData.firstName : "";
 
-  // ngOnInit(): void {
-  //   const token = this.authSer.getToken();
-  //   if (token) {
-  //     this.authSer.decodeToken(token).subscribe({
-  //       next: (data) => {
-  //         console.log(data);
-  //         console.log(data.role);
-  //         this.userRole = data.role;
-  //       },
-  //       error: (err) => {
-  //         console.error('Error decoding token:', err);
-  //       }
-  //     });
-  //   }
-  // }
-
-  async ngOnInit(): Promise<void> {
-    await this.loadUserRole();
-  }
-
-  async loadUserRole(): Promise<void> {
-    const token = this.authSer.getToken();
-    if (token) {
-      try {
-        const data = await firstValueFrom(this.authSer.decodeToken(token)); // 🔥 تحويل الـ Observable إلى Promise
-        console.log(data);
-        console.log(data.role);
-        this.userRole = data.role;
-        this.cdRef.detectChanges(); // 🛠 تحديث القالب بعد التغيير
-      } catch (err) {
-        console.error('❌ Error decoding token:', err);
+    this.userRole = this.authSer.decodeTokenHead(this.authSer.getToken()).role;
+    this.authSer.loginStatus.subscribe((isLoggedIn) => {
+      if (isLoggedIn) {
+        let claims = this.authSer.decodeTokenHead(this.authSer.getToken());
+        this.userRole = claims?.role;
+        this.userEmail = claims?.email;
+        
+        this.authSer.getUserDataByEmail(this.userEmail).subscribe({
+          next: (data) => {
+            console.log(data);
+            if (data && data.firstName) {
+              this.userFirstName = data.firstName;
+              console.log('User First Name:', this.userFirstName);
+              this.userData = data; // Assuming you have a `userData` property
+              this.cdRef.detectChanges();
+            } else {
+              console.error('First name is missing or invalid');
+            }
+          },
+          error: (err: any) => console.error('Error fetching user data', err)
+        });
+        console.log("User Name Is : " ,this.userFirstName);
+      } else {
+        this.userRole = null;
       }
-    }
+    });
   }
-
-
 
 
   constructor(
@@ -66,91 +64,9 @@ export class HeaderComponent implements OnInit {
   {
 
   }
-  token:any;
-  userEmail:any;
-  userData: any = null; 
 
-      
-  // ngOnInit(): void {
 
-    // const token = this.getToken();
-    // if (!token) {
-    //   console.error('No token found');
-    //   return;
-      
-    // }
-    
-    // this.authSer.decodeToken(this.authSer.getToken()).subscribe({
-    //   next:(data)=>{
-    //     console.log(data)
-    //     console.log(data.role)
-    //     this.userRole = data.role;
-    //   }
-    // })
-   
-  
-    // this.decodeUserToken(token).subscribe({
-    //   next: (data: any) => {
-    //     console.log(data.role)
-    //     if (data && data.role) {
-    //       this.userRole = data.role;
-    //       console.log('User Role:', this.userRole);
-          
-    //     } else {
-    //       console.error('Invalid or missing role in token');
-    //     }
-  
-    //     if (data && data.email) {
-    //       this.userEmail = data.email;
-    //       console.log('User Email:', this.userEmail);
-  
-    //       // Fetch additional user data by email
-    //       this.fetchUserDataByEmail();
-    //     } else {
-    //       console.error('Invalid or missing email in token');
-    //     }
-    //     // >>>>>>>>this.loadCart();
-    //   },
-      
-    //   error: (err: any) => console.error('Error decoding token', err)
-    // });
-// }
-  // >>>>>>> loadCart(): void {
-  //   const userId = this.cookieSer.get('userId'); 
-  //   if (!userId) return;
-  
-  //   this.cartService.getCart(userId).subscribe(res => {
-  //     console.log('Cart Data:', res);
-  //     this.cartItems = res.items.map((item: any) => ({
-  //       subInventory: item.subInventory._id,
-  //       branch: item.branch,
-  //       image: item.image,
-  //       quantity: item.quantity,
-  //       price: item.price,
-  //       product: item.subInventory.product, 
-  //       subInventoryQuantity: item.subInventory.quantity,
-  //       _id: item._id
-  //     }));
-  //     console.log('Updated Cart Items:', this.cartItems);
-  //   }, error => {
-  //     console.error('Error loading cart:', error);
-  //   });
-  // }
-  
-  // getToken(): string {
-  //   return this.cookieSer.get('token'); 
-  // }
 
-  // decodeUserToken(token: string): Observable<any> {
-  //   try {
-  //     const decoded = this.authSer.decodeToken(token);
-  //     console.log('Decoded Token:', decoded);
-  //     return of(decoded); 
-  //   } catch (error) {
-  //     console.error('Invalid token', error);
-  //     return of(null); 
-  //   }
-  // }
   LogOut(): void {
     this.authSer.logout();
     this.router.navigateByUrl('');
@@ -171,7 +87,8 @@ export class HeaderComponent implements OnInit {
     }
   
     this.authSer.getUserDataByEmail(this.userEmail).subscribe({
-      next: (userData: any) => {
+      next: (userData) => {
+        console.log(userData);
         if (userData && userData.firstName) {
           this.userFirstName = userData.firstName;
           console.log('User First Name:', this.userFirstName);
@@ -184,55 +101,10 @@ export class HeaderComponent implements OnInit {
       error: (err: any) => console.error('Error fetching user data', err)
     });
   }
-  userFirstName:any;
 
-  
-  // Mock cart items (replace with actual cart logic)
-  cartItems = [
-    { id: 1, name: 'Eternity Perfume', price: 79.99 ,image: '',
-      quantity: 2},
-    { id: 1, name: 'Eternity Perfume', price: 79.99 ,image: '',
-      quantity: 2},
-    { id: 2, name: 'Ocean Breeze', price: 69.99 ,image: '',
-      quantity: 2}
-  ];
-
-  // Get the total number of items in the cart
-  getCartItemCount(): number {
-    return this.cartItems.length;
-  }
-
-  // Clear the cart (optional functionality)
-  clearCart(): void {
-    this.cartItems = [];
-  }
-  
   selected: string = 'home';
   updateSelect(selectedd: string): void {
     this.selected = selectedd;
   }
 
-
-  increaseQuantity(item: any): void {
-    if (item.quantity < 10) {
-      item.quantity++;
-      console.log('Increased quantity to:', item.quantity);
-    } else {
-      alert(`Sorry, only ${10} units are available in stock.`);
-    }
-  }
-  
-  decreaseQuantity(item: any): void {
-    if (item.quantity > 1) {
-      item.quantity--;
-    }
-  }
-  removeFromCart(index: number): void {
-    this.cartItems.splice(index, 1); 
-  }
-  calculateTotal(): number {
-    return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  }
-
-  
 }

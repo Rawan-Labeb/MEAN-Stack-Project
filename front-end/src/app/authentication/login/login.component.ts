@@ -57,14 +57,9 @@ export class LoginComponent
 
       this.loginSer.login(this.loginData).subscribe({
         next: (data) => {
-          if (this.cookieService.check("token"))
-          {
-            this.cookieService.delete("token")
-          }
-          this.cookieService.set("token", data.token, 1, '/');
-          console.log(data.token)
-          this.router.navigateByUrl("");
+          this.loginSer.setToken(data.token);
           this.loginFailed = false;
+
         },
         error: (error) => {
           if (error.error.message == "Please contact the admin for assistance.")
