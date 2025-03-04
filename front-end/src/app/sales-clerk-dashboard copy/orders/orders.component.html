@@ -35,13 +35,13 @@
     <div class="col-md-6">
       <div class="d-flex align-items-center">
         <label class="me-2">Filter by status:</label>
+        <!-- Update the status filter dropdown to match backend values -->
         <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
           <option value="all">All Orders</option>
           <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
           <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
+          <option value="refunded">Refunded</option>
         </select>
       </div>
     </div>
@@ -67,7 +67,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let order of filteredOrders">
+            <tr *ngFor="let order of filteredOrders; let i = index">
               <td>{{ order._id | slice:0:8 }}</td>
               <td>{{ order.customerDetails?.firstName }} {{ order.customerDetails?.lastName }}</td>
               <td>{{ order.date | date:'medium' }}</td>
@@ -75,28 +75,37 @@
               <td>${{ order.totalPrice.toFixed(2) }}</td>
               <td>{{ order.paymentMethod }}</td>
               <td>
+                <!-- Update the status badge display for orders in the table -->
                 <span class="badge"
                   [class.bg-warning]="order.status === 'pending'"
-                  [class.bg-info]="order.status === 'processing'"
                   [class.bg-primary]="order.status === 'shipped'"
-                  [class.bg-success]="order.status === 'delivered'"
                   [class.bg-danger]="order.status === 'cancelled'"
                   [class.bg-secondary]="order.status === 'refunded'">
-                  {{ order.status }}
+                  {{ getStatusDisplay(order.status) }}
                 </span>
               </td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown{{i}}" data-bs-toggle="dropdown" aria-expanded="false">
                     Actions
                   </button>
+                  <!-- Update the dropdown menu items to use only valid backend status values -->
                   <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="viewOrderDetails(order)">View Details</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'processing')" *ngIf="order.status === 'pending'">Mark Processing</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'shipped')" *ngIf="order.status === 'processing'">Mark Shipped</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'delivered')" *ngIf="order.status === 'shipped'">Mark Delivered</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'cancelled')" *ngIf="['pending', 'processing'].includes(order.status)">Cancel Order</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'refunded')" *ngIf="order.status === 'delivered'">Mark Refunded</a></li>
+                    <!-- View Details -->
+                    <li><a class="dropdown-item" (click)="viewOrderDetails(order)">View Details</a></li>
+                    
+                    <!-- Status Updates with correct backend status values -->
+                    <li *ngIf="order.status === 'pending'">
+                      <a class="dropdown-item" (click)="updateStatus(order._id, 'shipped')">Mark Shipped</a>
+                    </li>
+                    <!-- Cancel option for non-completed orders -->
+                    <li *ngIf="order.status !== 'cancelled' && order.status !== 'refunded'">
+                      <a class="dropdown-item text-danger" (click)="updateStatus(order._id, 'cancelled')">Cancel Order</a>
+                    </li>
+                    <!-- Refund option for cancelled or shipped orders -->
+                    <li *ngIf="order.status === 'cancelled' || order.status === 'shipped'">
+                      <a class="dropdown-item" (click)="updateStatus(order._id, 'refunded')">Mark Refunded</a>
+                    </li>
                   </ul>
                 </div>
               </td>
@@ -109,6 +118,88 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedOrder">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6>Order Information</h6>
+            <p><strong>Order ID:</strong> {{ selectedOrder._id }}</p>
+            <p><strong>Date:</strong> {{ selectedOrder.date | date:'medium' }}</p>
+            <p><strong>Status:</strong> 
+              <!-- Update the status badge display for the selected order in the modal -->
+              <span class="badge"
+                [class.bg-warning]="selectedOrder.status === 'pending'"
+                [class.bg-primary]="selectedOrder.status === 'shipped'"
+                [class.bg-danger]="selectedOrder.status === 'cancelled'"
+                [class.bg-secondary]="selectedOrder.status === 'refunded'">
+                {{ getStatusDisplay(selectedOrder.status) }}
+              </span>
+            </p>
+            <p><strong>Payment Method:</strong> {{ selectedOrder.paymentMethod }}</p>
+            <p><strong>Total:</strong> ${{ selectedOrder.totalPrice.toFixed(2) }}</p>
+          </div>
+          <div class="col-md-6">
+            <h6>Customer Information</h6>
+            <p><strong>Name:</strong> {{ selectedOrder.customerDetails?.firstName }} {{ selectedOrder.customerDetails?.lastName }}</p>
+            <p *ngIf="selectedOrder.customerDetails?.email"><strong>Email:</strong> {{ selectedOrder.customerDetails?.email }}</p>
+            <p *ngIf="selectedOrder.customerDetails?.phone"><strong>Phone:</strong> {{ selectedOrder.customerDetails?.phone }}</p>
+            <div *ngIf="selectedOrder.customerDetails?.address">
+              <p><strong>Address:</strong></p>
+              <p>{{ selectedOrder.customerDetails?.address?.street }}</p>
+              <p>{{ selectedOrder.customerDetails?.address?.city }}, {{ selectedOrder.customerDetails?.address?.zipCode }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <h6>Order Items</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of selectedOrder.items">
+                <td>{{ getItemName(item) }}</td>
+                <td>${{ item.price }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ (item.price * item.quantity).toFixed(2) }}</td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-end fw-bold">Total:</td>
+                <td class="fw-bold">${{ selectedOrder.totalPrice.toFixed(2) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div *ngIf="selectedOrder.notes" class="mt-3">
+          <h6>Notes:</h6>
+          <p>{{ selectedOrder.notes }}</p>
+        </div>
+      </div>
+      <!-- Update the modal footer buttons -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button *ngIf="selectedOrder?.status === 'pending'" type="button" class="btn btn-primary" (click)="updateStatusFromModal('shipped')" data-bs-dismiss="modal">Mark Shipped</button>
+        <button *ngIf="selectedOrder?.status !== 'cancelled' && selectedOrder?.status !== 'refunded'" type="button" class="btn btn-danger" (click)="updateStatusFromModal('cancelled')" data-bs-dismiss="modal">Cancel Order</button>
+        <button *ngIf="selectedOrder?.status === 'cancelled' || selectedOrder?.status === 'shipped'" type="button" class="btn btn-warning" (click)="updateStatusFromModal('refunded')" data-bs-dismiss="modal">Mark Refunded</button>
       </div>
     </div>
   </div>

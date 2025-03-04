@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrderService, Order } from '../services/order.service';
+import { OrderService, Order, OrderStatus } from '../services/order.service';
 import { AuthServiceService } from '../../_services/auth-service.service';
 import { HttpClientModule } from '@angular/common/http';
 import { BRANCH_CONSTANTS } from '../constants/branch-constants';
 
-// Add this line to fix the bootstrap error
+// Declare Bootstrap for modal functionality
 declare var bootstrap: any;
 
 @Component({
@@ -25,15 +25,15 @@ export class OrdersComponent implements OnInit {
   // Branch information
   isOnlineBranch: boolean = false;
   branchId: string | null = null;
-  branchName: string = '';
   
   // UI state
   loading: boolean = false;
   error: string = '';
   successMessage: string = '';
   
-  // Add this property
+  // Selected order for modal
   selectedOrder: Order | null = null;
+  orderDetailsModal: any = null;
   
   constructor(
     private orderService: OrderService,
@@ -100,7 +100,7 @@ export class OrdersComponent implements OnInit {
     }
     
     // If search term is provided, filter by customer name or order ID
-    if (this.searchTerm.trim()) {
+    if (this.searchTerm?.trim()) {
       const searchLower = this.searchTerm.toLowerCase().trim();
       this.filteredOrders = this.filteredOrders.filter(order => 
         order._id.toLowerCase().includes(searchLower) || 
@@ -116,7 +116,21 @@ export class OrdersComponent implements OnInit {
     });
   }
   
-  updateStatus(orderId: string, newStatus: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'): void {
+  // Update this method to use only valid backend status values
+  getNextStatus(currentStatus: OrderStatus): OrderStatus | null {
+    switch(currentStatus) {
+      case 'pending':
+        return 'shipped';
+      case 'shipped':
+        return 'cancelled'; // You might want to show a confirmation dialog
+      case 'cancelled':
+        return 'refunded';
+      default:
+        return null;
+    }
+  }
+  
+  updateStatus(orderId: string, newStatus: OrderStatus): void {
     if (!this.isStatusChangeAllowed(orderId, newStatus)) {
       this.error = 'This status change is not allowed. Please contact support.';
       setTimeout(() => this.error = '', 3000);
@@ -153,6 +167,13 @@ export class OrdersComponent implements OnInit {
       }
     });
   }
+
+  // Ensure this method has the correct type annotation
+  updateStatusFromModal(newStatus: OrderStatus): void {
+    if (this.selectedOrder) {
+      this.updateStatus(this.selectedOrder._id, newStatus);
+    }
+  }
   
   // Check if status change is allowed based on branch type and current status
   isStatusChangeAllowed(orderId: string, newStatus: string): boolean {
@@ -182,14 +203,62 @@ export class OrdersComponent implements OnInit {
     this.successMessage = '';
   }
   
-  // Add this method
+  // View order details
   viewOrderDetails(order: Order): void {
     this.selectedOrder = order;
-    // Assuming you have a Bootstrap modal with id 'orderDetailsModal'
-    const modalElement = document.getElementById('orderDetailsModal');
-    if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+    
+    // Initialize and show the modal
+    setTimeout(() => {
+      const modalElement = document.getElementById('orderDetailsModal');
+      if (modalElement) {
+        // Create a new modal instance if it doesn't exist
+        if (!this.orderDetailsModal) {
+          this.orderDetailsModal = new bootstrap.Modal(modalElement);
+        }
+        this.orderDetailsModal.show();
+      } else {
+        console.error('Modal element not found in the DOM');
+      }
+    }, 0);
+  }
+  
+  // Get item name for display in the order details
+  getItemName(item: any): string {
+    if (item.productName) {
+      return item.productName;
+    } else if (item.subInventoryId && typeof item.subInventoryId === 'object') {
+      return item.subInventoryId.name || 'Unknown Item';
+    } else {
+      return `Item #${item._id ? item._id.substring(0, 5) : ''}`;
     }
+  }
+
+  // Single implementation of getStatusDisplay
+  getStatusDisplay(status: any): string {
+    switch (status) {
+      case 'pending':
+        return 'Pending';
+      case 'shipped':
+        return 'Shipped';
+      case 'cancelled':
+        return 'Cancelled';
+      case 'refunded':
+        return 'Refunded';
+      default:
+        return typeof status === 'string' ? 
+          status.charAt(0).toUpperCase() + status.slice(1) : 
+          'Unknown';
+    }
+  }
+
+  // Add a method to update status with confirmation
+  updateStatusWithConfirmation(orderId: string, newStatus: OrderStatus): void {
+    if (newStatus === 'cancelled') {
+      if (!confirm('Are you sure you want to cancel this order?')) {
+        return;
+      }
+    }
+    
+    this.updateStatus(orderId, newStatus);
   }
 }

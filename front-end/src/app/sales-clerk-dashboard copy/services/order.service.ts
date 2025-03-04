@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators'; // Add tap import
 import { AuthServiceService } from '../../_services/auth-service.service';
 import { BRANCH_CONSTANTS } from '../constants/branch-constants';
 
@@ -12,37 +12,37 @@ export interface OrderItem {
   _id: string;
 }
 
+// Update to match backend schema exactly
+export type OrderStatus = 'pending' | 'shipped' | 'cancelled' | 'refunded';
+
+// Update the Order interface
 export interface Order {
   _id: string;
-  customerId?: string;
+  customerId?: string | any; // Make this optional - Can be string ID or populated customer object
+  branchId?: string; // Add for offline orders
   customerDetails?: {
-    firstName: string;
-    lastName: string;
-    email?: string;
-    phone: string;
+    firstName?: string;
+    lastName?: string;
     address?: {
       street?: string;
       city?: string;
       zipCode?: string;
     };
+    email?: string;
+    phone?: string;
   };
-  branchId?: string;
-  items: OrderItem[];
+  items: any[];
   totalPrice: number;
-  // Include both old and new properties for compatibility 
-  totalAmount?: number; 
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded' | 'completed';
-  paymentMethod?: string;
-  notes?: string;
-  date: string;
-  // Include these for backwards compatibility
-  createdAt?: string;
+  status: OrderStatus;
+  date?: string;
+  createdAt?: string; 
   updatedAt?: string;
-  orderNumber?: string;
-  customerName?: string;
-  branch?: any;
+  paymentMethod: string;
+  notes?: string;
   isOfflineOrder?: boolean;
-  __v?: number;
+  orderNumber?: string;
+  customerName?: string; // Add to support existing code that uses this property
+  branch?: any; // For offline orders
 }
 
 @Injectable({
@@ -174,56 +174,21 @@ export class OrderService {
     });
   }
   
-  // Update order status
-  updateOrderStatus(orderId: string, status: string): Observable<any> {
-    const token = this.authService.getToken();
-    if (!token) {
-      return throwError(() => new Error('No authentication token found'));
-    }
+  // Update the updateOrderStatus method
+  updateOrderStatus(orderId: string, status: OrderStatus): Observable<any> {
+    console.log(`Attempting to update order ${orderId} to status: ${status}`);
     
-    return new Observable(observer => {
-      this.authService.decodeToken(token).subscribe({
-        next: (decoded) => {
-          if (!decoded) {
-            observer.error(new Error('Could not decode token'));
-            return;
-          }
-          
-          const branchId = decoded.branchId;
-          
-          // Updated logic: Check for specific online branch ID
-          if (branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID) {
-            // Update online order status
-            this.http.put<any>(`${this.apiUrlOnline}/changeOrderStatus/${orderId}/${status}`, {})
-              .pipe(catchError(this.handleError))
-              .subscribe({
-                next: response => {
-                  observer.next(response);
-                  observer.complete();
-                },
-                error: err => observer.error(err)
-              });
-          } else {
-            // Update offline order status - if cancelOfflineOrder is the only method available
-            if (status === 'cancelled') {
-              this.http.put<any>(`${this.apiUrlOffline}/cancelOfflineOrder/${orderId}`, {})
-                .pipe(catchError(this.handleError))
-                .subscribe({
-                  next: response => {
-                    observer.next(response);
-                    observer.complete();
-                  },
-                  error: err => observer.error(err)
-                });
-            } else {
-              // If there's no API for other status updates on offline orders
-              observer.error(new Error('Status update not supported for offline orders'));
-            }
-          }
-        },
-        error: err => observer.error(err)
-      });
-    });
+    // No status mapping needed since we're using the exact same values as backend
+    return this.http.put<any>(`${this.apiUrlOnline}/changeOrderStatus/${orderId}/${status}`, {})
+      .pipe(
+        tap((response: any) => {
+          console.log('Status update successful:', response);
+        }),
+        catchError(error => {
+          console.error('Status update error:', error);
+          return throwError(() => new Error(`Failed to update order status: ${error.error?.message || error.message || 'Unknown error'}`));
+        })
+      );
   }
   
   // Helper function to map online orders - directly use API response format
