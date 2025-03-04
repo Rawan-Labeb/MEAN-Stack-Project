@@ -100,9 +100,13 @@ export class OrderService {
         const sellerId = decodedToken.sub || decodedToken.id || decodedToken._id;
         console.log('Getting orders for seller ID:', sellerId);
         
-        // Get all orders first
-        return this.getAllOrders().pipe(
-          map(orders => this.filterOrdersBySeller(orders, sellerId))
+        // Use the new endpoint specifically for seller orders
+        return this.http.get<Order[]>(`${this.apiUrl}/getOrdersBySellerId/${sellerId}`).pipe(
+          tap(orders => console.log(`Found ${orders.length} orders for seller ${sellerId}`)),
+          catchError(error => {
+            console.error('Error fetching seller orders:', error);
+            return throwError(() => error);
+          })
         );
       })
     );

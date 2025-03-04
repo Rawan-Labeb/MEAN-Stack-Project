@@ -5,6 +5,7 @@ const {
     getOrdersByUserId,
     getOrdersByStatus,
     getOrdersByProductId,
+    getOrdersBySellerId: getOrdersBySellerIdFromRepo, 
     deleteOrder,
     changeOrderStatus,
     createOrder,
@@ -208,6 +209,22 @@ module.exports.changeOrderStatus = async (orderId, Status)=> {
 
 }
 
+// Add this new service method
+module.exports.getOrdersBySellerId = async (sellerId) => {
+    try {
+        if (!sellerId) {
+            return { success: false, message: "Seller ID should be provided" };
+        }
+        
+        // No need to validate the seller ID here as we just want to find orders
+        // that contain products from this seller
+        const orders = await getOrdersBySellerIdFromRepo(sellerId);
+        return { success: true, message: orders };
+    } catch (error) {
+        console.error("Error in getOrdersBySellerId service:", error);
+        return { success: false, message: error.message };
+    }
+};
 
 const validationOnCreateAndUpdate = async (orderData) => {
     const chkCustomerId = await validateUserId(orderData.customerId);

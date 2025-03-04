@@ -39,68 +39,18 @@ export class OrderListComponent implements OnInit {
 
   private loadSellerOrders(): void {
     this.loading = true;
-    const token = this.cookieService.get('token');
     
-    if (!token) {
-      this.error = 'No authentication token found';
-      this.loading = false;
-      return;
-    }
-
-    this.authService.decodeToken(token).pipe(
-      switchMap(decodedToken => {
-        if (!decodedToken) {
-          throw new Error('Invalid token');
-        }
-        const sellerId = decodedToken.sub || decodedToken.id || decodedToken._id;
-        console.log('Fetching orders for seller:', sellerId);
-        
-        return this.orderService.getAllOrders().pipe(
-          tap(allOrders => {
-            console.log(`Found ${allOrders.length} total orders`);
-            
-            // Deep inspect all orders to find any with this seller's products
-            console.log('Examining each order for products with sellerId:', sellerId);
-            
-            allOrders.forEach((order, index) => {
-              if (order.items && Array.isArray(order.items) && order.items.length > 0) {
-                order.items.forEach((item, itemIndex) => {
-                  // Log detailed structure for debugging
-                  console.log(`Order ${index}, Item ${itemIndex} structure:`, JSON.stringify({
-                    subInventoryId: typeof item.subInventoryId === 'object' ? 
-                      {
-                        _id: item.subInventoryId?._id,
-                        product: item.subInventoryId?.product ? {
-                          _id: item.subInventoryId.product._id,
-                          sellerId: item.subInventoryId.product.sellerId
-                        } : 'No product'
-                      } : 'String ID',
-                    product: typeof item.product === 'object' ? {
-                      _id: item.product?._id,
-                      sellerId: item.product?.sellerId
-                    } : 'Not object',
-                    sellerId: item.sellerId
-                  }, null, 2));
-                });
-              }
-            });
-          }),
-          map(orders => this.orderService.filterOrdersBySeller(orders, sellerId))
-        );
-      })
-    ).subscribe({
-      next: (filteredOrders) => {
-        console.log(`Received ${filteredOrders.length} orders after filtering`);
-        this.orders = filteredOrders;
-        this.filteredOrders = filteredOrders;
+    this.orderService.getSellerOrders().subscribe({
+      next: (orders) => {
+        console.log(`Received ${orders.length} orders for seller`);
+        this.orders = orders;
+        this.filteredOrders = orders;
         this.applyFilters();
+        this.loading = false;
       },
       error: (error) => {
         this.error = 'Failed to load orders';
         console.error('Error loading orders:', error);
-        this.loading = false;
-      },
-      complete: () => {
         this.loading = false;
       }
     });
