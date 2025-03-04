@@ -1,0 +1,45 @@
+<div class="container-fluid py-4">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="mb-0">Product Reviews</h3>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center">
+        <i class="bx bx-loader bx-spin"></i>
+        Loading reviews...
+      </div>
+      <div class="table-responsive" *ngIf="!loading">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Customer</th>
+              <th>Rating</th>
+              <th>Comment</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let review of reviews">
+              <td>
+                <div class="d-flex align-items-center">
+                  <img [src]="review.product.image" alt="Product" class="me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                  <span>{{review.product.name}}</span>
+                </div>
+              </td>
+              <td>{{review.customer.firstName}} {{review.customer.lastName}}</td>
+              <td>
+                <div class="rating">
+                  <i class="bx bxs-star" *ngFor="let star of [].constructor(review.rating)"></i>
+                  <i class="bx bx-star" *ngFor="let star of [].constructor(5-review.rating)"></i>
+                </div>
+              </td>
+              <td>{{review.comment}}</td>
+              <td>{{review.createdAt | date}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

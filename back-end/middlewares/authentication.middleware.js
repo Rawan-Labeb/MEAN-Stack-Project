@@ -25,4 +25,3 @@ const authenticaiton = async (req, res, next) =>
 module.exports = {
     authenticaiton
 }
-

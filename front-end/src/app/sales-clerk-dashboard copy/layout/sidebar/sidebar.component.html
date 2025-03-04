@@ -1,0 +1,40 @@
+<div class="sidebar" [class.close]="!isSidebarOpen">
+  <div class="sidebar-header">
+    <h3>Sales Clerk</h3>
+  </div>
+  
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/sales-clerk/home" routerLinkActive="active">
+        <i class="bi bi-house"></i> Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/sales-clerk/orders" routerLinkActive="active">
+        <i class="bi bi-cart"></i> Orders
+      </a>
+    </li>
+    <!-- Removed the Products menu item as it's redundant with Sub Inventory -->
+    <!-- Add Branch Cashiers menu item here -->
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/sales-clerk/branch-cashiers" routerLinkActive="active">
+        <i class="bi bi-people"></i> Branch Cashiers
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/sales-clerk/distribution-requests" routerLinkActive="active">
+        <i class="bi bi-truck"></i> Distribution
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" routerLink="/sales-clerk/sub-inventory" routerLinkActive="active">
+        <i class="bi bi-archive"></i> Sub Inventory
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="isOnlineBranch">
+      <a class="nav-link" routerLink="/sales-clerk/complaints" routerLinkActive="active">
+        <i class="bi bi-chat-left-text"></i> Complaints
+      </a>
+    </li>
+  </ul>
+</div>

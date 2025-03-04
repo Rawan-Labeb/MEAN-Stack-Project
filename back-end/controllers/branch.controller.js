@@ -54,6 +54,15 @@ router.get('/branches/branchesByType/:type', authenticaiton, authorize("manager"
     }
 });
 
+router.get('/branches/branchesByTypeActive/:type', authenticaiton, authorize("manager"), async (req, res, next) => {
+    try {
+        const branches = await service.getBranchesByTypeActive(req.params.type);
+        res.status(200).json(branches);
+    } catch (error){
+        next(error);
+    }
+});
+
 router.get('/branchByName/:name', async (req, res, next) => {
     try {
         const branch = await service.getBranchByName(req.params.name);

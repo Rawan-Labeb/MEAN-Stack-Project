@@ -1,0 +1,143 @@
+<div class="container-fluid page">
+  <div class="d-flex page__box p-3 mt-2">Branch Cashiers</div>
+  <div class="page__content shadow p-3 position-relative">
+    <div class="container-fluid p-4">
+      <div class="row mb-4">
+        <div class="col">
+          <h2>Branch Cashiers</h2>
+          <p class="text-muted">Manage cashiers for your branch</p>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="row mb-4 text-center justify-content-around">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <h5 class="card-title">Total Cashiers</h5>
+              <p class="card-text display-4">{{cashiers.length}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <h5 class="card-title">Active Cashiers</h5>
+              <p class="card-text display-4">{{activeCashiersCount}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-danger text-white">
+            <div class="card-body">
+              <h5 class="card-title">Inactive Cashiers</h5>
+              <p class="card-text display-4">{{inactiveCashiersCount}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cashier Management Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="row align-items-center">
+            <div class="col">
+              <h3 class="mb-0">Branch: {{cashiers[0]?.branch?.branchName || 'All Branches'}}</h3>
+            </div>
+            <div class="col-auto">
+              <button class="btn btn-primary" (click)="openAddModal()">
+                Add Cashier
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <div class="row mb-3 justify-content-between">
+            <div class="col-md-4">
+              <input type="text" 
+                     class="form-control" 
+                     [(ngModel)]="searchTerm" 
+                     (input)="onSearch()"
+                     placeholder="Search Cashiers...">
+            </div>
+            <div class="col-md-3">
+              <select class="form-select" 
+                      [(ngModel)]="statusFilter" 
+                      (change)="onStatusFilterChange()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+  
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th (click)="sort('firstName')" style="cursor: pointer">
+                    Name
+                    <i class="bi bi-arrow-down-up"></i>
+                  </th>
+                  <th>Email</th>
+                  <th>Branch</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cashier of filteredCashiers">
+                  <td>
+                    <img class="image" [src]="cashier.image" alt="Cashier Avatar">
+                    {{cashier.firstName}} {{cashier.lastName}}
+                  </td>
+                  <td>{{cashier.email}}</td>
+                  <td>{{cashier.branch?.branchName}}</td>
+                  <td>{{cashier.contactNo}}</td>
+                  <td>
+                    <span class="badge" [ngClass]="cashier.isActive ? 'bg-success' : 'bg-danger'">
+                      {{cashier.isActive ? ' Active ' : 'Inactive'}}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        Actions
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="actionMenu">
+                        <li><a class="dropdown-item" (click)="openEditModal(cashier)">Update</a></li>
+                        <li><a class="dropdown-item" (click)="deleteCashier(cashier._id)">Delete</a></li>
+                        <li><a class="dropdown-item" (click)="toggleCashierStatus(cashier)">
+                          {{ cashier.isActive ? 'Deactivate' : 'Activate' }}
+                        </a></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredCashiers.length === 0">
+                  <td colspan="6" class="text-center">No cashiers found</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal components -->
+      <app-add-branch-cashier 
+        [show]="showAddModal" 
+        (close)="showAddModal = false" 
+        (saved)="onCashierSaved($event)">
+      </app-add-branch-cashier>
+
+      <app-edit-branch-cashier
+        [show]="showEditModal" 
+        [cashierData]="selectedCashier" 
+        (updated)="onCashierUpdated()" 
+        (close)="showEditModal = false">
+      </app-edit-branch-cashier>
+    </div>
+  </div>
+</div>

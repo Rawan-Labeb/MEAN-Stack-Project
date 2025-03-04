@@ -118,118 +118,254 @@ addItemToCart(item: any): void {
   
   
   loadCart(): void {
-    if (!this.userId) return;
-    
-    this.cartService.getCart(this.userId).subscribe(res => {
-      console.log('Cart Data:', res);
+    this.cartService.getCart(this.userId!).subscribe(res => {
       this.data = res;
       this.data.Total = 0;
-
+      this.cartItems = []; 
+  
       if (res.items && Array.isArray(res.items)) {
-        this.cartItems = res.items.map((item: any) => ({
-          subInventory: item.subInventory._id,
-          branch: item.branch,
-          image: item.image,
-          quantity: item.quantity,
-          price: item.price,
-          product: item.subInventory.product,
-          subInventoryQuantity: item.subInventory.quantity,
-          _id: item._id
-        }));
+        res.items.forEach((item: any) => {
+          const subInventory = item.subInventory;
+          const product = subInventory?.product;
+  
+          if (product) {
+            if (!product.isActive) {
+              return;
+            }
+  
+            if (item.quantity > product.quantity) {
+              Swal.fire({
+                title: 'Quantity Adjusted!',
+                text: `The quantity of ${product.name} exceeds the available stock. It has been adjusted to ${product.quantity}.`,
+                icon: 'info',
+                confirmButtonColor: '#3085d6'
+              });
+              item.quantity = product.quantity;
+            }
+  
+            this.data.Total += (product.price * item.quantity);
+  
+            this.cartItems.push({
+              product,
+              subInventory,  
+              subInventoryQuantity: subInventory.quantity,
+              quantity: item.quantity,
+              price: product.price,
+              image: subInventory.product.images, 
+              _id: item._id
+            });
+          }
+        });
+  
+        this.validateCart();
       } else {
         console.error('Items data is not available or not an array');
       }
-      this.updateCartRegisteredCustomerProductNum();
+  
     }, error => {
       console.error('Error loading cart:', error);
     });
   }
-  increaseQuantity(item: any): void {
-    if (!this.userId) return;
   
-    this.cartService.increaseQuantity(this.userId, item.subInventory).subscribe(
-      () => {
-        console.log(this.quantity)
-        console.log(item.subInventory.quantity)
-        if (item.subInventory.quantity < this.quantity){
-          console.log("invalid")
-        }
-        item.quantity += 1;
-        this.updateCartRegisteredCustomerProductNum();
-        Swal.fire({
-          title: 'Quantity Updated!',
-          text: `The quantity has been increased to ${item.quantity}`,
-          icon: 'success',
-          timer: 1500,
-          showConfirmButton: false
+  async validateCart(): Promise<void> {
+    for (let i = this.cartItems.length - 1; i >= 0; i--) {
+      const item = this.cartItems[i];
+      console.log("🔍 Checking item:", item.product.name, "Quantity:", item.quantity, "Stock:", item.subInventoryQuantity, "isActive:", item.subInventory.product.isActive);
+  
+      if (item.subInventoryQuantity === 0) {  
+        console.log(`⚠️ ${item.product.name} is out of stock, removing...`);
+        await Swal.fire({
+          title: 'Out of Stock!',
+          text: `${item.product.name} has been removed from your cart because it is out of stock.`,
+          icon: 'warning',
+          confirmButtonColor: '#d33',
         });
-      },
-      error => console.error('Error increasing quantity:', error)
-    );
-  }
   
-  decreaseQuantity(item: any): void {
-    if (!this.userId) return;
-  
-    if (item.quantity > 1) {
-      this.cartService.decreaseQuantity(this.userId, item.subInventory).subscribe(
-        () => {
-          item.quantity -= 1;
-          this.updateCartRegisteredCustomerProductNum();
-          Swal.fire({
-            title: 'Quantity Updated!',
-            text: `The quantity has been decreased to ${item.quantity}`,
-            icon: 'info',
-            timer: 1500,
-            showConfirmButton: false
-          });
-        },
-        error => console.error('Error decreasing quantity:', error)
-      );
-    } else {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: 'This item will be removed from the cart!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, remove it',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.removeItem(item.subInventory);
+        try {
+          await this.cartService.removeFromCart(this.userId!, item.subInventory._id).toPromise();
+          this.cartItems.splice(i, 1); 
+        } catch (error) {
+          console.error("Error removing item:", error);
         }
-      });
+      } else if (item.quantity > item.subInventoryQuantity) {
+        console.log(`⚠️ ${item.product.name} quantity exceeds stock, adjusting...`);
+        await Swal.fire({
+          title: 'Invalid Quantity!',
+          text: `The quantity of ${item.product.name} is not Available.`,
+          icon: 'error'
+        });
+        item.quantity = item.subInventoryQuantity;
+      } else if (!item.subInventory.product.isActive) {
+        console.log(`⚠️ ${item.product.name} is inactive, removing...`);
+        await Swal.fire({
+          title: 'Product Not Available!',
+          text: `The product ${item.product.name} is not available.`,
+          icon: 'error'
+        });
+        await this.cartService.removeFromCart(this.userId!, item.subInventory._id).toPromise();
+        this.cartItems.splice(i, 1);
+        this.updateCartRegisteredCustomerProductNum();
+      }
     }
   }
   
-  removeItem(subInventoryId: string): void {
-    if (!this.userId) return;
   
-    Swal.fire({
+increaseQuantity(item: any): void {
+  const subInventory = item.subInventory;
+  const product = subInventory?.product;
+
+  console.log("🔍 Checking increaseQuantity function...");
+
+  if (!this.userId) {
+      console.log("⚠️ Error: User ID is missing!");
+      return;
+  }
+
+  if (!product || !subInventory) {
+      console.log("⚠️ Error: Product or SubInventory is missing!", item);
+      return;
+  }
+
+  console.log(`📌 Increasing quantity for ${product.name} (Current: ${item.quantity}, Available: ${subInventory.quantity})`);
+
+  if (item.quantity < subInventory.quantity) {
+      this.cartService.increaseQuantity(this.userId, subInventory._id).subscribe(
+          () => {
+              item.quantity += 1;
+              console.log(`✅ Quantity increased! New Quantity: ${item.quantity}`);
+
+              Swal.fire({
+                  title: 'Quantity Increased!',
+                  text: `The quantity of ${product.name} has been increased.`,
+                  icon: 'success',
+                  confirmButtonColor: '#3085d6',
+                  confirmButtonText: 'Okay'
+              });
+
+              this.updateCartRegisteredCustomerProductNum();
+          },
+          (error) => {
+              console.error('❌ Error increasing quantity:', error);
+              Swal.fire({
+                  title: 'Error!',
+                  text: 'There was an issue increasing the quantity.',
+                  icon: 'error',
+                  confirmButtonColor: '#d33',
+              });
+          }
+      );
+  } else {
+      console.log(`⚠️ Cannot increase quantity beyond available stock (${subInventory.quantity})`);
+      Swal.fire({
+          title: 'Error!',
+          text: `You cannot increase the quantity beyond the available stock of ${subInventory.quantity}.`,
+          icon: 'error',
+          confirmButtonColor: '#d33',
+      });
+  }
+}
+
+decreaseQuantity(item: any): void {
+  const subInventory = item.subInventory;
+  const product = subInventory?.product;
+
+  console.log("🔍 Checking decreaseQuantity function...");
+
+  if (!this.userId) {
+      console.log("⚠️ Error: User ID is missing!");
+      return;
+  }
+
+  if (!product || !subInventory) {
+      console.log("⚠️ Error: Product or SubInventory is missing!", item);
+      return;
+  }
+
+  console.log(`📌 Decreasing quantity for ${product.name} (Current: ${item.quantity})`);
+
+  if (item.quantity > 1) {
+      this.cartService.decreaseQuantity(this.userId, subInventory._id).subscribe(
+          () => {
+              item.quantity -= 1;
+              console.log(`✅ Quantity decreased! New Quantity: ${item.quantity}`);
+
+              Swal.fire({
+                  title: 'Quantity Decreased!',
+                  text: `The quantity of ${product.name} has been decreased.`,
+                  icon: 'success',
+                  confirmButtonColor: '#3085d6',
+                  confirmButtonText: 'Okay'
+              });
+
+              this.updateCartRegisteredCustomerProductNum();
+          },
+          (error) => {
+              console.error('❌ Error decreasing quantity:', error);
+              Swal.fire({
+                  title: 'Error!',
+                  text: 'There was an issue decreasing the quantity.',
+                  icon: 'error',
+                  confirmButtonColor: '#d33',
+              });
+          }
+      );
+  } else {
+      console.log("⚠️ Quantity is 1, asking user for confirmation to remove item.");
+
+      Swal.fire({
+          title: 'Warning!',
+          text: 'The quantity is 1. If you decrease it further, the item will be removed from the cart. Do you want to proceed?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, remove it!',
+          cancelButtonText: 'No, keep it'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              console.log(`🗑 Removing item: ${product.name} (${subInventory._id})`);
+              this.removeItem(subInventory._id);
+          }
+      });
+  }
+}
+
+  
+removeItem(subInventoryId: string): void {
+  if (!this.userId) return;
+
+  console.log("🗑 Removing item with ID:", subInventoryId); 
+
+  Swal.fire({
       title: 'Are you sure?',
       text: 'You won’t be able to undo this action!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, remove it',
       cancelButtonText: 'Cancel'
-    }).then((result) => {
+  }).then((result) => {
       if (result.isConfirmed) {
-        this.cartService.removeFromCart(this.userId!, subInventoryId).subscribe(() => {
-          this.cartItems = this.cartItems.filter(item => item.subInventory !== subInventoryId);
-          this.updateCartRegisteredCustomerProductNum();
-          
-          Swal.fire({
-            title: 'Removed!',
-            text: 'The item has been removed from the cart.',
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false
+          this.cartService.removeFromCart(this.userId!, subInventoryId).subscribe(() => {
+              this.cartItems = this.cartItems.filter(item => item.subInventory._id !== subInventoryId);
+              this.updateCartRegisteredCustomerProductNum();
+
+              Swal.fire({
+                  title: 'Removed!',
+                  text: 'The item has been removed from the cart.',
+                  icon: 'success',
+                  timer: 1500,
+                  showConfirmButton: false
+              });
+          }, (error) => {
+              console.error("❌ Error removing item:", error);
           });
-        });
       }
-    });
-  }
-  
+  });
+}
+
+isOutOfStock(item: any): boolean {
+  return item.quantity === 0;
+}
 
   getTotalPrice(): number {
     return this.cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -251,12 +387,7 @@ addItemToCart(item: any): void {
     }
     this.router.navigate(['/checkout']);
 
-    // this.cartService.clearCart(this.userId!).subscribe(() => {
-    //   this.cartItems = [];
-    //   if (!this.userId) {
-    //     localStorage.removeItem('guestCart'); 
-    //   }
-    // });
+ 
   }
 
   updateCartRegisteredCustomerProductNum(): void {
@@ -270,9 +401,10 @@ addItemToCart(item: any): void {
           let allCartProducts: any[] = cart ? JSON.parse(cart) : [];
           this.cartItemCount = allCartProducts.length;
         }
+
       }
     
-      showProductDetails(item: any): void {
+ showProductDetails(item: any): void {
         Swal.fire({
           title: item.product.name,
           html: `
@@ -284,4 +416,26 @@ addItemToCart(item: any): void {
           confirmButtonText: 'Close'
         });
       }
+  
+  
+  // checkStockAndRemove(): void {
+  //   this.cartItems.forEach((item, index) => {
+  //     if (item.subInventoryQuantity=== 0) {
+  //       Swal.fire({
+  //         title: 'Out of Stock!',
+  //         text: `${item.subInventory.product.name} has been removed from your cart because it is out of stock.`,
+  //         icon: 'warning',
+  //         confirmButtonColor: '#d33',
+  //       });
+
+  //       // Remove the out-of-stock item from the cart
+  //       this.cartService.removeFromCart(this.userId!, item.subInventoryId.subscribe(() => {
+  //         this.cartItems.splice(index, 1);
+  //         this.updateCartRegisteredCustomerProductNum();
+  //       }):
+  //     }
+  //   });
+  // }
+ 
+
 }
