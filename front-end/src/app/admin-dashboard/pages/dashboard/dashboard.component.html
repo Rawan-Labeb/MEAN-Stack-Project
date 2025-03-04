@@ -29,9 +29,9 @@
                 [yAxis]="showYAxis"
                 [legend]="showLegend"
                 [showXAxisLabel]="showXAxisLabel"
-                [xAxisLabel]="xAxisLabel"
+                [xAxisLabel]="'Months'"
                 [showYAxisLabel]="showYAxisLabel"
-                [yAxisLabel]="yAxisLabel">
+                [yAxisLabel]="'Sales'">
               </ngx-charts-line-chart>
             </div>
           </div>
@@ -47,9 +47,9 @@
                 [yAxis]="showYAxis"
                 [legend]="showLegend"
                 [showXAxisLabel]="showXAxisLabel"
-                [xAxisLabel]="xAxisLabel"
+                [xAxisLabel]="'Months'"
                 [showYAxisLabel]="showYAxisLabel"
-                [yAxisLabel]="yAxisLabel">
+                [yAxisLabel]="'Sales'">
               </ngx-charts-bar-vertical-stacked>
             </div>
             
@@ -70,7 +70,7 @@
           <div class="charts-container">
             <div class="chart-container">
               <h2>Branch Sales</h2>
-              <ngx-charts-bar-vertical
+              <ngx-charts-bar-vertical class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="branchSales"
@@ -87,7 +87,7 @@
 
             <div  class="chart-container">
               <h2>Best Selling Products</h2>
-              <ngx-charts-pie-chart
+              <ngx-charts-pie-chart class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="bestSellingProducts"
@@ -100,7 +100,7 @@
           <div class="charts-container">
             <div  class="chart-container">
               <h2>Least Selling Products</h2>
-              <ngx-charts-pie-chart
+              <ngx-charts-pie-chart class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="leastSellingProducts"
@@ -112,7 +112,7 @@
 
             <div  class="chart-container">
               <h2>Top Sellers</h2>
-              <ngx-charts-bar-horizontal
+              <ngx-charts-bar-horizontal class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="bestSellers"
@@ -130,7 +130,7 @@
           <div class="charts-container">
             <div  class="chart-container">
               <h2>Lowest Performing Sellers</h2>
-              <ngx-charts-bar-horizontal
+              <ngx-charts-bar-horizontal class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="leastSellers"
@@ -147,7 +147,7 @@
 
             <div  class="chart-container">
               <h2>Product Distribution Across Branches</h2>
-              <ngx-charts-bar-horizontal-stacked
+              <ngx-charts-bar-horizontal-stacked class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="productDistribution"
@@ -165,7 +165,7 @@
           <div class="charts-container">
             <div  class="chart-container">
               <h2>Online vs. Offline Sales</h2>
-              <ngx-charts-pie-chart
+              <ngx-charts-pie-chart class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="onlineOfflineSales"
@@ -177,7 +177,7 @@
 
             <div  class="chart-container">
               <h2>Inventory Levels Per Branch</h2>
-              <ngx-charts-bar-vertical
+              <ngx-charts-bar-vertical class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="inventoryLevels"
@@ -195,7 +195,7 @@
           <div class="charts-container">
             <div  class="chart-container">
               <h2>Monthly Performance Per Branch</h2>
-              <ngx-charts-line-chart
+              <ngx-charts-line-chart class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="monthlyPerformance"
@@ -211,7 +211,7 @@
             </div>
             <div class="chart-container">
               <h2>Area Chart</h2>
-              <ngx-charts-area-chart
+              <ngx-charts-area-chart class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="multi"
@@ -220,16 +220,16 @@
                 [yAxis]="showYAxis"
                 [legend]="showLegend"
                 [showXAxisLabel]="showXAxisLabel"
-                [xAxisLabel]="xAxisLabel"
+                [xAxisLabel]="'Months'"
                 [showYAxisLabel]="showYAxisLabel"
-                [yAxisLabel]="yAxisLabel">
+                [yAxisLabel]="'Sales'">
               </ngx-charts-area-chart>
             </div>            
           </div>  
           <div class="charts-container">
             <div class="chart-container">
               <h2>Gauge Chart</h2>
-              <ngx-charts-gauge
+              <ngx-charts-gauge class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="gaugeData"
@@ -241,7 +241,7 @@
             
             <div class="chart-container">
               <h2>Bubble Chart</h2>
-              <ngx-charts-bubble-chart
+              <ngx-charts-bubble-chart class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="bubbleChartData"
@@ -249,16 +249,16 @@
                 [yAxis]="showYAxis"
                 [legend]="showLegend"
                 [showXAxisLabel]="showXAxisLabel"
-                [xAxisLabel]="xAxisLabel"
+                [xAxisLabel]="'Months'"
                 [showYAxisLabel]="showYAxisLabel"
-                [yAxisLabel]="yAxisLabel">
+                [yAxisLabel]="'Sales'">
               </ngx-charts-bubble-chart>
             </div>             
           </div> 
           <div class="charts-container">
             <div class="chart-container">
               <h2>Heat Map</h2>
-              <ngx-charts-heat-map
+              <ngx-charts-heat-map class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="heatMapData"
@@ -270,7 +270,7 @@
             
             <div class="chart-container">
               <h2>Sankey Diagram</h2>
-              <ngx-charts-sankey
+              <ngx-charts-sankey class="chart"
                 [view]="view"
                 [scheme]="'cool'"
                 [results]="sankeyData"
