@@ -31,6 +31,9 @@ export class BranchService {
     getbranchesBasedOnType(type: string): Observable<Branch[]> {
       return this.http.get<Branch[]>(`${this.apiUrl}/branchesByType/${type}`);
     }
+    getbranchesBasedOnTypeActive(type: string): Observable<Branch[]> {
+      return this.http.get<Branch[]>(`${this.apiUrl}/branchesByTypeActive/${type}`);
+    }
 
     getBranchById(id: string): Observable<Branch> {
       return this.http.get<Branch>(`${this.apiUrl}/${id}`,{ headers: this.getHeaders() });

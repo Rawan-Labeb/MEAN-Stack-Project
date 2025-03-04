@@ -136,7 +136,7 @@ export class CheckoutComponent implements OnInit {
     return emailPattern.test(email);
   }
 
-  placeOrder(): void {
+  placeOrder(iscash:boolean,isonline:boolean): void {
     if (!this.validateCartItems()) return;
 
     const customerDetails = {
@@ -165,6 +165,8 @@ export class CheckoutComponent implements OnInit {
       customerDetails,
       notes: this.comments
     };
+    if(iscash){
+      
 
     this.checkoutService.createOrder(orderData).subscribe({
       next: (res: any) => {
@@ -185,6 +187,23 @@ export class CheckoutComponent implements OnInit {
         }
       }
     });
+    }else{
+      this.saveBillingDetails(customerDetails)
+      console.log("online");
+      this.checkoutService.connectStripe(orderData).subscribe({
+        next:(e)=>{
+          console.log(e.session);
+          window.location.href=e.session.url;
+
+
+        }
+
+
+      }
+      )
+    }
+
+    
   }
   
 
@@ -217,5 +236,14 @@ export class CheckoutComponent implements OnInit {
 
   trackByProductId(index: number, item: any): number {
     return item.subInventory.product ? item.subInventory.product._id : index;
+  }
+
+  
+
+
+  saveBillingDetails(data:any) {
+  
+    
+    localStorage.setItem("customerDetails",JSON.stringify(data))
   }
 }

@@ -70,39 +70,151 @@ export class UserProfileComponent implements OnInit
   }
 
 
+  // ngOnInit(): void {
+  //   // Get user data
+  //   this.decodeUserToken(this.getToken()).subscribe({
+  //     next: (data: any) => {
+  //       this.token = data;
+  //       console.log(data);
+  //     }
+  //   });
+  
+  //   if (this.token && this.token.email) {
+  //     this.authSer.getUserDataByEmail(this.token.email).subscribe({
+  //       next: (data) => {
+  //         if (data._id) {
+  //           this.id = data._id;
+  //           this.userData = data;
+  //           console.log(data);
+  //           console.log(this.userData);
+  //           this.fillFormWithUserData();
+  //         }
+  //       },
+  //       error: (err) => {
+  //         if (err.status == 401) {
+  //           this.authSer.logout();
+  //           this.router.navigateByUrl("user/login");
+  //         }
+  //         console.error("Error fetching user data", err);
+  //       }
+  //     });
+  //   } else {
+  //     console.error("Email not found in token");
+  //   }
+  
+  //   // Assign governorates directly from local data
+  //   this.governorates = [
+  //     { name: "Cairo", cities: ["Nasr City", "Heliopolis", "Maadi", "Shubra", "Zamalek", "New Cairo"] },
+  //     { name: "Alexandria", cities: ["Sidi Gaber", "Mansheya", "Smouha", "Montaza", "Borg El Arab"] },
+  //     { name: "Giza", cities: ["Dokki", "Mohandessin", "Haram", "6th of October", "Sheikh Zayed"] },
+  //     { name: "Qalyubia", cities: ["Banha", "Shibin El Qanater", "Khosous"] },
+  //     { name: "Port Said", cities: ["Al Manakh", "Al Sharq", "Al Zohour"] },
+  //     { name: "Suez", cities: ["Arbaeen", "Ganayen", "Faisal"] },
+  //     { name: "Sharqia", cities: ["Zagazig", "Belbeis", "Minya Al Qamh"] },
+  //     { name: "Dakahlia", cities: ["Mansoura", "Talkha", "Mit Ghamr"] },
+  //     { name: "Aswan", cities: ["Aswan City", "Kom Ombo", "Edfu"] },
+  //     { name: "Asyut", cities: ["Asyut City", "Dairut", "Manfalut"] },
+  //     { name: "Beheira", cities: ["Damanhour", "Kafr El Dawar", "Rashid"] },
+  //     { name: "Beni Suef", cities: ["Beni Suef City", "Biba", "El Wasta"] },
+  //     { name: "Fayoum", cities: ["Fayoum City", "Tamiya", "Sinnuris"] },
+  //     { name: "Gharbia", cities: ["Tanta", "El Mahalla El Kubra", "Zefta"] },
+  //     { name: "Ismailia", cities: ["Ismailia City", "Fayed", "Al Qantara"] },
+  //     { name: "Kafr El Sheikh", cities: ["Kafr El Sheikh City", "Desouk", "Baltim"] },
+  //     { name: "Matruh", cities: ["Marsa Matruh", "Siwa", "El Dabaa"] },
+  //     { name: "Minya", cities: ["Minya City", "Mallawi", "Beni Mazar"] },
+  //     { name: "Monufia", cities: ["Shibin El Kom", "Menouf", "Ashmoun"] },
+  //     { name: "New Valley", cities: ["Kharga", "Dakhla", "Farafra"] },
+  //     { name: "North Sinai", cities: ["Arish", "Sheikh Zuweid", "Rafah"] },
+  //     { name: "Qena", cities: ["Qena City", "Nag Hammadi", "Luxor"] },
+  //     { name: "Red Sea", cities: ["Hurghada", "Safaga", "Marsa Alam"] },
+  //     { name: "Sohag", cities: ["Sohag City", "Girga", "Akhmim"] },
+  //     { name: "South Sinai", cities: ["Sharm El Sheikh", "Dahab", "Nuweiba"] },
+  //     { name: "Damietta", cities: ["Damietta City", "New Damietta", "Faraskour"] },
+  //     { name: "Luxor", cities: ["Luxor City", "Esna", "Armant"] }
+  //   ];
+  
+  //   console.log(this.governorates);
+  
+  //   // Populate cities if user data contains an address
+  //   if (this.userData && this.userData.address && this.userData.address.state) {
+  //     const selectedGovernorate = this.governorates.find(
+  //       (gov) => gov.name === this.userData.address.state
+  //     );
+  //     this.cities = selectedGovernorate ? selectedGovernorate.cities : [];
+  //     this.fillFormWithUserData();
+  //   }
+  
+  //   // Watch for governorate changes
+  //   this.userProfileForm.get("state")?.valueChanges.subscribe((selectedGovernorateName) => {
+  //     const selectedGovernorate = this.governorates.find((gov) => gov.name === selectedGovernorateName);
+  //     this.cities = selectedGovernorate ? selectedGovernorate.cities : [];
+  
+  //     this.userProfileForm.patchValue({
+  //       stateName: selectedGovernorate ? selectedGovernorate.name : "",
+  //       city: null // Reset city selection when governorate changes
+  //     });
+  //   });
+  
+  //   // Watch for city changes
+  //   this.userProfileForm.get("city")?.valueChanges.subscribe((selectedCity) => {
+  //     this.userProfileForm.patchValue({
+  //       cityName: selectedCity
+  //     });
+  //   });
+  // }
+  
+
+
+  
+  // fillFormWithUserData(): void {
+  //   if (this.userData) {
+  //     // Find the selected governorate based on the name stored in userData
+  //     const selectedGovernorate = this.governorates.find(gov => gov.governorate_name_en === this.userData?.address?.state);
+      
+  //     if (selectedGovernorate) {
+  //       // Fetch cities for the selected governorate
+  //       this.locationSer.getCities(selectedGovernorate.id).subscribe(cityData => {
+  //         this.cities = cityData;
+  
+  //         // Find the selected city based on the name stored in userData
+  //         const selectedCity = this.cities.find(city => city.city_name_en === this.userData?.address?.city);
+  
+  //         // Patch the form with user data
+  //         this.userProfileForm.patchValue({
+  //           firstName: this.userData.firstName,
+  //           lastName: this.userData.lastName,
+  //           email: this.userData.email,
+  //           street: this.userData?.address?.street,
+  //           city: selectedCity ? selectedCity.id : '',
+  //           state: selectedGovernorate ? selectedGovernorate.id : '',
+  //           zipCode: this.userData?.address?.zipCode,
+  //           contactNo: this.userData.contactNo,
+  //           image: this.userData.image,
+  //           cityName: this.userData?.address?.city,
+  //           stateName: this.userData?.address?.state
+  //         });
+  //       });
+  //     } else {
+  //       // Patch the form without city data if governorate is not found
+  //       this.userProfileForm.patchValue({
+  //         firstName: this.userData.firstName,
+  //         lastName: this.userData.lastName,
+  //         email: this.userData.email,
+  //         street: this.userData?.address?.street,
+  //         city: '',
+  //         state: '',
+  //         zipCode: this.userData?.address?.zipCode,
+  //         contactNo: this.userData.contactNo,
+  //         image: this.userData.image,
+  //         cityName: this.userData?.address?.city,
+  //         stateName: this.userData?.address?.state
+  //       });
+  //     }
+  //   }
+  // }
+
   ngOnInit(): void {
-    // Get user data
-    this.decodeUserToken(this.getToken()).subscribe({
-      next: (data: any) => {
-        this.token = data;
-        console.log(data);
-      }
-    });
-  
-    if (this.token && this.token.email) {
-      this.authSer.getUserDataByEmail(this.token.email).subscribe({
-        next: (data) => {
-          if (data._id) {
-            this.id = data._id;
-            this.userData = data;
-            console.log(data);
-            console.log(this.userData);
-            this.fillFormWithUserData();
-          }
-        },
-        error: (err) => {
-          if (err.status == 401) {
-            this.authSer.logout();
-            this.router.navigateByUrl("user/login");
-          }
-          console.error("Error fetching user data", err);
-        }
-      });
-    } else {
-      console.error("Email not found in token");
-    }
-  
-    // Assign governorates directly from local data
+    // Static governorates and cities data
     this.governorates = [
       { name: "Cairo", cities: ["Nasr City", "Heliopolis", "Maadi", "Shubra", "Zamalek", "New Cairo"] },
       { name: "Alexandria", cities: ["Sidi Gaber", "Mansheya", "Smouha", "Montaza", "Borg El Arab"] },
@@ -135,6 +247,37 @@ export class UserProfileComponent implements OnInit
   
     console.log(this.governorates);
   
+    // Get user data
+    this.decodeUserToken(this.getToken()).subscribe({
+      next: (data: any) => {
+        this.token = data;
+        console.log(data);
+      }
+    });
+  
+    if (this.token && this.token.email) {
+      this.authSer.getUserDataByEmail(this.token.email).subscribe({
+        next: (data) => {
+          if (data._id) {
+            this.id = data._id;
+            this.userData = data;
+            console.log(data);
+            console.log(this.userData);
+            this.fillFormWithUserData();
+          }
+        },
+        error: (err) => {
+          if (err.status == 401) {
+            this.authSer.logout();
+            this.router.navigateByUrl("user/login");
+          }
+          console.error("Error fetching user data", err);
+        }
+      });
+    } else {
+      console.error("Email not found in token");
+    }
+  
     // Populate cities if user data contains an address
     if (this.userData && this.userData.address && this.userData.address.state) {
       const selectedGovernorate = this.governorates.find(
@@ -163,36 +306,32 @@ export class UserProfileComponent implements OnInit
     });
   }
   
-
-
-  
   fillFormWithUserData(): void {
     if (this.userData) {
       // Find the selected governorate based on the name stored in userData
-      const selectedGovernorate = this.governorates.find(gov => gov.governorate_name_en === this.userData?.address?.state);
+      const selectedGovernorate = this.governorates.find(gov => gov.name === this.userData?.address?.state);
       
       if (selectedGovernorate) {
-        // Fetch cities for the selected governorate
-        this.locationSer.getCities(selectedGovernorate.id).subscribe(cityData => {
-          this.cities = cityData;
+        // Fetch cities for the selected governorate from static data
+        const cityData = selectedGovernorate.cities;
+        this.cities = cityData;
   
-          // Find the selected city based on the name stored in userData
-          const selectedCity = this.cities.find(city => city.city_name_en === this.userData?.address?.city);
+        // Find the selected city based on the name stored in userData
+        const selectedCity = this.cities.find(city => city === this.userData?.address?.city);
   
-          // Patch the form with user data
-          this.userProfileForm.patchValue({
-            firstName: this.userData.firstName,
-            lastName: this.userData.lastName,
-            email: this.userData.email,
-            street: this.userData?.address?.street,
-            city: selectedCity ? selectedCity.id : '',
-            state: selectedGovernorate ? selectedGovernorate.id : '',
-            zipCode: this.userData?.address?.zipCode,
-            contactNo: this.userData.contactNo,
-            image: this.userData.image,
-            cityName: this.userData?.address?.city,
-            stateName: this.userData?.address?.state
-          });
+        // Patch the form with user data
+        this.userProfileForm.patchValue({
+          firstName: this.userData.firstName,
+          lastName: this.userData.lastName,
+          email: this.userData.email,
+          street: this.userData?.address?.street,
+          city: selectedCity ? selectedCity : '',
+          state: selectedGovernorate ? selectedGovernorate.name : '',
+          zipCode: this.userData?.address?.zipCode,
+          contactNo: this.userData.contactNo,
+          image: this.userData.image,
+          cityName: this.userData?.address?.city,
+          stateName: this.userData?.address?.state
         });
       } else {
         // Patch the form without city data if governorate is not found
@@ -212,6 +351,10 @@ export class UserProfileComponent implements OnInit
       }
     }
   }
+  
+
+
+
   
   getToken(): string {
     return this.cookieServices.get('token'); 
@@ -298,52 +441,6 @@ showErrorMessage(message: string) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-// // handel upload image
-//   // Method to handle file input change
-//   onFileChange(event:any) {
-//     const file = event.target.files[0];
-//     if (file) {
-//       this.userProfileForm.patchValue({
-//         image: file
-//       });
-//       this.userProfileForm.get('image')?.updateValueAndValidity();
-//       this.uploadFile(file);
-//     }
-//   }
-
-//   // Method to upload file to the API
-//   uploadFile(file: File) {
-//     // const formData = new FormData();
-//     // formData.append('file', file, file.name);
-
-//     // const apiEndpoint = 'YOUR_API_ENDPOINT_HERE';
-//     // this.http.post(apiEndpoint, formData).subscribe(response => {
-//     //   console.log('API Response:', response);
-//     //   // Handle the response from the API if needed
-//     // }, error => {
-//     //   console.error('API Error:', error);
-//     //   // Handle error
-//     // });
-//     // console.log(file);
-//     this.uploadSer.uploadImage(file).subscribe({
-//       next: (data) => {
-//         console.log(data);
-//       }
-//     })
-
-
-//   }
 
 
   // Method to handle file input change

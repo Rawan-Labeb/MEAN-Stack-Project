@@ -68,7 +68,7 @@
               aria-expanded="false"
             >
               <i class="bi bi-person-circle fs-4 me-2"></i> 
-              <span *ngIf="userRole">{{ userFirstName }}</span>
+              <span *ngIf="userRole">{{ userData.firstName }}</span>
               <span *ngIf="!userRole">REGISTER</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow-sm" aria-labelledby="userDropdown">
@@ -115,18 +115,35 @@
           </li>
   
           <!-- Cart Icon -->
-          <li class="nav-item ms-3">
-            <button 
-              class="btn btn-outline-primary rounded-pill px-3 py-2 d-flex align-items-center" 
-              type="button" 
-              data-bs-toggle="offcanvas" 
-              data-bs-target="#cartOffcanvas" 
-              aria-controls="cartOffcanvas"
-              routerLink="/cart"
-            >
-              <i class="bi bi-cart fs-4 me-2"></i> Cart <span class="badge bg-primary rounded-pill ms-2">{{ getCartItemCount() }}</span>
-            </button>
-          </li>
+           @if(userRole?.toLowerCase() == "customer")
+           {
+             <li class="nav-item ms-3">
+               <button 
+                 class="btn btn-outline-primary rounded-pill px-3 py-2 d-flex align-items-center" 
+                 type="button" 
+                 data-bs-toggle="offcanvas" 
+                 data-bs-target="#cartOffcanvas" 
+                 aria-controls="cartOffcanvas"
+                 routerLink="/cart"
+               >
+                 <i class="bi bi-cart fs-4 me-2"></i> Cart <span class="badge bg-primary rounded-pill ms-2"></span>
+               </button>
+             </li>
+           }
+           @else if (userRole?.toLowerCase() == "cashier") {
+            <li class="nav-item ms-3">
+              <button 
+                class="btn btn-outline-primary rounded-pill px-3 py-2 d-flex align-items-center" 
+                type="button" 
+                data-bs-toggle="offcanvas" 
+                data-bs-target="#cartOffcanvas" 
+                aria-controls="cartOffcanvas"
+                routerLink="/cartCashier"
+              >
+                <i class="bi bi-cart fs-4 me-2"></i> Cart <span class="badge bg-primary rounded-pill ms-2"></span>
+              </button>
+            </li>
+           }
 
 
 

@@ -44,7 +44,7 @@ export class AddCashierComponent {
     }
 
     loadBranches(): void {
-      this.branchService.getBranchesByActive().subscribe({
+      this.branchService.getbranchesBasedOnTypeActive("offline").subscribe({
         next: (response) => {
           this.branches = response;
         },

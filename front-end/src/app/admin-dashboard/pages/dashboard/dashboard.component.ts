@@ -17,8 +17,6 @@ export class DashboardComponent {
   showYAxis = true;
   showXAxisLabel = true;
   showYAxisLabel = true;
-  xAxisLabel = 'Months';
-  yAxisLabel ='Sales';
   
   chartData = [
     { "name": "Products", "value": 50 },

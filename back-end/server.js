@@ -1,4 +1,5 @@
 const express = require('express');
+const stripe = require('stripe')('sk_test_51Qya0nG2gT4oJXi9B235B0VJSnnlse2VtUc44p2eNHbTd8co4PLdbRxXfvfPvKkIg9e14uLEmK52pvvBHbMCdY9a00e1HOxAIl'); 
 const mongoose = require('mongoose');
 const cors = require('cors');
 const user = require("./controllers/user.controller");
@@ -24,6 +25,8 @@ const offlineOrderRoutes = require('./routes/offlineOrder.routes'); // Ensure th
 const distributionReq = require("./controllers/distribution.request..controller");
 const prodReq = require("./controllers/product.request.controller");
 const prodReview = require("./controllers/product.review.controller");
+const stripeRoutes = require('./routes/stripe.routes');
+
 
 // Middleware
 app.use(cors({ origin: 'http://localhost:4200', credentials: true }));
@@ -59,6 +62,11 @@ mongoose.connect(process.env.MONGO_URI)
     
     app.use("/offlineOrder", offlineOrderRoutes); // Use this line
 
+
+    /**** */
+    app.use('/api/stripe', stripeRoutes); 
+
+
     app.use((req, res, next) => {
       res.status(404).json({ message: "Route not found" });
     });
@@ -77,8 +85,5 @@ mongoose.connect(process.env.MONGO_URI)
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
-
-
-
 
 
