@@ -37,24 +37,7 @@
               </td>
               <td>${{order.totalPrice}}</td>
               <td>
-                <div class="dropdown">
-                  <button [class]="'btn btn-sm ' + getStatusButtonClass(order.status)" 
-                          type="button" 
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false">
-                    {{order.status}}
-                    <i class="bi bi-chevron-down ms-1"></i>
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li *ngFor="let status of ORDER_STATUSES">
-                      <button class="dropdown-item" 
-                              [class.active]="status === order.status"
-                              (click)="changeOrderStatus(order, status)">
-                        {{status}}
-                      </button>
-                    </li>
-                  </ul>
-                </div>
+                <span [class]="'badge ' + getStatusBadgeClass(order.status)">{{order.status}}</span>
               </td>
               <td>
                 <button class="btn btn-sm btn-info" (click)="viewDetails(order)">
