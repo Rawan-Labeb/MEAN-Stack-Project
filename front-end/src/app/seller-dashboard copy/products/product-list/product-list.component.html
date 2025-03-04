@@ -84,10 +84,9 @@
             <tr *ngFor="let product of filteredProducts">
               <!-- Product image thumbnail -->
               <td>
-                <img *ngIf="product.images && product.images.length > 0 && isValidImage(product.images[0])" 
-                     [src]="product.images[0]" 
-                     class="product-thumbnail" 
-                     alt="{{ product.name }}" />
+                <ng-container *ngIf="product.images && product.images.length > 0 && isValidImage(product.images[0])">
+                  <img [src]="product.images[0]" class="product-thumbnail" alt="{{ product.name }}" />
+                </ng-container>
                 <div *ngIf="!product.images || product.images.length === 0 || !isValidImage(product.images[0])" class="no-image">
                   <i class="fas fa-image text-muted"></i>
                 </div>
