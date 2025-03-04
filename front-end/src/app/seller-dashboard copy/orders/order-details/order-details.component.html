@@ -5,8 +5,11 @@
     </div>
     <div class="modal-body">
       <p><strong>Order ID:</strong> {{order._id}}</p>
-      <p><strong>Customer:</strong> {{order.customerDetails.firstName}} {{order.customerDetails.lastName}}</p>
-      <p><strong>Email:</strong> {{order.customerDetails.email}}</p>
+      <p><strong>Customer:</strong> 
+        {{order.customerDetails?.firstName || 'N/A'}} {{order.customerDetails?.lastName || ''}}
+      </p>
+      <p><strong>Email:</strong> {{order.customerDetails?.email || 'N/A'}}</p>
+      <p><strong>Phone:</strong> {{order.customerDetails?.phone || 'N/A'}}</p>
       <p><strong>Status:</strong> {{order.status}}</p>
       <p><strong>Total:</strong> ${{order.totalPrice}}</p>
       <!-- Add more order details as needed -->

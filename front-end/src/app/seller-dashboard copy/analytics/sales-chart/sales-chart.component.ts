@@ -30,6 +30,7 @@ export class SalesChartComponent implements OnInit, AfterViewInit {
   error: string | null = null;
   startDate: string;
   endDate: string;
+  productSalesData: { name: string; quantity: number; revenue: number }[] = [];
   
   private charts: Chart[] = [];
 
@@ -133,18 +134,24 @@ export class SalesChartComponent implements OnInit, AfterViewInit {
       });
 
       // Process product sales
-      order.items.forEach(item => {
-        const existing = productSales.get(item.productId) || { 
-          name: item.productId, 
-          sales: 0, 
-          revenue: 0 
-        };
-        productSales.set(item.productId, {
-          name: existing.name,
-          sales: existing.sales + item.quantity,
-          revenue: existing.revenue + (item.price * item.quantity)
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          // Use the helper method instead of directly accessing productId
+          const productId = this.getProductId(item);
+          
+          const existing = productSales.get(productId) || { 
+            name: this.getProductName(item), 
+            sales: 0, 
+            revenue: 0 
+          };
+          
+          productSales.set(productId, {
+            name: existing.name,
+            sales: existing.sales + item.quantity,
+            revenue: existing.revenue + (item.price * item.quantity)
+          });
         });
-      });
+      }
 
       totalRevenue += order.totalPrice;
     });
@@ -162,10 +169,99 @@ export class SalesChartComponent implements OnInit, AfterViewInit {
         totalOrders,
         totalRevenue,
         totalSales: orders.reduce((acc, order) => 
-          acc + order.items.reduce((sum, item) => sum + item.quantity, 0), 0),
-        averageOrderValue: totalRevenue / totalOrders
+          acc + (order.items || []).reduce((sum, item) => sum + item.quantity, 0), 0),
+        averageOrderValue: totalRevenue / (totalOrders || 1)  // Prevent division by zero
       }
     };
+  }
+
+  private processOrdersForCharts(orders: Order[]): void {
+    // Map to track sales data by product
+    const productSales = new Map<string, { name: string; quantity: number; revenue: number }>();
+    
+    // Track daily sales for the chart
+    const dailySales = new Map<string, number>();
+    
+    orders.forEach(order => {
+      if (!order.items || !Array.isArray(order.items)) return;
+      
+      // Process for product sales
+      order.items.forEach(item => {
+        // Get product ID safely with non-null assertion where needed
+        const productId = this.getProductId(item);
+        
+        // Only process if we have a valid product ID
+        if (productId) {
+          const existing = productSales.get(productId) || {
+            name: this.getProductName(item),
+            quantity: 0,
+            revenue: 0
+          };
+          
+          existing.quantity += item.quantity;
+          existing.revenue += item.quantity * item.price;
+          
+          productSales.set(productId, {
+            ...existing
+          });
+        }
+      });
+      
+      // Process for daily sales chart
+      const orderDate = new Date(order.date || order.createdAt || new Date()).toISOString().split('T')[0];
+      const currentDailyTotal = dailySales.get(orderDate) || 0;
+      dailySales.set(orderDate, currentDailyTotal + order.totalPrice);
+    });
+    
+    // Convert map to arrays for chart data
+    this.productSalesData = Array.from(productSales.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+      
+    // Set up daily sales data (last 7 days)
+    // Rest of your existing code
+  }
+  
+  // Helper method to safely get product ID
+  private getProductId(item: any): string {
+    if (item.productId) {
+      return item.productId;
+    }
+    
+    if (item.product && typeof item.product === 'object' && item.product._id) {
+      return item.product._id;
+    }
+    
+    if (item.subInventoryId && typeof item.subInventoryId === 'object' && 
+        item.subInventoryId.product && typeof item.subInventoryId.product === 'object' &&
+        item.subInventoryId.product._id) {
+      return item.subInventoryId.product._id;
+    }
+    
+    // Generate a fallback ID if none exists
+    return `item-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  // Helper method to get product name
+  private getProductName(item: any): string {
+    // Check for product name in various places
+    if (item.product && typeof item.product === 'object' && item.product.name) {
+      return item.product.name;
+    }
+    
+    if (item.subInventoryId && typeof item.subInventoryId === 'object') {
+      if (item.subInventoryId.name) {
+        return item.subInventoryId.name;
+      }
+      
+      if (item.subInventoryId.product && typeof item.subInventoryId.product === 'object' &&
+          item.subInventoryId.product.name) {
+        return item.subInventoryId.product.name;
+      }
+    }
+    
+    // Fallback names
+    return `Product ${this.getProductId(item)}`;
   }
 
   private initializeCharts(): void {

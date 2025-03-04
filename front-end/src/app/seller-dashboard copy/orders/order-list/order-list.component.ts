@@ -8,7 +8,7 @@ import { OrderDetailsComponent } from '../order-details/order-details.component'
 import Swal from 'sweetalert2';
 import { AuthServiceService } from '../../../_services/auth-service.service';
 import { CookieService } from 'ngx-cookie-service';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-order-list',
@@ -52,19 +52,52 @@ export class OrderListComponent implements OnInit {
         if (!decodedToken) {
           throw new Error('Invalid token');
         }
-        console.log('Fetching orders for seller:', decodedToken.sub);
-        return this.orderService.getSellerOrders();
+        const sellerId = decodedToken.sub || decodedToken.id || decodedToken._id;
+        console.log('Fetching orders for seller:', sellerId);
+        
+        return this.orderService.getAllOrders().pipe(
+          tap(allOrders => {
+            console.log(`Found ${allOrders.length} total orders`);
+            
+            // Deep inspect all orders to find any with this seller's products
+            console.log('Examining each order for products with sellerId:', sellerId);
+            
+            allOrders.forEach((order, index) => {
+              if (order.items && Array.isArray(order.items) && order.items.length > 0) {
+                order.items.forEach((item, itemIndex) => {
+                  // Log detailed structure for debugging
+                  console.log(`Order ${index}, Item ${itemIndex} structure:`, JSON.stringify({
+                    subInventoryId: typeof item.subInventoryId === 'object' ? 
+                      {
+                        _id: item.subInventoryId?._id,
+                        product: item.subInventoryId?.product ? {
+                          _id: item.subInventoryId.product._id,
+                          sellerId: item.subInventoryId.product.sellerId
+                        } : 'No product'
+                      } : 'String ID',
+                    product: typeof item.product === 'object' ? {
+                      _id: item.product?._id,
+                      sellerId: item.product?.sellerId
+                    } : 'Not object',
+                    sellerId: item.sellerId
+                  }, null, 2));
+                });
+              }
+            });
+          }),
+          map(orders => this.orderService.filterOrdersBySeller(orders, sellerId))
+        );
       })
     ).subscribe({
       next: (filteredOrders) => {
-        console.log('Received orders:', filteredOrders);
+        console.log(`Received ${filteredOrders.length} orders after filtering`);
         this.orders = filteredOrders;
-        this.filteredOrders = filteredOrders; // Initialize filtered orders
-        this.applyFilters(); // Apply any active filters
+        this.filteredOrders = filteredOrders;
+        this.applyFilters();
       },
       error: (error) => {
         this.error = 'Failed to load orders';
-        console.error('Detailed error:', error);
+        console.error('Error loading orders:', error);
         this.loading = false;
       },
       complete: () => {

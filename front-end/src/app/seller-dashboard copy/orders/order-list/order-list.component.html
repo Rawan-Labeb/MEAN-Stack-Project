@@ -32,7 +32,9 @@
           <tbody>
             <tr *ngFor="let order of filteredOrders">
               <td>{{order._id}}</td>
-              <td>{{order.customerDetails.firstName}} {{order.customerDetails.lastName}}</td>
+              <td>
+                {{order.customerDetails?.firstName || 'N/A'}} {{order.customerDetails?.lastName || ''}}
+              </td>
               <td>${{order.totalPrice}}</td>
               <td>
                 <div class="dropdown">
