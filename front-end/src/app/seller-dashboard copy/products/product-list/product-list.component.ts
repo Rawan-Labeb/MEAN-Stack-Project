@@ -324,4 +324,31 @@ export class ProductListComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  // Add this method to handle image loading errors
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    
+    // Hide the broken image and show the no-image div instead
+    imgElement.style.display = 'none';
+    
+    // Create and show a no-image div
+    const parentElement = imgElement.parentElement;
+    if (parentElement) {
+      const noImageDiv = document.createElement('div');
+      noImageDiv.className = 'no-image';
+      
+      const icon = document.createElement('i');
+      icon.className = 'fas fa-image text-muted';
+      
+      noImageDiv.appendChild(icon);
+      parentElement.appendChild(noImageDiv);
+    }
+  }
+
+  // Add this method to validate image URLs
+  isValidImage(url: string): boolean {
+    // Simple validation to check if the URL starts with http or https
+    return !!url && (url.startsWith('http://') || url.startsWith('https://'));
+  }
 }
