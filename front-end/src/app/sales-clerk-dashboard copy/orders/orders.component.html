@@ -56,64 +56,47 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>Order #</th>
+              <th>Order ID</th>
               <th>Customer</th>
               <th>Date</th>
               <th>Items</th>
               <th>Total</th>
-              <th>Type</th>
+              <th>Payment</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let order of filteredOrders">
-              <td>{{ order.orderNumber || (order._id | slice:0:8) }}</td>
-              <td>{{ order.customerName || 'Customer' }}</td>
-              <td>{{ order.createdAt | date:'medium' }}</td>
+              <td>{{ order._id | slice:0:8 }}</td>
+              <td>{{ order.customerDetails?.firstName }} {{ order.customerDetails?.lastName }}</td>
+              <td>{{ order.date | date:'medium' }}</td>
               <td>{{ order.items.length }}</td>
-              <td>${{ formatPrice(order.totalAmount) }}</td>
-              <td>
-                <span class="badge" [class.bg-secondary]="order.isOfflineOrder" [class.bg-info]="!order.isOfflineOrder">
-                  {{ getOrderTypeLabel(order) }}
-                </span>
-              </td>
+              <td>${{ order.totalPrice.toFixed(2) }}</td>
+              <td>{{ order.paymentMethod }}</td>
               <td>
                 <span class="badge"
                   [class.bg-warning]="order.status === 'pending'"
                   [class.bg-info]="order.status === 'processing'"
                   [class.bg-primary]="order.status === 'shipped'"
                   [class.bg-success]="order.status === 'delivered'"
-                  [class.bg-danger]="order.status === 'cancelled'">
+                  [class.bg-danger]="order.status === 'cancelled'"
+                  [class.bg-secondary]="order.status === 'refunded'">
                   {{ order.status }}
                 </span>
               </td>
               <td>
                 <div class="dropdown">
-                  <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     Actions
                   </button>
                   <ul class="dropdown-menu">
-                    <!-- Only show relevant status changes -->
-                    <li *ngIf="order.status !== 'pending' && isStatusChangeAllowed(order._id, 'pending')">
-                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'pending')">Set as Pending</a>
-                    </li>
-                    <li *ngIf="order.status !== 'processing' && isStatusChangeAllowed(order._id, 'processing')">
-                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'processing')">Set as Processing</a>
-                    </li>
-                    <li *ngIf="order.status !== 'shipped' && isStatusChangeAllowed(order._id, 'shipped')">
-                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'shipped')">Set as Shipped</a>
-                    </li>
-                    <li *ngIf="order.status !== 'delivered' && isStatusChangeAllowed(order._id, 'delivered')">
-                      <a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'delivered')">Set as Delivered</a>
-                    </li>
-                    <li *ngIf="order.status !== 'cancelled' && isStatusChangeAllowed(order._id, 'cancelled')">
-                      <hr class="dropdown-divider">
-                      <a class="dropdown-item text-danger" href="javascript:void(0)" (click)="updateStatus(order._id, 'cancelled')">Cancel Order</a>
-                    </li>
-                    <li *ngIf="!isStatusChangeAllowed(order._id, 'cancelled')">
-                      <span class="dropdown-item text-muted">No actions available</span>
-                    </li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="viewOrderDetails(order)">View Details</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'processing')" *ngIf="order.status === 'pending'">Mark Processing</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'shipped')" *ngIf="order.status === 'processing'">Mark Shipped</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'delivered')" *ngIf="order.status === 'shipped'">Mark Delivered</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'cancelled')" *ngIf="['pending', 'processing'].includes(order.status)">Cancel Order</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="updateStatus(order._id, 'refunded')" *ngIf="order.status === 'delivered'">Mark Refunded</a></li>
                   </ul>
                 </div>
               </td>
