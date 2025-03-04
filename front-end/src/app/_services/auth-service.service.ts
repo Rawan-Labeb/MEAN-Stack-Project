@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Observable ,of} from 'rxjs';
 import { Login } from '../_models/login';
 import { register } from '../_models/register';
@@ -10,16 +10,19 @@ import { userProfile } from '../_models/userProfile.model';
 import {jwtDecode }from 'jwt-decode';
 import { Order } from '../_models/order.module';
 import { CookieService } from 'ngx-cookie-service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthServiceService {
   private apiUrl = 'http://localhost:5000/users';
+  public loginStatus = new EventEmitter<boolean>();
   
   constructor(
     private http: HttpClient,
-    private cookieSer:CookieService
+    private cookieSer:CookieService,
+    private router:Router
   ) { }
 
 
@@ -48,14 +51,14 @@ export class AuthServiceService {
   
 
   // decode token
-  // decodeToken(token: string): any {
-  //   try {
-  //     return jwtDecode(token);
-  //   } catch (error) {
-  //     console.error('Invalid token', error);
-  //     return null;
-  //   }
-  // }
+  decodeTokenHead(token: string): any {
+    try {
+      return jwtDecode(token);
+    } catch (error) {
+      console.error('Invalid token', error);
+      return null;
+    }
+  }
 
 
   decodeToken(token: string): Observable<any> {
@@ -102,6 +105,17 @@ export class AuthServiceService {
     return this.cookieSer.get("token");
   }
 
+
+  setToken(token: string): void {
+    if (this.cookieSer.check("token"))
+    {
+      this.cookieSer.delete("token")
+    }
+    this.cookieSer.set('token', token, undefined, '/');
+    this.loginStatus.emit(true);
+    this.router.navigateByUrl("");
+
+  }
 
 
 }

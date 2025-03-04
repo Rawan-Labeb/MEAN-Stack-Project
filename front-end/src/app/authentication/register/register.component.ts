@@ -69,14 +69,7 @@ export class RegisterComponent {
 
     this.userSer.register(user).subscribe(response => {
       console.log('User registered successfully:', response);
-      if (this.cookieService.check("token"))
-      {
-        this.cookieService.delete("token")
-      }
-      this.cookieService.set("token", response.token, 1 ,'/');
-      this.router.navigateByUrl("");
-
-      // Handle successful registration
+      this.userSer.setToken(response.token);
     }, error => {
       console.error('Registration failed:', error);
       this.errorMessage = error.error.token;
