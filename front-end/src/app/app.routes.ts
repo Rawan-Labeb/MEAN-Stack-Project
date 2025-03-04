@@ -16,6 +16,7 @@ import { CachierComponent } from './cachier/cachier.component';
 import { CartCachierComponent } from './cachier/cart-cachier/cart-cachier.component';
 import { CartCheckoutGuard } from './cart/_guards/cart-checkout.guard';
 import { CashierGuard } from './cachier/_guard/cashier.guard'
+import { SuccessComponent } from './success/success.component';
 import { SalesClerkDashboardComponent } from './sales-clerk-dashboard copy/sales-clerk-dashboard.component';
 import { sellerGuard } from './_guards/seller.guard';
 import { authGuard } from './_guards/auth.guard'; 
@@ -23,6 +24,8 @@ import { salesClerkGuard } from './_guards/sales-clerk.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },
+  { path: 'success', component: SuccessComponent},
+
   { path: 'cart', component: CartComponent, canActivate: [CartCheckoutGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [CartCheckoutGuard] },
   { path: 'cashier', component: CachierComponent, canActivate: [CashierGuard] },
