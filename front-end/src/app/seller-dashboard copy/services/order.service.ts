@@ -165,6 +165,31 @@ export class OrderService {
     });
   }
 
+  // Add this diagnostic method
+  testSellerOrdersApi(): void {
+    const token = this.cookieService.get('token');
+    if (!token) {
+      console.error('No token available');
+      return;
+    }
+    
+    this.authService.decodeToken(token).subscribe(decodedToken => {
+      if (!decodedToken) {
+        console.error('Invalid token');
+        return;
+      }
+      
+      const sellerId = decodedToken.sub || decodedToken.id || decodedToken._id;
+      console.log('Testing API for seller:', sellerId);
+      
+      // Make a direct API call
+      this.http.get(`${this.apiUrl}/getOrdersBySellerId/${sellerId}`).subscribe({
+        next: (response) => console.log('API Response:', response),
+        error: (err) => console.error('API Error:', err)
+      });
+    });
+  }
+
   private handleError(error: HttpErrorResponse) {
     console.error('An error occurred:', error);
     return throwError(() => error.error?.message || 'Server error');
