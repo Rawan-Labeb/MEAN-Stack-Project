@@ -182,7 +182,15 @@ export class DistributionRequestsComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = `Failed to submit request: ${err.message}`;
+        
+     
+        if (err.userFriendly) {
+          this.errorMessage = err.message;
+        } else {
+        
+          console.error('Request submission error:', err);
+          this.errorMessage = 'Unable to process your request at this time. Please try again later.';
+        }
       }
     });
   }

@@ -12,8 +12,12 @@
     <button type="button" class="btn-close" (click)="dismissSuccess()" aria-label="Close"></button>
   </div>
   
+  <!-- Update the error alert with a more user-friendly style -->
   <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ errorMessage }}
+    <div class="d-flex align-items-center">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <div>{{ errorMessage }}</div>
+    </div>
     <button type="button" class="btn-close" (click)="dismissError()" aria-label="Close"></button>
   </div>
 
