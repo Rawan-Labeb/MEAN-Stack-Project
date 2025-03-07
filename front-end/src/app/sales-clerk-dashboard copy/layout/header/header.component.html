@@ -12,16 +12,12 @@
       <button><i class="bi bi-search"></i></button>
     </div>
     
-    <div class="dropdown">
-      <button class="btn btn-link dropdown-toggle user-dropdown" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="user-name">Branch Manager</span>
+    <!-- Replace dropdown with simple logout button -->
+    <div class="user-section">
+      <span class="user-name me-3">{{userName}}</span>
+      <button class="btn btn-outline-danger btn-sm" (click)="logout()">
+        <i class="bi bi-power me-1"></i>Logout
       </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-        <li><a class="dropdown-item" href="#">Profile</a></li>
-        <li><a class="dropdown-item" href="#">Settings</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Logout</a></li>
-      </ul>
     </div>
   </div>
 </header>
