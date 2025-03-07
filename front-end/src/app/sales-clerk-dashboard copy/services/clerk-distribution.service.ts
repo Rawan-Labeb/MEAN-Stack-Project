@@ -26,7 +26,18 @@ export class ClerkDistributionService {
     return this.http.post<DistReq>(`${this.apiUrl}/createDistReq`, requestData)
       .pipe(
         tap(data => console.log('Created request:', data)),
-        catchError(this.handleError)
+        catchError(error => {
+        
+          if (error?.error?.message && 
+              typeof error.error.message === 'string' && 
+              error.error.message.includes('Insufficient quantity')) {
+            return throwError(() => ({
+              userFriendly: true,
+              message: 'Insufficient quantity in main inventory. Request cannot be fulfilled at this time.'
+            }));
+          }
+          return this.handleError(error);
+        })
       );
   }
 
@@ -41,12 +52,26 @@ export class ClerkDistributionService {
 
   private handleError(error: any) {
     console.error('API error:', error);
+    
+    // If it's already a user-friendly error, pass it through
+    if (error.userFriendly) {
+      return throwError(() => error);
+    }
+    
+    // Parse error message from backend if available
     let errorMessage = 'An unknown error occurred!';
-    if (error.error instanceof ErrorEvent) {
+    
+    if (error.error && error.error.message) {
+      // This is likely the backend error message in JSON format
+      errorMessage = error.error.message;
+    } else if (error.error instanceof ErrorEvent) {
+      // Client-side error
       errorMessage = `Error: ${error.error.message}`;
     } else if (error.status) {
+      // HTTP status error
       errorMessage = `Error ${error.status}: ${error.statusText}`;
     }
+    
     return throwError(() => new Error(errorMessage));
   }
 }

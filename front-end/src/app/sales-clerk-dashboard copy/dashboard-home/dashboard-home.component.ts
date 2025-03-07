@@ -193,17 +193,47 @@ export class DashboardHomeComponent implements OnInit {
     });
   }
 
-  // Fix method with proper types
-  processLowStockItems(inventory: SubInventoryItem[]): any[] {
+  // Fix the processLowStockItems method to properly extract product names
+  processLowStockItems(inventory: any[]): any[] {
     return inventory
-      .filter((item: SubInventoryItem) => item.quantity < 10)
-      .map((item: SubInventoryItem) => ({
-        _id: item._id,
-        name: item.name,
-        quantity: item.quantity,
-        status: this.getStockStatus(item.quantity)
-      }))
-      .sort((a: any, b: any) => a.quantity - b.quantity)
+      .filter((item: any) => item.quantity < 10)
+      .map((item: any) => {
+        // Extract product name properly
+        let name = 'Unknown Product';
+        
+        // Check if item has product property with name
+        if (item.product) {
+          if (typeof item.product === 'object' && item.product.name) {
+            name = item.product.name;
+          }
+        } 
+        // If item itself has a name
+        else if (item.name) {
+          name = item.name;
+        }
+        
+        // Get category name
+        let category = 'Uncategorized';
+        if (item.product && typeof item.product === 'object') {
+          if (item.product.categoryId) {
+            if (typeof item.product.categoryId === 'object' && item.product.categoryId.name) {
+              category = item.product.categoryId.name;
+            }
+          } else if (item.product.category) {
+            category = String(item.product.category);
+          }
+        }
+        
+        return {
+          _id: item._id,
+          name: name,
+          category: category,
+          quantity: item.quantity,
+          image: item.product && typeof item.product === 'object' && item.product.images && 
+                 item.product.images.length > 0 ? item.product.images[0] : undefined
+        };
+      })
+      .sort((a, b) => a.quantity - b.quantity)
       .slice(0, 5);
   }
 
