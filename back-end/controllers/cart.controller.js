@@ -198,27 +198,6 @@ const getCartByUserId = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// const getCartByUserId = async (req, res) => {
-//   try {
-//     if (!cart) return res.status(404).json({ error: 'Cart not found' });
-
-//     const cart = await Cart.findOne({ user: req.params.userId })
-//       .populate({
-//         path: 'items.subInventory',
-//         populate: {
-//           path: 'product',
-//           select: 'name description price images isActive'
-//         }
-//       })
-//       .populate('items.branch');
-
-//     if (!cart) return res.status(404).json({ error: 'Cart not found' });
-
-//     res.json(cart);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 const updateCart = async (req, res) => {
   try {

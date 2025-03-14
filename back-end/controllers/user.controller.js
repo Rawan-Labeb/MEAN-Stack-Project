@@ -168,7 +168,7 @@ router.post("/login", async (req, res, next) => {
 
 
 
-router.get("/getUsersBasedOnRole/:role", authenticaiton, authorize("manager,clerk"), async (req,res) => {
+router.get("/getUsersBasedOnRole/:role", authenticaiton, authorize("clerk"), async (req,res) => {
     try{
         const result = await getUsersByRole(req.params.role);
         console.log(result)

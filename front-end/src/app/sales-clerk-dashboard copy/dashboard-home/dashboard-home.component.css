@@ -168,3 +168,31 @@
   background: linear-gradient(45deg, #4a6bff, #2541b2);
   border: none;
 }
+
+/* Add these styles to fix the low stock items display */
+.list-group-item {
+  border-left: none;
+  border-right: none;
+}
+
+.list-group-item:first-child {
+  border-top: none;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+/* Update badge styling for better visibility */
+.badge {
+  padding: 0.45rem 0.65rem;
+  font-weight: 500;
+}
+
+.bg-danger {
+  background-color: #ff5a5a !important;
+}
+
+.bg-warning {
+  background-color: #ffbb44 !important;
+}

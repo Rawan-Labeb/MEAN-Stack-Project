@@ -104,21 +104,59 @@ export class DistributionRequestsComponent implements OnInit {
   }
   
   loadMyRequests(): void {
-    if (!this.clerkId) {
-      this.errorMessage = 'User ID not available.';
+    if (!this.clerkId || !this.branchId) {
+      this.errorMessage = 'User or branch ID not available.';
       return;
     }
     
     this.isLoading = true;
-    this.distService.getClerkRequests(this.clerkId).subscribe({
-      next: (data) => {
-        this.myRequests = data;
-        this.applyFilters();
-        this.isLoading = false;
+    
+    // First make sure we have the inventory items loaded
+    this.subInventoryService.getActiveSubInventoriesByBranchId(this.branchId).subscribe({
+      next: (items) => {
+        this.subInventoryItems = items;
+        
+        // Now load the requests
+        this.distService.getClerkRequests(this.clerkId).subscribe({
+          next: (requests) => {
+            this.myRequests = requests;
+            
+            // Add product info to each request
+            this.myRequests.forEach(request => {
+              // Use type-safe way to get the ID
+              const mainInventoryId = typeof request.mainInventory === 'string' ? 
+                request.mainInventory : 
+                (request.mainInventory && typeof request.mainInventory === 'object' ? 
+                  (request.mainInventory as any)._id : undefined);
+              
+              const matchingItem = this.subInventoryItems.find(item => {
+                // Use type-safe way to get the ID
+                const itemMainInventoryId = typeof item.mainInventory === 'string' ? 
+                  item.mainInventory : 
+                  (item.mainInventory && typeof item.mainInventory === 'object' ? 
+                    (item.mainInventory as any)._id : undefined);
+                
+                return itemMainInventoryId === mainInventoryId;
+              });
+              
+              if (matchingItem && matchingItem.product && matchingItem.product.name) {
+                // Use type assertion to add the property
+                (request as any).productName = matchingItem.product.name;
+              }
+            });
+            
+            this.applyFilters();
+            this.isLoading = false;
+          },
+          error: (err) => {
+            this.isLoading = false;
+            this.errorMessage = `Failed to load your requests: ${err.message}`;
+          }
+        });
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = `Failed to load your requests: ${err.message}`;
+        this.errorMessage = `Failed to load inventory data: ${err.message}`;
       }
     });
   }
@@ -182,7 +220,15 @@ export class DistributionRequestsComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = `Failed to submit request: ${err.message}`;
+        
+     
+        if (err.userFriendly) {
+          this.errorMessage = err.message;
+        } else {
+        
+          console.error('Request submission error:', err);
+          this.errorMessage = 'Unable to process your request at this time. Please try again later.';
+        }
       }
     });
   }
@@ -199,25 +245,54 @@ export class DistributionRequestsComponent implements OnInit {
   
   // Get product name for display in request history
   getProductName(request: any): string {
-    // First try to get from the populated data if available
+    // Case 1: If request has populated product data
     if (request.mainInventory && request.mainInventory.product && request.mainInventory.product.name) {
       return request.mainInventory.product.name;
     }
     
-    // If not populated, try to match with our local data
-    const mainInventoryId = 
-      typeof request.mainInventory === 'string' ? 
+    // Case 2: If mainInventory is an ID, try to match it with our local inventory
+    const mainInventoryId = typeof request.mainInventory === 'string' ? 
       request.mainInventory : 
-      (request.mainInventory && request.mainInventory._id);
+      (request.mainInventory && typeof request.mainInventory === 'object' ? 
+        (request.mainInventory as any)._id : undefined);
+    
+    if (mainInventoryId && this.subInventoryItems && this.subInventoryItems.length > 0) {
+      // Try to find a matching item
+      const matchingItem = this.subInventoryItems.find(item => {
+        // Handle both string mainInventory and object with _id
+        const itemMainInventoryId = typeof item.mainInventory === 'string' ? 
+          item.mainInventory : 
+          (item.mainInventory && typeof item.mainInventory === 'object' ? 
+            (item.mainInventory as any)._id : undefined);
+        
+        return itemMainInventoryId === mainInventoryId;
+      });
       
-    if (mainInventoryId) {
-      const matchingItem = this.subInventoryItems.find(
-        item => item.mainInventory === mainInventoryId
-      );
-      
-      if (matchingItem && matchingItem.product && matchingItem.product.name) {
-        return matchingItem.product.name;
+      if (matchingItem) {
+        // Extract product name from the matching item
+        if (matchingItem.product) {
+          if (typeof matchingItem.product === 'object' && matchingItem.product.name) {
+            return matchingItem.product.name;
+          }
+        }
+        
+        // If the item itself has a name, use that
+        if (matchingItem.name) {
+          return matchingItem.name;
+        }
       }
+    }
+    
+    // Case 3: Check if the request itself has product information
+    if (request.product) {
+      if (typeof request.product === 'object' && request.product.name) {
+        return request.product.name;
+      }
+    }
+    
+    // Case 4: Check the added productName property
+    if ((request as any).productName) {
+      return (request as any).productName;
     }
     
     return 'Unknown Product';

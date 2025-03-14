@@ -21,6 +21,7 @@ import { SalesClerkDashboardComponent } from './sales-clerk-dashboard copy/sales
 import { sellerGuard } from './_guards/seller.guard';
 import { authGuard } from './_guards/auth.guard'; 
 import { salesClerkGuard } from './_guards/sales-clerk.guard'; 
+import { ProductListComponent } from './seller-dashboard copy/products/product-list/product-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '', pathMatch: 'full' },

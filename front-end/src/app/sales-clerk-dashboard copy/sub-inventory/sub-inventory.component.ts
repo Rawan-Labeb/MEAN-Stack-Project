@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthServiceService } from '../../_services/auth-service.service';
 import { CookieService } from 'ngx-cookie-service';
+// Add this import
+import { CategoryService } from '../../_services/category.service';
 
 interface SubInventoryDisplayItem {
   _id: string;
@@ -45,14 +47,26 @@ export class SubInventoryComponent implements OnInit {
   isOnlineBranch: boolean = false;
   clerkId: string = '';
 
+  // Define the online branch ID constant
+  private readonly ONLINE_BRANCH_ID = '67b129216e1b912065196f93';
+
+  // Add this category map to your component
+  private categoryIdMap: {[key: string]: string} = {
+    '67ad2a39f43067609aa806ba': 'Women',  // Update these with the correct mappings
+    '67ad2a52f43067609aa806bc': 'Men',    // after running the fetch code
+    '67ad2a6ff43067609aa806be': 'Unisex'  // to get actual category names
+  };
+
   constructor(
     private subInventoryService: SubInventoryService,
     private authService: AuthServiceService,
-    private cookieService: CookieService
+    private cookieService: CookieService,
+    // Add this injection
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit(): void {
-    this.initializeUserData();
+    this.loadCategories(); // Load categories first, then inventory
   }
 
   initializeUserData(): void {
@@ -65,14 +79,16 @@ export class SubInventoryComponent implements OnInit {
           this.clerkId = decoded.id || decoded.sub;
           this.branchId = decoded.branchId;
           
-          // For online branches, there might be a special branch ID
+          // Update: Check for the specific online branch ID
+          this.isOnlineBranch = this.branchId === this.ONLINE_BRANCH_ID;
+          
+          // For online branches, we might not have branch ID in some cases
           // If not, we try to get it from localStorage
-          if (!this.branchId) {
-            this.branchId = decoded.onlineBranchId || localStorage.getItem('branchId');
+          if (!this.branchId && this.isOnlineBranch) {
+            this.branchId = localStorage.getItem('branchId') || this.ONLINE_BRANCH_ID;
           }
           
           this.branchName = decoded.branchName || '';
-          this.isOnlineBranch = !decoded.branchId; // Online branch if original branchId is null
           
           console.log('User details:', {
             clerkId: this.clerkId,
@@ -152,11 +168,32 @@ export class SubInventoryComponent implements OnInit {
     return data.map(item => {
       // Handle both nested and flat data structures
       const product = item.product || item;
+      
+      let category = 'Uncategorized';
+      
+      // Use the ID mapping for category names
+      if (product.categoryId) {
+        if (typeof product.categoryId === 'string') {
+          // Look up the category name by ID
+          category = this.categoryIdMap[product.categoryId] || 'Uncategorized';
+        } else if (typeof product.categoryId === 'object' && product.categoryId.name) {
+          // If there's already a name property, use it
+          category = product.categoryId.name;
+        }
+      } else if (product.category) {
+        if (typeof product.category === 'string') {
+          // Check if this string is an ID in our map
+          category = this.categoryIdMap[product.category] || product.category;
+        } else if (typeof product.category === 'object' && product.category.name) {
+          category = product.category.name;
+        }
+      }
+      
       return {
         _id: product._id || item._id,
         name: product.name || 'Unknown Product',
         description: product.description || '',
-        category: product.category?.name || 'Uncategorized',
+        category: category,
         quantity: item.quantity || 0,
         price: product.price || 0,
         isActive: item.isActive !== undefined ? item.isActive : true,
@@ -289,5 +326,26 @@ export class SubInventoryComponent implements OnInit {
 
   dismissSuccess(): void {
     this.successMessage = '';
+  }
+
+  // Then add a method to load categories when component initializes
+  private loadCategories(): void {
+    // Change getAllCategories to getAllCategorier
+    this.categoryService.getAllCategorier().subscribe({
+      next: (categories: any[]) => {
+        // Update the category mapping
+        categories.forEach((category: any) => {
+          this.categoryIdMap[category._id] = category.name;
+        });
+        
+        // After loading categories, load inventory data
+        this.initializeUserData();
+      },
+      error: (error: any) => {
+        console.error('Error loading categories:', error);
+        // Still load inventory even if categories fail
+        this.initializeUserData();
+      }
+    });
   }
 }

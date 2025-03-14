@@ -3,17 +3,16 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
+// Update the interface to match the backend response format
 export interface Complaint {
   _id: string;
-  customerName: string;
-  customerEmail: string;
+  user: any; // Might be null
+  email: string;
   subject: string;
-  message: string;
-  status: 'new' | 'in-progress' | 'resolved';
+  description: string;
+  status: string; // Backend uses "Pending", "Rejected", not lowercase
   createdAt: string;
-  updatedAt?: string;
-  userId?: string;
-  guestId?: string;
+  updatedAt: string;
 }
 
 @Injectable({
@@ -27,30 +26,15 @@ export class ComplaintsService {
   // Get all complaints for customers and guests
   getComplaints(): Observable<Complaint[]> {
     // Using the Auth interceptor (no manual token handling needed)
-    return this.http.get<any>(`${this.apiUrl}/complaint/getComplaintsForCustomersAndGuest`)
+    return this.http.get<Complaint[]>(`${this.apiUrl}/complaint/getComplaintsForCustomersAndGuest`)
       .pipe(
-        map(response => {
-          // Map backend response to our frontend model
-          return response.map((complaint: any) => ({
-            _id: complaint._id,
-            customerName: complaint.userId?.firstName + ' ' + complaint.userId?.lastName || 'Guest User',
-            customerEmail: complaint.userId?.email || complaint.guestEmail || 'Not provided',
-            subject: complaint.subject,
-            message: complaint.message || complaint.description,
-            status: complaint.status.toLowerCase(),
-            createdAt: complaint.createdAt,
-            updatedAt: complaint.updatedAt,
-            userId: complaint.userId?._id,
-            guestId: complaint.guestId?._id
-          }));
-        }),
         catchError(this.handleError)
       );
   }
 
   // Update complaint status
   updateComplaintStatus(complaintId: string, status: string): Observable<any> {
-    // Using the Auth interceptor (no manual token handling needed)
+    // Note: Backend expects capitalized status values: "Pending", "In Progress", "Resolved", "Rejected"
     return this.http.put(`${this.apiUrl}/complaint/status/${complaintId}`, { status })
       .pipe(
         catchError(this.handleError)

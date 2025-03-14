@@ -14,11 +14,6 @@ export class LocationServicesService {
     return this.http.get<any[]>(this.governoratesUrl);
   }
 
-  // getCities(governorateId: number): Observable<any[]> {
-  //   return this.http.get<any[]>(this.citiesUrl).pipe(
-  //     map(cities => cities.filter(city => city.governorate_id === governorateId))
-  //   );
-  // }
 
 
   getCities(governorateId: number): Observable<any[]> {

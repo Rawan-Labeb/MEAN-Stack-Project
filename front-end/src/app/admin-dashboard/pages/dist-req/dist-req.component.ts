@@ -267,25 +267,4 @@ export class DistReqComponent implements OnInit, OnDestroy{
         this.applyFilters();
       }
       
-        // openAddModal(): void {
-        //   this.userData = this.getInitialUserData();
-        //   this.showAddModal = true;
-        // }
-      
-        // openEditModal(user: User): void {
-        //   this.editingUser = user;
-        //   this.userData = { ...user };
-        //   this.showEditModal = true;
-        //   console.log("✅ Opening Edit Modal with Data:", this.userData);
-        // }
-      
-        // onUserSaved(): void {
-        //   this.loadUsers();
-        //   this.showAddModal = false;
-        // }
-      
-        // onUserUpdated(): void {
-        //   this.showEditModal = false;
-        //   this.loadUsers();
-        // }
 }

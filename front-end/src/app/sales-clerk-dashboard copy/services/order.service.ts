@@ -1,36 +1,48 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators'; // Add tap import
 import { AuthServiceService } from '../../_services/auth-service.service';
+import { BRANCH_CONSTANTS } from '../constants/branch-constants';
 
 export interface OrderItem {
-  product: {
-    _id: string;
-    name: string;
-    image?: string;
-    price?: number;
-  };
-  quantity: number;
+  subInventoryId: string;
   price: number;
-  subTotal?: number;
+  quantity: number;
+  _id: string;
 }
 
+// Update to match backend schema exactly
+export type OrderStatus = 'pending' | 'shipped' | 'cancelled' | 'refunded';
+
+// Update the Order interface
 export interface Order {
   _id: string;
-  orderNumber?: string;
-  customerId?: string;
-  customerName?: string;
-  customerEmail?: string;
-  items: OrderItem[];
-  totalAmount: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  createdAt: string;
+  customerId?: string | any; // Make this optional - Can be string ID or populated customer object
+  branchId?: string; // Add for offline orders
+  customerDetails?: {
+    firstName?: string;
+    lastName?: string;
+    address?: {
+      street?: string;
+      city?: string;
+      zipCode?: string;
+    };
+    email?: string;
+    phone?: string;
+  };
+  items: any[];
+  totalPrice: number;
+  status: OrderStatus;
+  date?: string;
+  createdAt?: string; 
   updatedAt?: string;
-  branch?: any;
-  paymentMethod?: string;
-  shippingAddress?: any;
+  paymentMethod: string;
+  notes?: string;
   isOfflineOrder?: boolean;
+  orderNumber?: string;
+  customerName?: string; // Add to support existing code that uses this property
+  branch?: any; // For offline orders
 }
 
 @Injectable({
@@ -45,7 +57,6 @@ export class OrderService {
     private authService: AuthServiceService
   ) { }
 
-  // Get orders based on branch type
   getOrders(): Observable<Order[]> {
     const token = this.authService.getToken();
     if (!token) {
@@ -63,9 +74,10 @@ export class OrderService {
           
           const branchId = decoded.branchId;
           
-          // If branchId is null, this is an online branch clerk
-          if (branchId === null) {
-            // Get all online orders
+          // Updated logic: Check for specific online branch ID
+          if (branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID) {
+            // This is an online branch clerk - get online orders
+            console.log('Getting online orders');
             this.http.get<any>(`${this.apiUrlOnline}/getAllOrders`)
               .pipe(
                 map(this.mapOnlineOrders),
@@ -79,8 +91,71 @@ export class OrderService {
                 error: err => observer.error(err)
               });
           } else {
-           
+            // This is an offline branch clerk - get offline orders for this branch
+            console.log(`Getting offline orders for branch: ${branchId}`);
+            
+            // Try the correct endpoint as defined in your routes file
             this.http.get<any>(`${this.apiUrlOffline}/getOfflineOrdersByBranchId/${branchId}`)
+              .pipe(
+                map(this.mapOfflineOrders),
+                catchError(error => {
+                  console.error('Failed to fetch offline orders:', error);
+                  
+                  if (error.status === 403) {
+                    return throwError(() => new Error('You do not have permission to view offline orders. Please contact your administrator.'));
+                  }
+                  
+                  return throwError(() => new Error('Failed to load offline orders. Please try again later.'));
+                })
+              )
+              .subscribe({
+                next: orders => {
+                  observer.next(orders);
+                  observer.complete();
+                },
+                error: err => observer.error(err)
+              });
+          }
+        },
+        error: err => observer.error(err)
+      });
+    });
+  }
+
+  getOrdersByStatus(status: string): Observable<Order[]> {
+    const token = this.authService.getToken();
+    if (!token) {
+      return throwError(() => new Error('No authentication token found'));
+    }
+    
+    return new Observable<Order[]>(observer => {
+      this.authService.decodeToken(token).subscribe({
+        next: (decoded) => {
+          if (!decoded) {
+            observer.error(new Error('Could not decode token'));
+            return;
+          }
+          
+          const branchId = decoded.branchId;
+          
+          // Updated logic: Check for specific online branch ID
+          if (branchId === BRANCH_CONSTANTS.ONLINE_BRANCH_ID) {
+            // Online branch - get online orders by status
+            this.http.get<any>(`${this.apiUrlOnline}/getOrdersByStatus/${status}`)
+              .pipe(
+                map(this.mapOnlineOrders),
+                catchError(this.handleError)
+              )
+              .subscribe({
+                next: orders => {
+                  observer.next(orders);
+                  observer.complete();
+                },
+                error: err => observer.error(err)
+              });
+          } else {
+            // Offline branch - get offline orders by status for this branch
+            this.http.get<any>(`${this.apiUrlOffline}/getOfflineOrdersByStatus/${status}/${branchId}`)
               .pipe(
                 map(this.mapOfflineOrders),
                 catchError(this.handleError)
@@ -99,130 +174,42 @@ export class OrderService {
     });
   }
   
-  // Get orders by status
-  getOrdersByStatus(status: string): Observable<Order[]> {
-    const token = this.authService.getToken();
-    if (!token) {
-      return throwError(() => new Error('No authentication token found'));
-    }
+  // Update the updateOrderStatus method
+  updateOrderStatus(orderId: string, status: OrderStatus): Observable<any> {
+    console.log(`Attempting to update order ${orderId} to status: ${status}`);
     
-    return new Observable<Order[]>(observer => {
-      this.authService.decodeToken(token).subscribe({
-        next: (decoded) => {
-          if (!decoded) {
-            observer.error(new Error('Could not decode token'));
-            return;
-          }
-          
-          const branchId = decoded.branchId;
-          
-          // If branchId is null, this is an online branch clerk
-          if (branchId === null) {
-            // Get online orders by status
-            this.http.get<any>(`${this.apiUrlOnline}/getOrdersByStatus/${status}`)
-              .pipe(
-                map(this.mapOnlineOrders),
-                catchError(this.handleError)
-              )
-              .subscribe({
-                next: orders => {
-                  observer.next(orders);
-                  observer.complete();
-                },
-                error: err => observer.error(err)
-              });
-          } else {
-            // For offline orders, we need to filter client-side as there might not be a specific API
-            this.getOrders().subscribe({
-              next: allOrders => {
-                const filtered = allOrders.filter(order => order.status === status);
-                observer.next(filtered);
-                observer.complete();
-              },
-              error: err => observer.error(err)
-            });
-          }
-        },
-        error: err => observer.error(err)
-      });
-    });
+    // No status mapping needed since we're using the exact same values as backend
+    return this.http.put<any>(`${this.apiUrlOnline}/changeOrderStatus/${orderId}/${status}`, {})
+      .pipe(
+        tap((response: any) => {
+          console.log('Status update successful:', response);
+        }),
+        catchError(error => {
+          console.error('Status update error:', error);
+          return throwError(() => new Error(`Failed to update order status: ${error.error?.message || error.message || 'Unknown error'}`));
+        })
+      );
   }
   
-  // Update order status
-  updateOrderStatus(orderId: string, status: string): Observable<any> {
-    const token = this.authService.getToken();
-    if (!token) {
-      return throwError(() => new Error('No authentication token found'));
-    }
-    
-    return new Observable(observer => {
-      this.authService.decodeToken(token).subscribe({
-        next: (decoded) => {
-          if (!decoded) {
-            observer.error(new Error('Could not decode token'));
-            return;
-          }
-          
-          const branchId = decoded.branchId;
-          
-          // If branchId is null, this is an online branch clerk
-          if (branchId === null) {
-            // Update online order status
-            this.http.put<any>(`${this.apiUrlOnline}/changeOrderStatus/${orderId}/${status}`, {})
-              .pipe(catchError(this.handleError))
-              .subscribe({
-                next: response => {
-                  observer.next(response);
-                  observer.complete();
-                },
-                error: err => observer.error(err)
-              });
-          } else {
-            // Update offline order status - if cancelOfflineOrder is the only method available
-            if (status === 'cancelled') {
-              this.http.put<any>(`${this.apiUrlOffline}/cancelOfflineOrder/${orderId}`, {})
-                .pipe(catchError(this.handleError))
-                .subscribe({
-                  next: response => {
-                    observer.next(response);
-                    observer.complete();
-                  },
-                  error: err => observer.error(err)
-                });
-            } else {
-              // If there's no API for other status updates on offline orders
-              observer.error(new Error('Status update not supported for offline orders'));
-            }
-          }
-        },
-        error: err => observer.error(err)
-      });
-    });
-  }
-  
-  // Helper function to map online orders
+  // Helper function to map online orders - directly use API response format
   private mapOnlineOrders(orders: any[]): Order[] {
     return orders.map(order => ({
       _id: order._id,
-      orderNumber: order.orderNumber || `ORD-${order._id.substring(0, 6)}`,
-      customerName: order.userId ? `${order.userId.firstName} ${order.userId.lastName}` : 'Guest',
-      customerEmail: order.userId ? order.userId.email : (order.guestEmail || 'N/A'),
-      items: Array.isArray(order.products) ? order.products.map((item: any) => ({
-        product: {
-          _id: item.productId?._id || item.productId,
-          name: item.productId?.name || 'Product',
-          image: item.productId?.images?.[0]
-        },
-        quantity: item.quantity || 1,
-        price: item.price || 0,
-        subTotal: (item.quantity || 1) * (item.price || 0)
-      })) : [],
-      totalAmount: order.totalPrice || 0,
-      status: order.status ? order.status.toLowerCase() : 'pending',
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-      paymentMethod: order.paymentMethod,
-      shippingAddress: order.shippingAddress,
+      customerId: order.customerId,
+      customerDetails: order.customerDetails,
+      items: order.items || [],
+      totalPrice: order.totalPrice || 0,
+      totalAmount: order.totalPrice || 0, // For backward compatibility
+      status: order.status || 'pending',
+      paymentMethod: order.paymentMethod || 'N/A',
+      notes: order.notes || '',
+      date: order.date,
+      createdAt: order.date, // For backward compatibility
+      updatedAt: order.date, // For backward compatibility
+      orderNumber: `ON-${order._id.substring(0, 6)}`,
+      customerName: order.customerDetails ? 
+        `${order.customerDetails.firstName} ${order.customerDetails.lastName}` : 
+        'Customer',
       isOfflineOrder: false
     }));
   }
@@ -231,24 +218,22 @@ export class OrderService {
   private mapOfflineOrders(orders: any[]): Order[] {
     return orders.map(order => ({
       _id: order._id,
-      orderNumber: order.orderNumber || `OFF-${order._id.substring(0, 6)}`,
-      customerName: order.customerName || 'Walk-in Customer',
-      items: Array.isArray(order.products) ? order.products.map((item: any) => ({
-        product: {
-          _id: item.productId?._id || item.productId,
-          name: item.productId?.name || 'Product',
-          image: item.productId?.images?.[0]
-        },
-        quantity: item.quantity || 1,
-        price: item.price || 0,
-        subTotal: (item.quantity || 1) * (item.price || 0)
-      })) : [],
-      totalAmount: order.totalPrice || 0,
-      status: order.status ? order.status.toLowerCase() : 'pending',
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
+      branchId: order.branchId,
+      customerDetails: order.customerDetails,
+      items: order.items || [],
+      totalPrice: order.totalPrice || 0,
+      totalAmount: order.totalPrice || 0, // For backward compatibility
+      status: order.status || 'completed',
+      paymentMethod: order.paymentMethod || 'Cash',
+      notes: order.notes || '',
+      date: order.date,
+      createdAt: order.date, // For backward compatibility
+      updatedAt: order.date, // For backward compatibility
+      orderNumber: `OFF-${order._id.substring(0, 6)}`,
+      customerName: order.customerDetails ? 
+        `${order.customerDetails.firstName} ${order.customerDetails.lastName}` : 
+        'Walk-in Customer',
       branch: order.branch,
-      paymentMethod: order.paymentMethod,
       isOfflineOrder: true
     }));
   }

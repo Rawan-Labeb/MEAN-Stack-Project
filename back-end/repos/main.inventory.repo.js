@@ -112,10 +112,6 @@ module.exports.updateMainInventoryById = async (id, data) => {
       throw new Error("Quantity cannot be negative");
     }
 
-    // Verify if the distributed value is valid
-    // if (data.distributed > data.quantity) {
-    //   throw new Error("Distributed quantity cannot be greater than available quantity");
-    // }
 
     await product.save({ session });
 
