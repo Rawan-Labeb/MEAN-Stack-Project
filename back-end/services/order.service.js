@@ -138,53 +138,7 @@ module.exports.createOrder = async (orderData) =>
     }
 }
 
-// update Order
-// module.exports.updateOrder = async (orderId, orderData) => {
-//     try
-//     {
-//         const chkOrderId = await validateOrderId(orderId);
-//         if (!chkOrderId.valid)
-//             return {success: false, message: chkOrderId.message};
 
-//         const chkForDataToUpdate = await validationOnCreateAndUpdate(orderData);
-//         if (!chkForDataToUpdate.success)
-//              return { success: false, message: chkForDataToUpdate.message };
-        
-//         orderData.totalPrice = 0;
-
-//         orderData.items.forEach(element => {
-//             orderData.totalPrice += Number(element.quantity) * Number(element.price);    
-//         });
-
-
-//         const order = await updateOrder(orderId, orderData);
-
-
-//         return {success: true, message: order};
-
-//     }catch (error)
-//     {
-//         return {success: false, message: error.message};
-//     }
-// }
-
-
-
-// get order for product 
-// module.exports.getOrdersByProductId = async (prodId) => {
-//     try
-//     {
-//         const chkProd = await validateProductId(prodId);
-//         if (!chkProd.valid)
-//             return {success: false, message: chkProd.message};
-
-//         const orders = await getOrdersByProductId(prodId);
-//         return {success:true, message: orders}
-//     }catch (error)
-//     {
-//         return {success: false, message: error.message};
-//     }
-// }
 
 
 // change order Status

@@ -82,13 +82,7 @@
               </div>
             </div>
 
-            <!-- <div class="col-md-12 mt-3">
-              <label for="image">Profile Image Upload:</label>
-              <input id="image" type="file" class="form-control" (change)="onFileChange($event)">
-              <div *ngIf="userProfileForm.get('image')?.invalid && userProfileForm.get('image')?.touched" class="text-danger">
-                Image file is required.
-              </div>
-            </div> -->
+
             <app-upload (imagesUploaded)="onImagesUploaded($event)"></app-upload>
             <div *ngIf="userData.image" class="d-flex flex-wrap gap-2">
               <div *ngFor="let image of userData.image; let i = index" class="position-relative">

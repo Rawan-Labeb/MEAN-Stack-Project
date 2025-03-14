@@ -211,26 +211,6 @@ module.exports.deleteOrder = async (orderId) => {
 
 
 
-// module.exports.updateOrder = async (orderId, updatedData) => {
-//     try {
-//       const updatedOrder = await Order.findByIdAndUpdate(
-//         {_id: orderId},
-//         { $set: updatedData },
-//         { new: true, runValidators: true }
-//       );
-//       console.log(this.updateOrder);
-//       if (!updatedOrder) {
-//         throw new Error("Order not found.");
-//       }
-  
-//       return updatedOrder;
-//     } catch (error) {
-//       throw new Error("Could not update order.");
-//     }
-// };
-
-
-
 
 module.exports.createOrder = async (orderDetails) => 
 {

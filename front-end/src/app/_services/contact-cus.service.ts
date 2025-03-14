@@ -12,11 +12,7 @@ export class ContactCusService {
 
   constructor(private http: HttpClient) {}
 
-  // submitComplaint(complaint: any): Observable<any> {
-  //   return this.http.post(this.apiUrl, complaint).pipe(
-  //     catchError(this.handleError)
-  //   );
-  // }
+
 
   submitComplaint(complaint :any): Observable<any> 
   {
